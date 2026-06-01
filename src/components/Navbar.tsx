@@ -1,6 +1,7 @@
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 import { repositoryLinks } from '../api/links'
+import { useAuth } from '../auth/useAuth'
 
 type NavbarProps = {
   appMode?: boolean
@@ -23,6 +24,14 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   ].join(' ')
 
 export function Navbar({ appMode = false }: NavbarProps) {
+  const navigate = useNavigate()
+  const { currentUserEmail, isAuthenticated, logout } = useAuth()
+
+  const handleLogout = () => {
+    logout()
+    navigate('/')
+  }
+
   return (
     <header className="sticky top-0 z-30 border-b border-white/10 bg-[#07130f]/90 backdrop-blur">
       <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-6 lg:px-8">
@@ -44,22 +53,58 @@ export function Navbar({ appMode = false }: NavbarProps) {
 
         <div className="flex flex-wrap items-center justify-end gap-2">
           {appMode ? (
-            appLinks.map((link) => (
-              <NavLink key={link.to} to={link.to} className={navLinkClass}>
-                {link.label}
-              </NavLink>
-            ))
+            <>
+              {appLinks.map((link) => (
+                <NavLink key={link.to} to={link.to} className={navLinkClass}>
+                  {link.label}
+                </NavLink>
+              ))}
+              {isAuthenticated ? (
+                <>
+                  <span className="rounded-md border border-white/10 px-3 py-2 text-sm font-medium text-amber-100">
+                    {currentUserEmail}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="rounded-md border border-amber-200/40 px-3 py-2 text-sm font-semibold text-amber-100 transition hover:bg-amber-200/10"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : null}
+            </>
           ) : (
             <>
               <NavLink to="/" className={navLinkClass}>
                 Home
               </NavLink>
-              <NavLink to="/login" className={navLinkClass}>
-                Login
-              </NavLink>
-              <NavLink to="/register" className={navLinkClass}>
-                Register
-              </NavLink>
+              {isAuthenticated ? (
+                <>
+                  <NavLink to="/app/my-books" className={navLinkClass}>
+                    My books
+                  </NavLink>
+                  <span className="rounded-md border border-white/10 px-3 py-2 text-sm font-medium text-amber-100">
+                    {currentUserEmail}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="rounded-md border border-amber-200/40 px-3 py-2 text-sm font-semibold text-amber-100 transition hover:bg-amber-200/10"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <NavLink to="/login" className={navLinkClass}>
+                    Login
+                  </NavLink>
+                  <NavLink to="/register" className={navLinkClass}>
+                    Register
+                  </NavLink>
+                </>
+              )}
               <a
                 href={repositoryLinks.backend}
                 target="_blank"
