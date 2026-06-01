@@ -1,5 +1,6 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom'
 
+import { ProtectedRoute } from '../auth/ProtectedRoute'
 import { AppLayout } from '../layout/AppLayout'
 import { AddBookPage } from '../pages/AddBookPage'
 import { AdminPanelPage } from '../pages/AdminPanelPage'
@@ -26,40 +27,45 @@ export const router = createBrowserRouter([
     element: <RegisterPage />,
   },
   {
-    path: '/app',
-    element: <AppLayout />,
+    element: <ProtectedRoute />,
     children: [
       {
-        index: true,
-        element: <Navigate to="/app/my-books" replace />,
-      },
-      {
-        path: 'my-books',
-        element: <MyBooksPage />,
-      },
-      {
-        path: 'held-books',
-        element: <HeldBooksPage />,
-      },
-      {
-        path: 'add-book',
-        element: <AddBookPage />,
-      },
-      {
-        path: 'share-book',
-        element: <ShareBookPage />,
-      },
-      {
-        path: 'give-book',
-        element: <GiveBookPage />,
-      },
-      {
-        path: 'return-book',
-        element: <ReturnBookPage />,
-      },
-      {
-        path: 'admin',
-        element: <AdminPanelPage />,
+        path: '/app',
+        element: <AppLayout />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/app/my-books" replace />,
+          },
+          {
+            path: 'my-books',
+            element: <MyBooksPage />,
+          },
+          {
+            path: 'held-books',
+            element: <HeldBooksPage />,
+          },
+          {
+            path: 'add-book',
+            element: <AddBookPage />,
+          },
+          {
+            path: 'share-book',
+            element: <ShareBookPage />,
+          },
+          {
+            path: 'give-book',
+            element: <GiveBookPage />,
+          },
+          {
+            path: 'return-book',
+            element: <ReturnBookPage />,
+          },
+          {
+            path: 'admin',
+            element: <AdminPanelPage />,
+          },
+        ],
       },
     ],
   },

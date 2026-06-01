@@ -13,7 +13,8 @@ export function RegisterPage() {
         >
           <h1 className="text-3xl font-semibold">Create account</h1>
           <p className="mt-2 text-sm leading-6 text-[#5c675b]">
-            Registration is mocked until backend integration is connected.
+            Registration will be connected to the backend later. This form does
+            not create an account yet.
           </p>
           <label className="mt-6 block text-sm font-semibold" htmlFor="name">
             Name
@@ -64,8 +65,8 @@ export function RegisterPage() {
             Build a personal exchange catalog.
           </h2>
           <p className="mt-5 max-w-xl text-base leading-7 text-stone-400">
-            The app shell keeps account creation simple and ready for future
-            backend wiring without changing the authentication model.
+            Account creation stays as a planned integration while the first
+            Basic Auth login flow is wired to the backend.
           </p>
         </section>
       </main>

@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
-import { authPlaceholder } from '../auth/session'
+import { useAuth } from '../auth/useAuth'
 import { Navbar } from '../components/Navbar'
 
 const sideLinks = [
@@ -22,6 +22,8 @@ const sideLinkClass = ({ isActive }: { isActive: boolean }) =>
   ].join(' ')
 
 export function AppLayout() {
+  const { currentUserEmail } = useAuth()
+
   return (
     <div className="min-h-screen bg-[#07130f] text-stone-100">
       <Navbar appMode />
@@ -32,10 +34,10 @@ export function AppLayout() {
               Signed in as
             </p>
             <h2 className="mt-2 text-xl font-semibold text-stone-50">
-              {authPlaceholder.currentUser}
+              {currentUserEmail}
             </h2>
             <p className="mt-1 text-sm text-stone-400">
-              {authPlaceholder.authMode}
+              Basic Auth session
             </p>
           </div>
           <div className="mt-4 grid gap-2">
