@@ -65,7 +65,7 @@ function getOptionalCreateBookText(value: unknown) {
     : undefined
 }
 
-function getBookId(value: unknown, index: number) {
+function getBookId(value: unknown, index: number, fallbackPrefix: string) {
   if (typeof value === 'string' && value.trim().length > 0) {
     return value.trim()
   }
@@ -74,26 +74,29 @@ function getBookId(value: unknown, index: number) {
     return String(value)
   }
 
-  return `owned-book-${index}`
+  return `${fallbackPrefix}-${index}`
 }
 
-function getBookStatus(value: unknown): BookStatus {
+function getBookStatus(
+  value: unknown,
+  fallbackStatus: BookStatus,
+): BookStatus {
   if (typeof value !== 'string') {
-    return 'available'
+    return fallbackStatus
   }
 
   const normalizedStatus = value.toLowerCase()
 
   return bookStatuses.includes(normalizedStatus as BookStatus)
     ? (normalizedStatus as BookStatus)
-    : 'available'
+    : fallbackStatus
 }
 
 function getBookTone(index: number) {
   return tones[index % tones.length]
 }
 
-function getOwnedBooksData(data: unknown) {
+function getBooksData(data: unknown, responseName: string) {
   if (Array.isArray(data)) {
     return data
   }
@@ -108,12 +111,17 @@ function getOwnedBooksData(data: unknown) {
     }
   }
 
-  throw new Error('Owned books response has an unexpected format.')
+  throw new Error(`${responseName} response has an unexpected format.`)
+}
+
+type BookMappingOptions = {
+  fallbackIdPrefix: string
+  fallbackStatus: BookStatus
 }
 
 export function isOwnedBooksPayload(data: unknown) {
   try {
-    getOwnedBooksData(data)
+    getBooksData(data, 'Owned books')
 
     return true
   } catch {
@@ -152,21 +160,26 @@ function toCreatedBook(data: unknown): CreatedBook {
   return createdBook
 }
 
-function toOwnedBook(
+function toBook(
   dto: Record<string, unknown>,
   index: number,
   currentUserEmail: string,
+  options: BookMappingOptions,
 ): Book {
   const book = isRecord(dto.book) ? dto.book : {}
   const person = isRecord(dto.person) ? dto.person : {}
 
   return {
-    id: getBookId(book.id ?? book.book_id ?? dto.id ?? dto.book_id, index),
+    id: getBookId(
+      book.id ?? book.book_id ?? dto.id ?? dto.book_id,
+      index,
+      options.fallbackIdPrefix,
+    ),
     title: getText(book.title ?? dto.title, 'Untitled book'),
     author: getText(book.author ?? dto.author, 'Unknown author'),
     owner: getText(person.email ?? dto.ownerEmail ?? dto.owner, currentUserEmail),
     genre: getText(book.genre ?? dto.genre, 'General'),
-    status: getBookStatus(dto.status),
+    status: getBookStatus(dto.status, options.fallbackStatus),
     tone: getBookTone(index),
     note: getText(
       book.description ?? dto.description,
@@ -186,11 +199,39 @@ export async function getOwnedBooks() {
     headers: createBasicAuthHeaders(credentials),
   })
 
-  const ownedBooksData = getOwnedBooksData(response.data)
+  const ownedBooksData = getBooksData(response.data, 'Owned books')
 
   return ownedBooksData
     .filter(isRecord)
-    .map((bookDto, index) => toOwnedBook(bookDto, index, credentials.email))
+    .map((bookDto, index) =>
+      toBook(bookDto, index, credentials.email, {
+        fallbackIdPrefix: 'owned-book',
+        fallbackStatus: 'available',
+      }),
+    )
+}
+
+export async function getHeldBooks() {
+  const credentials = loadCredentials()
+
+  if (!credentials) {
+    throw new Error('Saved sign-in details are missing. Please sign in again.')
+  }
+
+  const response = await apiClient.get<unknown>('/held', {
+    headers: createBasicAuthHeaders(credentials),
+  })
+
+  const heldBooksData = getBooksData(response.data, 'Held books')
+
+  return heldBooksData
+    .filter(isRecord)
+    .map((bookDto, index) =>
+      toBook(bookDto, index, credentials.email, {
+        fallbackIdPrefix: 'held-book',
+        fallbackStatus: 'held',
+      }),
+    )
 }
 
 export async function createBook(book: CreateBookInput) {
