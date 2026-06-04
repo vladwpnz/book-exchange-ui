@@ -6,6 +6,7 @@ import {
   isBackendConnectionError,
   isInvalidCredentialsError,
 } from '../api/client'
+import { isOwnedBooksPayload } from '../api/booksApi'
 import type { AuthCredentials, AuthError } from '../types/auth'
 import { AuthContext } from './authContextValue'
 import {
@@ -29,7 +30,26 @@ const unknownAuthError: AuthError = {
   message: 'Unable to sign in. Please try again.',
 }
 
+function isAuthError(error: unknown): error is AuthError {
+  if (!error || typeof error !== 'object') {
+    return false
+  }
+
+  const authError = error as Record<string, unknown>
+
+  return (
+    (authError.code === 'invalid_credentials' ||
+      authError.code === 'backend_unavailable' ||
+      authError.code === 'unknown') &&
+    typeof authError.message === 'string'
+  )
+}
+
 function getAuthError(error: unknown) {
+  if (isAuthError(error)) {
+    return error
+  }
+
   if (isInvalidCredentialsError(error)) {
     return invalidCredentialsError
   }
@@ -60,13 +80,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setError(null)
 
     try {
-      await apiClient.get('/owned', {
+      const response = await apiClient.get<unknown>('/owned', {
         headers: createBasicAuthHeaders(nextCredentials),
       })
+
+      if (!isOwnedBooksPayload(response.data)) {
+        throw invalidCredentialsError
+      }
+
       saveCredentials(nextCredentials.email, nextCredentials.password)
       setCredentials(nextCredentials)
     } catch (loginError) {
       const nextError = getAuthError(loginError)
+
+      if (nextError.code === 'invalid_credentials') {
+        clearCredentials()
+        setCredentials(null)
+      }
 
       setError(nextError)
       throw nextError
