@@ -23,7 +23,13 @@ export function isInvalidCredentialsError(error: unknown) {
     return false
   }
 
-  return error.response?.status === 401 || error.response?.status === 403
+  const status = error.response?.status
+
+  return (
+    status === 401 ||
+    status === 403 ||
+    (typeof status === 'number' && status >= 300 && status < 400)
+  )
 }
 
 export function isBackendConnectionError(error: unknown) {

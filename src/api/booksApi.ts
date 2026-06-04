@@ -111,6 +111,16 @@ function getOwnedBooksData(data: unknown) {
   throw new Error('Owned books response has an unexpected format.')
 }
 
+export function isOwnedBooksPayload(data: unknown) {
+  try {
+    getOwnedBooksData(data)
+
+    return true
+  } catch {
+    return false
+  }
+}
+
 function toCreatedBook(data: unknown): CreatedBook {
   if (!isRecord(data)) {
     throw new Error('Add book response has an unexpected format.')
