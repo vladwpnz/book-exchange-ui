@@ -26,6 +26,18 @@ export type OwnedBookDto = {
   } | null
 }
 
+export type CreateBookInput = {
+  author: string
+  title: string
+}
+
+export type CreatedBook = CreateBookInput & {
+  person?: {
+    name?: string
+    email?: string
+  }
+}
+
 const bookStatuses: BookStatus[] = ['available', 'held', 'shared', 'pending']
 const tones: AccentTone[] = ['emerald', 'amber', 'paper']
 
@@ -37,6 +49,20 @@ function getText(value: unknown, fallback: string) {
   return typeof value === 'string' && value.trim().length > 0
     ? value.trim()
     : fallback
+}
+
+function getRequiredCreateBookText(value: unknown) {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value.trim()
+  }
+
+  throw new Error('Add book response has an unexpected format.')
+}
+
+function getOptionalCreateBookText(value: unknown) {
+  return typeof value === 'string' && value.trim().length > 0
+    ? value.trim()
+    : undefined
 }
 
 function getBookId(value: unknown, index: number) {
@@ -72,11 +98,48 @@ function getOwnedBooksData(data: unknown) {
     return data
   }
 
-  if (isRecord(data) && Array.isArray(data.books)) {
-    return data.books
+  if (isRecord(data)) {
+    if (Array.isArray(data.books)) {
+      return data.books
+    }
+
+    if (data.books === null) {
+      return []
+    }
   }
 
   throw new Error('Owned books response has an unexpected format.')
+}
+
+function toCreatedBook(data: unknown): CreatedBook {
+  if (!isRecord(data)) {
+    throw new Error('Add book response has an unexpected format.')
+  }
+
+  const createdBook: CreatedBook = {
+    author: getRequiredCreateBookText(data.author),
+    title: getRequiredCreateBookText(data.title),
+  }
+
+  if (isRecord(data.person)) {
+    const person: NonNullable<CreatedBook['person']> = {}
+    const email = getOptionalCreateBookText(data.person.email)
+    const name = getOptionalCreateBookText(data.person.name)
+
+    if (email) {
+      person.email = email
+    }
+
+    if (name) {
+      person.name = name
+    }
+
+    if (Object.keys(person).length > 0) {
+      createdBook.person = person
+    }
+  }
+
+  return createdBook
 }
 
 function toOwnedBook(
@@ -118,4 +181,18 @@ export async function getOwnedBooks() {
   return ownedBooksData
     .filter(isRecord)
     .map((bookDto, index) => toOwnedBook(bookDto, index, credentials.email))
+}
+
+export async function createBook(book: CreateBookInput) {
+  const credentials = loadCredentials()
+
+  if (!credentials) {
+    throw new Error('Saved sign-in details are missing. Please sign in again.')
+  }
+
+  const response = await apiClient.post<unknown>('/book/add', book, {
+    headers: createBasicAuthHeaders(credentials),
+  })
+
+  return toCreatedBook(response.data)
 }
