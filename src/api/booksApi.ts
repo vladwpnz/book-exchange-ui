@@ -36,6 +36,8 @@ export type ShareBookInput = {
   username: string
 }
 
+export type GiveBookInput = ShareBookInput
+
 export type CreatedBook = CreateBookInput & {
   person?: {
     name?: string
@@ -114,18 +116,19 @@ function isHtmlResponse(data: unknown, contentType: unknown) {
   )
 }
 
-function assertShareBookAccepted(
+function assertBookActionAccepted(
   data: unknown,
   contentType: unknown,
   responseUrl: string | undefined,
   expectedUrl: string,
+  actionName: string,
 ) {
   if (responseUrl && isUnexpectedResponseUrl(responseUrl, expectedUrl)) {
-    throw new Error('Share book request was redirected. Please sign in again.')
+    throw new Error(`${actionName} request was redirected. Please sign in again.`)
   }
 
   if (isHtmlResponse(data, contentType)) {
-    throw new Error('Share book response has an unexpected format.')
+    throw new Error(`${actionName} response has an unexpected format.`)
   }
 }
 
@@ -324,10 +327,32 @@ export async function shareBook(book: ShareBookInput) {
     headers: createBasicAuthHeaders(credentials),
   })
 
-  assertShareBookAccepted(
+  assertBookActionAccepted(
     response.data,
     response.headers['content-type'],
     getResponseUrl(response.request),
     expectedUrl,
+    'Share book',
+  )
+}
+
+export async function giveBook(book: GiveBookInput) {
+  const credentials = loadCredentials()
+
+  if (!credentials) {
+    throw new Error('Saved sign-in details are missing. Please sign in again.')
+  }
+
+  const expectedUrl = apiClient.getUri({ url: '/book/give' })
+  const response = await apiClient.post<unknown>('/book/give', book, {
+    headers: createBasicAuthHeaders(credentials),
+  })
+
+  assertBookActionAccepted(
+    response.data,
+    response.headers['content-type'],
+    getResponseUrl(response.request),
+    expectedUrl,
+    'Give book',
   )
 }
