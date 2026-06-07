@@ -1,12 +1,26 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../auth/useAuth'
 import { Navbar } from '../components/Navbar'
 
+function getSuccessMessage(state: unknown) {
+  if (!state || typeof state !== 'object') {
+    return ''
+  }
+
+  const locationState = state as Record<string, unknown>
+
+  return typeof locationState.successMessage === 'string'
+    ? locationState.successMessage
+    : ''
+}
+
 export function LoginPage() {
+  const location = useLocation()
   const navigate = useNavigate()
   const { clearAuthError, error, isLoading, login } = useAuth()
+  const successMessage = getSuccessMessage(location.state)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -47,6 +61,14 @@ export function LoginPage() {
             Sign in with the same email and password used by the Spring Boot
             API.
           </p>
+          {successMessage ? (
+            <p
+              className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
+              role="status"
+            >
+              {successMessage}
+            </p>
+          ) : null}
           <label className="mt-6 block text-sm font-semibold" htmlFor="email">
             Email
           </label>
