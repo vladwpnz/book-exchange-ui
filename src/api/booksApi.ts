@@ -38,6 +38,10 @@ export type ShareBookInput = {
 
 export type GiveBookInput = ShareBookInput
 
+export type ReturnBookInput = {
+  title: string
+}
+
 export type CreatedBook = CreateBookInput & {
   person?: {
     name?: string
@@ -354,5 +358,26 @@ export async function giveBook(book: GiveBookInput) {
     getResponseUrl(response.request),
     expectedUrl,
     'Give book',
+  )
+}
+
+export async function returnBook(book: ReturnBookInput) {
+  const credentials = loadCredentials()
+
+  if (!credentials) {
+    throw new Error('Saved sign-in details are missing. Please sign in again.')
+  }
+
+  const expectedUrl = apiClient.getUri({ url: '/book/return' })
+  const response = await apiClient.post<unknown>('/book/return', book, {
+    headers: createBasicAuthHeaders(credentials),
+  })
+
+  assertBookActionAccepted(
+    response.data,
+    response.headers['content-type'],
+    getResponseUrl(response.request),
+    expectedUrl,
+    'Return book',
   )
 }
