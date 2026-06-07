@@ -31,6 +31,11 @@ export type CreateBookInput = {
   title: string
 }
 
+export type ShareBookInput = {
+  title: string
+  username: string
+}
+
 export type CreatedBook = CreateBookInput & {
   person?: {
     name?: string
@@ -63,6 +68,65 @@ function getOptionalCreateBookText(value: unknown) {
   return typeof value === 'string' && value.trim().length > 0
     ? value.trim()
     : undefined
+}
+
+function getResponseUrl(request: unknown) {
+  if (!isRecord(request)) {
+    return undefined
+  }
+
+  return getOptionalCreateBookText(request.responseURL)
+}
+
+function isUnexpectedResponseUrl(responseUrl: string, expectedUrl: string) {
+  try {
+    const responseLocation = new URL(responseUrl, window.location.href)
+    const expectedLocation = new URL(expectedUrl, window.location.href)
+
+    return (
+      responseLocation.origin !== expectedLocation.origin ||
+      responseLocation.pathname !== expectedLocation.pathname
+    )
+  } catch {
+    return false
+  }
+}
+
+function isHtmlResponse(data: unknown, contentType: unknown) {
+  if (typeof contentType === 'string') {
+    const normalizedContentType = contentType.toLowerCase()
+
+    if (normalizedContentType.includes('text/html')) {
+      return true
+    }
+  }
+
+  if (typeof data !== 'string') {
+    return false
+  }
+
+  const normalizedData = data.trim().toLowerCase()
+
+  return (
+    normalizedData.startsWith('<!doctype html') ||
+    normalizedData.startsWith('<html') ||
+    (normalizedData.includes('<form') && normalizedData.includes('login'))
+  )
+}
+
+function assertShareBookAccepted(
+  data: unknown,
+  contentType: unknown,
+  responseUrl: string | undefined,
+  expectedUrl: string,
+) {
+  if (responseUrl && isUnexpectedResponseUrl(responseUrl, expectedUrl)) {
+    throw new Error('Share book request was redirected. Please sign in again.')
+  }
+
+  if (isHtmlResponse(data, contentType)) {
+    throw new Error('Share book response has an unexpected format.')
+  }
 }
 
 function getBookId(value: unknown, index: number, fallbackPrefix: string) {
@@ -246,4 +310,24 @@ export async function createBook(book: CreateBookInput) {
   })
 
   return toCreatedBook(response.data)
+}
+
+export async function shareBook(book: ShareBookInput) {
+  const credentials = loadCredentials()
+
+  if (!credentials) {
+    throw new Error('Saved sign-in details are missing. Please sign in again.')
+  }
+
+  const expectedUrl = apiClient.getUri({ url: '/book/share' })
+  const response = await apiClient.post<unknown>('/book/share', book, {
+    headers: createBasicAuthHeaders(credentials),
+  })
+
+  assertShareBookAccepted(
+    response.data,
+    response.headers['content-type'],
+    getResponseUrl(response.request),
+    expectedUrl,
+  )
 }
