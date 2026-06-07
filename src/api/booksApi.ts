@@ -42,6 +42,25 @@ export type ReturnBookInput = {
   title: string
 }
 
+export type AdminBookDto = {
+  id?: string | number | null
+  book_id?: string | number | null
+  title?: string | null
+  author?: string | null
+  owner_id?: string | number | null
+  holder_id?: string | number | null
+  ownerId?: string | number | null
+  holderId?: string | number | null
+}
+
+export type AdminBook = {
+  id: string
+  title: string
+  author: string
+  ownerId: string
+  holderId: string
+}
+
 export type CreatedBook = CreateBookInput & {
   person?: {
     name?: string
@@ -185,6 +204,24 @@ function getBooksData(data: unknown, responseName: string) {
   throw new Error(`${responseName} response has an unexpected format.`)
 }
 
+function getAdminBooksData(data: unknown) {
+  if (!isRecord(data) || !Array.isArray(data.books)) {
+    throw new Error('Admin books response has an unexpected format.')
+  }
+
+  return data.books.map((bookDto, index) => {
+    if (!isRecord(bookDto)) {
+      throw new Error(
+        `Admin books response contains an invalid book entry at position ${
+          index + 1
+        }.`,
+      )
+    }
+
+    return bookDto as AdminBookDto
+  })
+}
+
 type BookMappingOptions = {
   fallbackIdPrefix: string
   fallbackStatus: BookStatus
@@ -259,6 +296,133 @@ function toBook(
   }
 }
 
+function getRequiredAdminBookText(
+  value: unknown,
+  fieldName: string,
+  index: number,
+) {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value.trim()
+  }
+
+  throw new Error(
+    `Admin books response contains an invalid ${fieldName} for book ${
+      index + 1
+    }.`,
+  )
+}
+
+function getRequiredAdminBookId(
+  value: unknown,
+  fieldName: string,
+  index: number,
+) {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value.trim()
+  }
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return String(value)
+  }
+
+  throw new Error(
+    `Admin books response contains an invalid ${fieldName} for book ${
+      index + 1
+    }.`,
+  )
+}
+
+function toAdminBook(dto: AdminBookDto, index: number): AdminBook {
+  return {
+    id: getRequiredAdminBookId(dto.id ?? dto.book_id, 'id', index),
+    title: getRequiredAdminBookText(dto.title, 'title', index),
+    author: getRequiredAdminBookText(dto.author, 'author', index),
+    ownerId: getRequiredAdminBookId(dto.owner_id ?? dto.ownerId, 'owner_id', index),
+    holderId: getRequiredAdminBookId(
+      dto.holder_id ?? dto.holderId,
+      'holder_id',
+      index,
+    ),
+  }
+}
+
+function getErrorStatus(error: unknown) {
+  if (!isRecord(error) || !isRecord(error.response)) {
+    return undefined
+  }
+
+  return typeof error.response.status === 'number'
+    ? error.response.status
+    : undefined
+}
+
+function getErrorResponseMessage(error: unknown) {
+  if (!isRecord(error) || !isRecord(error.response)) {
+    return undefined
+  }
+
+  const data = error.response.data
+
+  if (typeof data === 'string' && data.trim().length > 0) {
+    return data.trim()
+  }
+
+  if (isRecord(data) && typeof data.message === 'string') {
+    const message = data.message.trim()
+
+    return message.length > 0 ? message : undefined
+  }
+
+  return undefined
+}
+
+function toAdminRequestError(error: unknown, fallbackMessage: string) {
+  const status = getErrorStatus(error)
+
+  if (status === 401) {
+    return new Error('Admin request is unauthorized. Please sign in again.')
+  }
+
+  if (status === 403) {
+    return new Error(
+      'Admin access is required for this action. Sign in with an administrator account.',
+    )
+  }
+
+  return new Error(
+    getErrorResponseMessage(error) ??
+      (error instanceof Error ? error.message : fallbackMessage),
+  )
+}
+
+function getForceReturnId(id: string | number) {
+  if (typeof id === 'number' && Number.isFinite(id)) {
+    return String(id)
+  }
+
+  if (typeof id === 'string' && id.trim().length > 0) {
+    return id.trim()
+  }
+
+  throw new Error('Book id is required for force return.')
+}
+
+function assertForceReturnAccepted(data: unknown) {
+  if (data === null || data === undefined) {
+    return
+  }
+
+  if (typeof data !== 'string') {
+    throw new Error('Force return response has an unexpected format.')
+  }
+
+  const message = data.trim()
+
+  if (message.length > 0 && message !== 'The book was returned') {
+    throw new Error('Force return response has an unexpected format.')
+  }
+}
+
 export async function getOwnedBooks() {
   const credentials = loadCredentials()
 
@@ -303,6 +467,38 @@ export async function getHeldBooks() {
         fallbackStatus: 'held',
       }),
     )
+}
+
+export async function getAdminBooks() {
+  const credentials = loadCredentials()
+
+  if (!credentials) {
+    throw new Error('Saved sign-in details are missing. Please sign in again.')
+  }
+
+  const expectedUrl = apiClient.getUri({ url: '/items' })
+
+  try {
+    const response = await apiClient.get<unknown>('/items', {
+      headers: createBasicAuthHeaders(credentials),
+    })
+
+    assertBookActionAccepted(
+      response.data,
+      response.headers['content-type'],
+      getResponseUrl(response.request),
+      expectedUrl,
+      'Admin books',
+    )
+
+    return getAdminBooksData(response.data).map(toAdminBook)
+  } catch (error) {
+    if (error instanceof Error && !getErrorStatus(error)) {
+      throw error
+    }
+
+    throw toAdminRequestError(error, 'Unable to load admin books.')
+  }
 }
 
 export async function createBook(book: CreateBookInput) {
@@ -359,6 +555,46 @@ export async function giveBook(book: GiveBookInput) {
     expectedUrl,
     'Give book',
   )
+}
+
+export async function forceReturnBook(id: string | number) {
+  const credentials = loadCredentials()
+
+  if (!credentials) {
+    throw new Error('Saved sign-in details are missing. Please sign in again.')
+  }
+
+  const bookId = getForceReturnId(id)
+  const expectedUrl = apiClient.getUri({
+    url: '/book/return/force',
+    params: { id: bookId },
+  })
+
+  try {
+    const response = await apiClient.post<unknown>(
+      '/book/return/force',
+      undefined,
+      {
+        headers: createBasicAuthHeaders(credentials),
+        params: { id: bookId },
+      },
+    )
+
+    assertBookActionAccepted(
+      response.data,
+      response.headers['content-type'],
+      getResponseUrl(response.request),
+      expectedUrl,
+      'Force return',
+    )
+    assertForceReturnAccepted(response.data)
+  } catch (error) {
+    if (error instanceof Error && !getErrorStatus(error)) {
+      throw error
+    }
+
+    throw toAdminRequestError(error, 'Unable to force return this book.')
+  }
 }
 
 export async function returnBook(book: ReturnBookInput) {
