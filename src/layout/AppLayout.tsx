@@ -15,43 +15,48 @@ const sideLinks = [
 
 const sideLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'block rounded-lg border p-4 transition duration-200',
+    'group relative block overflow-hidden rounded-xl border p-4 transition duration-200',
     isActive
-      ? 'border-emerald-300/50 bg-emerald-300/12 text-emerald-50'
-      : 'border-white/10 bg-white/5 text-stone-300 hover:border-amber-200/40 hover:bg-white/8',
+      ? 'border-cyan-300/35 bg-cyan-300/10 text-cyan-50 shadow-[0_0_36px_rgba(34,211,238,0.08)]'
+      : 'border-white/10 bg-white/[0.035] text-slate-300 hover:border-cyan-200/25 hover:bg-white/[0.06]',
   ].join(' ')
 
 export function AppLayout() {
   const { currentUserEmail } = useAuth()
 
   return (
-    <div className="min-h-screen bg-[#07130f] text-stone-100">
+    <div className="min-h-screen text-slate-100">
       <Navbar appMode />
+
       <div className="mx-auto grid max-w-7xl gap-6 px-5 py-6 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
-        <aside className="rounded-lg border border-white/10 bg-[#0d1b16] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
+        <aside className="premium-panel reveal-blur rounded-2xl p-4">
           <div className="border-b border-white/10 pb-4">
-            <p className="text-xs font-semibold uppercase text-amber-200">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
               Signed in as
             </p>
-            <h2 className="mt-2 text-xl font-semibold text-stone-50">
+            <h2 className="mt-2 truncate text-xl font-semibold text-slate-50">
               {currentUserEmail}
             </h2>
-            <p className="mt-1 text-sm text-stone-400">
+            <p className="mt-1 text-sm text-slate-400">
               Basic Auth session
             </p>
           </div>
+
           <div className="mt-4 grid gap-2">
             {sideLinks.map((link) => (
               <NavLink key={link.to} to={link.to} className={sideLinkClass}>
-                <span className="block text-sm font-semibold">{link.label}</span>
-                <span className="mt-1 block text-xs text-stone-400">
+                <span className="relative z-10 block text-sm font-semibold">
+                  {link.label}
+                </span>
+                <span className="relative z-10 mt-1 block text-xs text-slate-400">
                   {link.hint}
                 </span>
               </NavLink>
             ))}
           </div>
         </aside>
-        <main className="min-w-0">
+
+        <main className="min-w-0 reveal-blur">
           <Outlet />
         </main>
       </div>

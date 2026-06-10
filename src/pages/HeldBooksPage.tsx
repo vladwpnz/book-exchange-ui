@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { getHeldBooks } from '../api/booksApi'
 import { BookCard } from '../components/BookCard'
@@ -58,34 +59,37 @@ export function HeldBooksPage() {
   const isEmpty = booksState === 'success' && books.length === 0
 
   return (
-    <section>
-      <div className="rounded-lg border border-white/10 bg-[#0d1b16] p-6">
-        <p className="text-sm font-semibold uppercase text-amber-200">
-          Borrowed shelf
-        </p>
-        <h1 className="mt-3 text-4xl font-semibold text-stone-50">
-          Held books
-        </h1>
-        <p className="mt-3 max-w-3xl text-base leading-7 text-stone-400">
-          Books currently held by the signed-in reader from the exchange
-          library.
-        </p>
+    <section className="space-y-6">
+      <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
+        <div className="relative z-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+            Borrowed shelf
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
+            Held books
+          </h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
+            Track books currently borrowed by the signed-in reader and keep the
+            return flow visible from one place.
+          </p>
+        </div>
       </div>
 
       {booksState === 'loading' && (
-        <div className="mt-6 grid gap-4 xl:grid-cols-2">
+        <div className="grid gap-4 xl:grid-cols-2">
           {loadingCards.map((card) => (
             <div
               key={card}
-              className="min-h-40 animate-pulse rounded-lg border border-stone-200/70 bg-[#f7efdf] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.16)]"
+              className="premium-card min-h-44 animate-pulse rounded-2xl p-5"
             >
               <div className="flex gap-4">
-                <div className="h-32 w-20 rounded-md bg-stone-300" />
+                <div className="h-32 w-20 rounded-xl bg-white/8" />
                 <div className="flex flex-1 flex-col">
-                  <div className="h-3 w-24 rounded-full bg-emerald-700/20" />
-                  <div className="mt-4 h-5 w-3/4 rounded-full bg-stone-400/40" />
-                  <div className="mt-3 h-4 w-40 rounded-full bg-stone-400/30" />
-                  <div className="mt-auto h-4 w-52 rounded-full bg-amber-700/20" />
+                  <div className="h-3 w-24 rounded-full bg-cyan-300/15" />
+                  <div className="mt-4 h-6 w-3/4 rounded-full bg-white/12" />
+                  <div className="mt-3 h-4 w-40 rounded-full bg-white/8" />
+                  <div className="mt-3 h-4 w-32 rounded-full bg-white/8" />
+                  <div className="mt-auto h-4 w-52 rounded-full bg-emerald-300/12" />
                 </div>
               </div>
             </div>
@@ -94,18 +98,18 @@ export function HeldBooksPage() {
       )}
 
       {booksState === 'error' && (
-        <div className="mt-6 rounded-lg border border-amber-300/40 bg-[#f7efdf] p-6 text-[#15211b] shadow-[0_18px_40px_rgba(0,0,0,0.16)]">
-          <p className="text-sm font-semibold uppercase text-amber-800">
+        <div className="premium-panel rounded-2xl border border-amber-300/20 p-6 sm:p-7">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
             Held books unavailable
           </p>
-          <h2 className="mt-2 text-2xl font-semibold">
+          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
             Could not load held books
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#586357]">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
             {errorMessage}
           </p>
           <button
-            className="mt-5 rounded-md border border-emerald-700/30 bg-emerald-700 px-4 py-2 text-sm font-semibold text-stone-50 transition hover:bg-emerald-800"
+            className="primary-action mt-5"
             type="button"
             onClick={() => setReloadKey((key) => key + 1)}
           >
@@ -115,20 +119,32 @@ export function HeldBooksPage() {
       )}
 
       {isEmpty && (
-        <div className="mt-6 rounded-lg border border-dashed border-amber-300/50 bg-[#f7efdf] p-6 text-[#15211b] shadow-[0_18px_40px_rgba(0,0,0,0.16)]">
-          <p className="text-sm font-semibold uppercase text-emerald-700">
+        <div className="empty-state p-6 sm:p-7">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
             Empty shelf
           </p>
-          <h2 className="mt-2 text-2xl font-semibold">No held books yet</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#586357]">
-            Books returned from the backend will appear here once the reader
-            holds borrowed items.
+          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+            No held books yet
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+            Borrowed books will appear here after another reader shares or gives
+            a book to your account.
           </p>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link to="/app/my-books" className="primary-action">
+              Open my books
+            </Link>
+
+            <Link to="/app/return-book" className="secondary-action">
+              View return flow
+            </Link>
+          </div>
         </div>
       )}
 
       {hasBooks && (
-        <div className="mt-6 grid gap-4 xl:grid-cols-2">
+        <div className="grid gap-4 xl:grid-cols-2">
           {books.map((book) => (
             <BookCard key={book.id} book={book} />
           ))}

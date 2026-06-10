@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 
 import { getOwnedBooks } from '../api/booksApi'
 import { dashboardActions } from '../api/mockLibrary'
@@ -60,38 +61,41 @@ export function MyBooksPage() {
   const isEmpty = booksState === 'success' && books.length === 0
 
   return (
-    <section>
-      <div className="rounded-lg border border-white/10 bg-[#0d1b16] p-6">
-        <p className="text-sm font-semibold uppercase text-amber-200">
+    <section className="space-y-6">
+      <div className="premium-panel motion-line reveal-blur rounded-2xl p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
           My library
         </p>
-        <h1 className="mt-3 text-4xl font-semibold text-stone-50">My books</h1>
-        <p className="mt-3 max-w-3xl text-base leading-7 text-stone-400">
-          Manage the books you own and prepare exchange actions from a calm
-          dashboard surface.
+        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
+          My books
+        </h1>
+        <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
+          Manage the books you own, monitor availability, and prepare exchange
+          actions from a cleaner product dashboard.
         </p>
       </div>
 
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         {dashboardActions.map((action) => (
           <DashboardCard key={action.href} {...action} />
         ))}
       </div>
 
       {booksState === 'loading' && (
-        <div className="mt-6 grid gap-4 xl:grid-cols-2">
+        <div className="grid gap-4 xl:grid-cols-2">
           {loadingCards.map((card) => (
             <div
               key={card}
-              className="min-h-40 animate-pulse rounded-lg border border-stone-200/70 bg-[#f7efdf] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.16)]"
+              className="premium-card min-h-44 rounded-2xl p-5 animate-pulse"
             >
               <div className="flex gap-4">
-                <div className="h-32 w-20 rounded-md bg-stone-300" />
+                <div className="h-32 w-20 rounded-xl bg-white/8" />
                 <div className="flex flex-1 flex-col">
-                  <div className="h-3 w-24 rounded-full bg-emerald-700/20" />
-                  <div className="mt-4 h-5 w-3/4 rounded-full bg-stone-400/40" />
-                  <div className="mt-3 h-4 w-40 rounded-full bg-stone-400/30" />
-                  <div className="mt-auto h-4 w-52 rounded-full bg-amber-700/20" />
+                  <div className="h-3 w-24 rounded-full bg-cyan-300/15" />
+                  <div className="mt-4 h-6 w-3/4 rounded-full bg-white/12" />
+                  <div className="mt-3 h-4 w-40 rounded-full bg-white/8" />
+                  <div className="mt-3 h-4 w-32 rounded-full bg-white/8" />
+                  <div className="mt-auto h-4 w-52 rounded-full bg-emerald-300/12" />
                 </div>
               </div>
             </div>
@@ -100,16 +104,18 @@ export function MyBooksPage() {
       )}
 
       {booksState === 'error' && (
-        <div className="mt-6 rounded-lg border border-amber-300/40 bg-[#f7efdf] p-6 text-[#15211b] shadow-[0_18px_40px_rgba(0,0,0,0.16)]">
-          <p className="text-sm font-semibold uppercase text-amber-800">
+        <div className="premium-panel rounded-2xl border border-amber-300/20 p-6 sm:p-7">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
             Books unavailable
           </p>
-          <h2 className="mt-2 text-2xl font-semibold">Could not load books</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#586357]">
+          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+            Could not load books
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
             {errorMessage}
           </p>
           <button
-            className="mt-5 rounded-md border border-emerald-700/30 bg-emerald-700 px-4 py-2 text-sm font-semibold text-stone-50 transition hover:bg-emerald-800"
+            className="mt-5 rounded-xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-2.5 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/16"
             type="button"
             onClick={() => setReloadKey((key) => key + 1)}
           >
@@ -119,20 +125,38 @@ export function MyBooksPage() {
       )}
 
       {isEmpty && (
-        <div className="mt-6 rounded-lg border border-dashed border-amber-300/50 bg-[#f7efdf] p-6 text-[#15211b] shadow-[0_18px_40px_rgba(0,0,0,0.16)]">
-          <p className="text-sm font-semibold uppercase text-emerald-700">
+        <div className="premium-panel rounded-2xl p-6 sm:p-7">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
             Empty shelf
           </p>
-          <h2 className="mt-2 text-2xl font-semibold">No owned books yet</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#586357]">
-            Books returned from the backend will appear here once your catalog
-            has owned items.
+          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+            No owned books yet
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+            Your owned catalog will appear here once you add your first book to
+            the exchange network.
           </p>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link
+              to="/app/add-book"
+              className="rounded-xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-2.5 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/16"
+            >
+              Add your first book
+            </Link>
+
+            <Link
+              to="/app/share-book"
+              className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition duration-200 hover:bg-white/[0.07]"
+            >
+              Explore exchange flow
+            </Link>
+          </div>
         </div>
       )}
 
       {hasBooks && (
-        <div className="mt-6 grid gap-4 xl:grid-cols-2">
+        <div className="grid gap-4 xl:grid-cols-2">
           {books.map((book) => (
             <BookCard key={book.id} book={book} />
           ))}

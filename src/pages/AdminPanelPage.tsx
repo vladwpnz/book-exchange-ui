@@ -22,8 +22,8 @@ function getStatusLabel(book: AdminBook) {
 
 function getStatusClassName(book: AdminBook) {
   return isBookWithOwner(book)
-    ? 'border-emerald-700/20 bg-emerald-50 text-emerald-900'
-    : 'border-amber-700/20 bg-amber-50 text-amber-950'
+    ? 'border-emerald-300/20 bg-emerald-300/[0.08] text-emerald-100'
+    : 'border-amber-300/20 bg-amber-300/[0.08] text-amber-100'
 }
 
 export function AdminPanelPage() {
@@ -112,76 +112,77 @@ export function AdminPanelPage() {
   ]
 
   return (
-    <section>
-      <div className="rounded-lg border border-white/10 bg-[#0d1b16] p-6">
-        <p className="text-sm font-semibold uppercase text-amber-200">
-          Admin operations
-        </p>
-        <h1 className="mt-3 text-4xl font-semibold text-stone-50">
-          Admin panel
-        </h1>
-        <p className="mt-3 max-w-3xl text-base leading-7 text-stone-400">
-          Review all backend books and force borrowed copies back to their
-          owners when an admin action is required.
-        </p>
+    <section className="space-y-6">
+      <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
+        <div className="relative z-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+            Admin operations
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
+            Admin panel
+          </h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
+            Review all backend books and force borrowed copies back to their
+            owners when an admin action is required.
+          </p>
+        </div>
       </div>
 
       {booksState === 'success' && (
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-3">
           {metrics.map((metric) => (
-            <article
-              key={metric.label}
-              className="rounded-lg border border-white/10 bg-white/5 p-5"
-            >
-              <p className="text-sm text-stone-400">{metric.label}</p>
-              <p className="mt-3 text-4xl font-semibold text-stone-50">
-                {metric.value}
-              </p>
-              <span className="mt-4 inline-flex rounded-md border border-emerald-300/40 bg-emerald-300/10 px-3 py-1 text-sm text-emerald-100">
-                {metric.status}
-              </span>
+            <article key={metric.label} className="premium-card rounded-2xl p-5">
+              <div className="relative z-10">
+                <p className="text-sm text-slate-400">{metric.label}</p>
+                <p className="mt-3 text-4xl font-semibold text-slate-50">
+                  {metric.value}
+                </p>
+                <span className="mt-4 inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/[0.08] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100">
+                  {metric.status}
+                </span>
+              </div>
             </article>
           ))}
         </div>
       )}
 
       {successMessage && (
-        <div className="mt-6 rounded-lg border border-emerald-300/30 bg-emerald-300/10 px-5 py-4 text-sm font-semibold text-emerald-50">
+        <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-5 py-4 text-sm font-semibold text-emerald-50">
           {successMessage}
         </div>
       )}
 
       {actionErrorMessage && (
-        <div className="mt-6 rounded-lg border border-amber-300/40 bg-amber-200/10 px-5 py-4 text-sm leading-6 text-amber-50">
+        <div className="rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] px-5 py-4 text-sm leading-6 text-amber-50">
           <p className="font-semibold">Could not force return book</p>
-          <p>{actionErrorMessage}</p>
+          <p className="mt-1 text-amber-100/80">{actionErrorMessage}</p>
         </div>
       )}
 
       {booksState === 'loading' && (
-        <div className="mt-6 rounded-lg border border-white/10 bg-white/5 p-6">
-          <div className="h-3 w-40 animate-pulse rounded-full bg-amber-200/30" />
+        <div className="premium-panel rounded-2xl p-6">
+          <div className="h-3 w-40 animate-pulse rounded-full bg-cyan-300/20" />
           <div className="mt-5 grid gap-3">
-            <div className="h-4 animate-pulse rounded-full bg-stone-300/20" />
-            <div className="h-4 w-5/6 animate-pulse rounded-full bg-stone-300/20" />
-            <div className="h-4 w-2/3 animate-pulse rounded-full bg-stone-300/20" />
+            <div className="h-4 animate-pulse rounded-full bg-white/10" />
+            <div className="h-4 w-5/6 animate-pulse rounded-full bg-white/10" />
+            <div className="h-4 w-2/3 animate-pulse rounded-full bg-white/10" />
           </div>
         </div>
       )}
 
       {booksState === 'error' && (
-        <div className="mt-6 rounded-lg border border-amber-300/40 bg-[#f7efdf] p-6 text-[#15211b] shadow-[0_18px_40px_rgba(0,0,0,0.16)]">
-          <p className="text-sm font-semibold uppercase text-amber-800">
+        <div className="premium-panel rounded-2xl border border-amber-300/20 p-6 sm:p-7">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
             Admin books unavailable
           </p>
-          <h2 className="mt-2 text-2xl font-semibold">
+          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
             Could not load admin books
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#586357]">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
             {loadErrorMessage}
           </p>
           <button
-            className="mt-5 rounded-md border border-emerald-700/30 bg-emerald-700 px-4 py-2 text-sm font-semibold text-stone-50 transition hover:bg-emerald-800"
+            className="primary-action mt-5"
             type="button"
             onClick={() => {
               setActionErrorMessage(null)
@@ -195,12 +196,14 @@ export function AdminPanelPage() {
       )}
 
       {isEmpty && (
-        <div className="mt-6 rounded-lg border border-dashed border-amber-300/50 bg-[#f7efdf] p-6 text-[#15211b] shadow-[0_18px_40px_rgba(0,0,0,0.16)]">
-          <p className="text-sm font-semibold uppercase text-emerald-700">
+        <div className="empty-state p-6 sm:p-7">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
             Empty catalog
           </p>
-          <h2 className="mt-2 text-2xl font-semibold">No books found</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#586357]">
+          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+            No books found
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
             Books returned from the backend admin endpoint will appear here once
             the exchange catalog has items.
           </p>
@@ -208,9 +211,9 @@ export function AdminPanelPage() {
       )}
 
       {hasBooks && (
-        <div className="mt-6 overflow-x-auto rounded-lg border border-white/10">
-          <table className="w-full min-w-[860px] border-collapse bg-[#f6eddc] text-left text-[#17221d]">
-            <thead className="bg-emerald-950 text-stone-100">
+        <div className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/50 shadow-[0_24px_90px_rgba(0,0,0,0.32)]">
+          <table className="w-full min-w-[860px] border-collapse text-left text-slate-200">
+            <thead className="border-b border-white/10 bg-white/[0.035] text-slate-100">
               <tr>
                 <th className="px-5 py-4 text-sm font-semibold">ID</th>
                 <th className="px-5 py-4 text-sm font-semibold">Title</th>
@@ -226,19 +229,28 @@ export function AdminPanelPage() {
                 const isReturning = returningBookIds.includes(book.id)
 
                 return (
-                  <tr key={book.id} className="border-t border-stone-300">
-                    <td className="px-5 py-4 text-sm font-semibold">
+                  <tr
+                    key={book.id}
+                    className="border-t border-white/8 transition duration-200 hover:bg-white/[0.035]"
+                  >
+                    <td className="px-5 py-4 text-sm font-semibold text-slate-300">
                       {book.id}
                     </td>
-                    <td className="px-5 py-4 text-sm font-semibold">
+                    <td className="px-5 py-4 text-sm font-semibold text-slate-50">
                       {book.title}
                     </td>
-                    <td className="px-5 py-4 text-sm">{book.author}</td>
-                    <td className="px-5 py-4 text-sm">{book.ownerId}</td>
-                    <td className="px-5 py-4 text-sm">{book.holderId}</td>
+                    <td className="px-5 py-4 text-sm text-slate-300">
+                      {book.author}
+                    </td>
+                    <td className="px-5 py-4 text-sm text-slate-400">
+                      {book.ownerId}
+                    </td>
+                    <td className="px-5 py-4 text-sm text-slate-400">
+                      {book.holderId}
+                    </td>
                     <td className="px-5 py-4 text-sm">
                       <span
-                        className={`inline-flex rounded-md border px-3 py-1 text-sm font-semibold ${getStatusClassName(
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${getStatusClassName(
                           book,
                         )}`}
                       >
@@ -247,7 +259,7 @@ export function AdminPanelPage() {
                     </td>
                     <td className="px-5 py-4 text-sm">
                       <button
-                        className="rounded-md border border-emerald-700/30 bg-emerald-700 px-4 py-2 text-sm font-semibold text-stone-50 transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:border-stone-400/30 disabled:bg-stone-500/70"
+                        className="rounded-xl border border-cyan-300/25 bg-cyan-300/[0.08] px-4 py-2 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/[0.14] disabled:cursor-not-allowed disabled:border-slate-500/20 disabled:bg-slate-500/10 disabled:text-slate-500"
                         type="button"
                         disabled={isReturning}
                         onClick={() => void handleForceReturn(book)}
