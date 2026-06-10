@@ -7,16 +7,6 @@ type NavbarProps = {
   appMode?: boolean
 }
 
-const appLinks = [
-  { to: '/app/my-books', label: 'My books' },
-  { to: '/app/held-books', label: 'Held books' },
-  { to: '/app/add-book', label: 'Add' },
-  { to: '/app/share-book', label: 'Share' },
-  { to: '/app/give-book', label: 'Give' },
-  { to: '/app/return-book', label: 'Return' },
-  { to: '/app/admin', label: 'Admin' },
-]
-
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
     'rounded-lg px-3 py-2 text-sm font-medium transition duration-200',
@@ -59,11 +49,9 @@ export function Navbar({ appMode = false }: NavbarProps) {
         <div className="flex flex-wrap items-center justify-end gap-2">
           {appMode ? (
             <>
-              {appLinks.map((link) => (
-                <NavLink key={link.to} to={link.to} className={navLinkClass}>
-                  {link.label}
-                </NavLink>
-              ))}
+              <NavLink to="/app/admin" className={navLinkClass}>
+                Admin
+              </NavLink>
 
               {isAuthenticated ? (
                 <>
