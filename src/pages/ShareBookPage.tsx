@@ -62,67 +62,78 @@ export function ShareBookPage() {
 
   return (
     <section className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <div className="rounded-lg border border-white/10 bg-[#f6eddc] p-6 text-[#17221d] shadow-[0_24px_80px_rgba(0,0,0,0.2)]">
-        <p className="text-sm font-semibold uppercase text-emerald-800">
-          Share flow
-        </p>
-        <h1 className="mt-3 text-4xl font-semibold">Share book</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5c675b]">
-          Send a book from your owned shelf to another reader by email.
-        </p>
-        <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
-          <label className="block text-sm font-semibold" htmlFor="share-title">
-            Book title
-            <input
-              id="share-title"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              className="mt-2 w-full rounded-md border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
-              placeholder="Effective Java"
-              disabled={isSubmitting}
-            />
-          </label>
-          <label
-            className="block text-sm font-semibold"
-            htmlFor="share-reader"
-          >
-            Target user email
-            <input
-              id="share-reader"
-              type="email"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              className="mt-2 w-full rounded-md border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
-              placeholder="reader@example.com"
-              disabled={isSubmitting}
-            />
-          </label>
+      <div className="space-y-6">
+        <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
+          <div className="relative z-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
+              Share flow
+            </p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
+              Share book
+            </h1>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
+              Send a book from your owned shelf to another reader by email and
+              keep the exchange action tied to your current session.
+            </p>
+          </div>
+        </div>
+
+        <form className="form-panel p-6 sm:p-7" onSubmit={handleSubmit}>
+          <div className="grid gap-5">
+            <label
+              className="block text-sm font-semibold text-slate-200"
+              htmlFor="share-title"
+            >
+              Book title
+              <input
+                id="share-title"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                className="field-input mt-2"
+                placeholder="Effective Java"
+                disabled={isSubmitting}
+              />
+            </label>
+
+            <label
+              className="block text-sm font-semibold text-slate-200"
+              htmlFor="share-reader"
+            >
+              Target user email
+              <input
+                id="share-reader"
+                type="email"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                className="field-input mt-2"
+                placeholder="reader@example.com"
+                disabled={isSubmitting}
+              />
+            </label>
+          </div>
 
           {submitState === 'success' && sharedBook && (
-            <div className="rounded-md border border-emerald-700/20 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-900">
+            <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-4 py-4 text-sm leading-6 text-emerald-50">
               <p className="font-semibold">Book shared successfully.</p>
-              <p>
+              <p className="mt-1 text-emerald-100/80">
                 {sharedBook.title} was shared with {sharedBook.username}.
               </p>
-              <Link
-                className="mt-3 inline-flex rounded-md border border-emerald-700/30 px-4 py-2 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-100"
-                to="/app/my-books"
-              >
+              <Link className="secondary-action mt-4 inline-flex" to="/app/my-books">
                 View my books
               </Link>
             </div>
           )}
 
           {submitState === 'error' && errorMessage && (
-            <div className="rounded-md border border-amber-500/30 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+            <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] px-4 py-4 text-sm leading-6 text-amber-50">
               <p className="font-semibold">Could not share book</p>
-              <p>{errorMessage}</p>
+              <p className="mt-1 text-amber-100/80">{errorMessage}</p>
             </div>
           )}
 
           <button
             type="submit"
-            className="rounded-md bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-emerald-900/60 md:w-fit"
+            className="primary-action mt-6 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Sharing...' : 'Share book'}
@@ -130,19 +141,25 @@ export function ShareBookPage() {
         </form>
       </div>
 
-      <aside className="rounded-lg border border-amber-200/30 bg-amber-200/10 p-6">
-        <h2 className="text-2xl font-semibold text-amber-100">
-          Exchange status
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-stone-300">
-          Share requests are sent to the backend using your current signed-in
-          session.
-        </p>
-        {sharedBook && (
-          <p className="mt-4 rounded-md border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm leading-6 text-emerald-50">
-            Last shared: {sharedBook.title} to {sharedBook.username}.
+      <aside className="status-panel h-fit p-6 sm:p-7">
+        <div className="relative z-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+            Backend action
           </p>
-        )}
+          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+            Exchange status
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-slate-400">
+            Share requests are sent to the backend using your current signed-in
+            session.
+          </p>
+
+          {sharedBook && (
+            <p className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-4 py-3 text-sm leading-6 text-emerald-50">
+              Last shared: {sharedBook.title} to {sharedBook.username}.
+            </p>
+          )}
+        </div>
       </aside>
     </section>
   )

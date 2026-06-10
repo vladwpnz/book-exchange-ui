@@ -57,53 +57,60 @@ export function ReturnBookPage() {
 
   return (
     <section className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <div className="rounded-lg border border-white/10 bg-[#f6eddc] p-6 text-[#17221d] shadow-[0_24px_80px_rgba(0,0,0,0.2)]">
-        <p className="text-sm font-semibold uppercase text-emerald-800">
-          Return flow
-        </p>
-        <h1 className="mt-3 text-4xl font-semibold">Return book</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5c675b]">
-          Send a borrowed book back to its owner using your current signed-in
-          session.
-        </p>
-        <form className="mt-6 grid gap-4" onSubmit={handleSubmit}>
-          <label className="block text-sm font-semibold" htmlFor="return-title">
+      <div className="space-y-6">
+        <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
+          <div className="relative z-10">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
+              Return flow
+            </p>
+            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
+              Return book
+            </h1>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
+              Send a borrowed book back to its owner using your current
+              signed-in session.
+            </p>
+          </div>
+        </div>
+
+        <form className="form-panel p-6 sm:p-7" onSubmit={handleSubmit}>
+          <label
+            className="block text-sm font-semibold text-slate-200"
+            htmlFor="return-title"
+          >
             Book title
             <input
               id="return-title"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              className="mt-2 w-full rounded-md border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
+              className="field-input mt-2"
               placeholder="Return Test Book"
               disabled={isSubmitting}
             />
           </label>
 
           {submitState === 'success' && returnedBook && (
-            <div className="rounded-md border border-emerald-700/20 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-900">
-              <p className="font-semibold">
-                Book returned successfully. {returnedBook.title} was returned
-                to its owner.
+            <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-4 py-4 text-sm leading-6 text-emerald-50">
+              <p className="font-semibold">Book returned successfully.</p>
+              <p className="mt-1 text-emerald-100/80">
+                {returnedBook.title} was returned to its owner.
               </p>
-              <Link
-                className="mt-3 inline-flex rounded-md border border-emerald-700/30 px-4 py-2 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-100"
-                to="/app/held-books"
-              >
+              <Link className="secondary-action mt-4 inline-flex" to="/app/held-books">
                 View held books
               </Link>
             </div>
           )}
 
           {submitState === 'error' && errorMessage && (
-            <div className="rounded-md border border-amber-500/30 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950">
+            <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] px-4 py-4 text-sm leading-6 text-amber-50">
               <p className="font-semibold">Could not return book</p>
-              <p>{errorMessage}</p>
+              <p className="mt-1 text-amber-100/80">{errorMessage}</p>
             </div>
           )}
 
           <button
             type="submit"
-            className="rounded-md bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-emerald-900/60 md:w-fit"
+            className="primary-action mt-6 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Returning...' : 'Return book'}
@@ -111,25 +118,29 @@ export function ReturnBookPage() {
         </form>
       </div>
 
-      <aside className="rounded-lg border border-amber-200/30 bg-amber-200/10 p-6">
-        <h2 className="text-2xl font-semibold text-amber-100">
-          Return status
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-stone-300">
-          Return requests are accepted only for books you currently hold and do
-          not own.
-        </p>
-        {returnedBook && (
-          <p className="mt-4 rounded-md border border-emerald-300/20 bg-emerald-300/10 px-4 py-3 text-sm leading-6 text-emerald-50">
-            Last returned: {returnedBook.title}.
+      <aside className="status-panel h-fit p-6 sm:p-7">
+        <div className="relative z-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+            Backend action
           </p>
-        )}
-        <Link
-          className="mt-5 inline-flex rounded-md border border-amber-100/20 px-4 py-2 text-sm font-semibold text-amber-50 transition hover:bg-amber-100/10"
-          to="/app/held-books"
-        >
-          Open held books
-        </Link>
+          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+            Return status
+          </h2>
+          <p className="mt-3 text-sm leading-6 text-slate-400">
+            Return requests are accepted only for books you currently hold and
+            do not own.
+          </p>
+
+          {returnedBook && (
+            <p className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-4 py-3 text-sm leading-6 text-emerald-50">
+              Last returned: {returnedBook.title}.
+            </p>
+          )}
+
+          <Link className="secondary-action mt-5 inline-flex" to="/app/held-books">
+            Open held books
+          </Link>
+        </div>
       </aside>
     </section>
   )

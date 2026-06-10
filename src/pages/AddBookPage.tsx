@@ -63,64 +63,78 @@ export function AddBookPage() {
   }
 
   return (
-    <section className="rounded-lg border border-white/10 bg-[#f6eddc] p-6 text-[#17221d] shadow-[0_24px_80px_rgba(0,0,0,0.2)]">
-      <p className="text-sm font-semibold uppercase text-emerald-800">
-        Catalog entry
-      </p>
-      <h1 className="mt-3 text-4xl font-semibold">Add book</h1>
-      <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5c675b]">
-        Add a title and author to place a new book on your owned shelf.
-      </p>
-      <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
-        <label className="block text-sm font-semibold" htmlFor="title">
-          Title
-          <input
-            id="title"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            className="mt-2 w-full rounded-md border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
-            placeholder="Book title"
-            disabled={isSubmitting}
-          />
-        </label>
-        <label className="block text-sm font-semibold" htmlFor="author">
-          Author
-          <input
-            id="author"
-            value={author}
-            onChange={(event) => setAuthor(event.target.value)}
-            className="mt-2 w-full rounded-md border border-stone-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/20"
-            placeholder="Author name"
-            disabled={isSubmitting}
-          />
-        </label>
+    <section className="space-y-6">
+      <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
+        <div className="relative z-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
+            Catalog entry
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
+            Add book
+          </h1>
+          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
+            Add a new title to your owned shelf and make it available for the
+            exchange workflow.
+          </p>
+        </div>
+      </div>
+
+      <form className="form-panel p-6 sm:p-7" onSubmit={handleSubmit}>
+        <div className="grid gap-5 md:grid-cols-2">
+          <label
+            className="block text-sm font-semibold text-slate-200"
+            htmlFor="title"
+          >
+            Title
+            <input
+              id="title"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              className="field-input mt-2"
+              placeholder="Book title"
+              disabled={isSubmitting}
+            />
+          </label>
+
+          <label
+            className="block text-sm font-semibold text-slate-200"
+            htmlFor="author"
+          >
+            Author
+            <input
+              id="author"
+              value={author}
+              onChange={(event) => setAuthor(event.target.value)}
+              className="field-input mt-2"
+              placeholder="Author name"
+              disabled={isSubmitting}
+            />
+          </label>
+        </div>
 
         {submitState === 'success' && createdBook && (
-          <div className="rounded-md border border-emerald-700/20 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-900 md:col-span-2">
+          <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/8 px-4 py-4 text-sm leading-6 text-emerald-50">
             <p className="font-semibold">Book added successfully.</p>
-            <p>
+            <p className="mt-1 text-emerald-100/80">
               {createdBook.title} by {createdBook.author} is now on your owned
               shelf.
             </p>
-            <Link
-              className="mt-3 inline-flex rounded-md border border-emerald-700/30 px-4 py-2 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-100"
-              to="/app/my-books"
-            >
+            <Link className="secondary-action mt-4 inline-flex" to="/app/my-books">
               View my books
             </Link>
           </div>
         )}
 
         {submitState === 'error' && errorMessage && (
-          <div className="rounded-md border border-amber-500/30 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-950 md:col-span-2">
+          <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/8 px-4 py-4 text-sm leading-6 text-amber-50">
             <p className="font-semibold">Could not add book</p>
-            <p>{errorMessage}</p>
+            <p className="mt-1 text-amber-100/80">{errorMessage}</p>
           </div>
         )}
 
         <button
           type="submit"
-          className="rounded-md bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-emerald-900/60 md:w-fit"
+          className="primary-action mt-6 disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Saving...' : 'Add book'}

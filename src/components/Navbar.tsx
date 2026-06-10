@@ -19,8 +19,10 @@ const appLinks = [
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'rounded-md px-3 py-2 text-sm font-medium transition hover:bg-white/8 hover:text-amber-100',
-    isActive ? 'bg-emerald-400/12 text-emerald-100' : 'text-stone-300',
+    'rounded-lg px-3 py-2 text-sm font-medium transition duration-200',
+    isActive
+      ? 'border border-cyan-300/25 bg-cyan-300/10 text-cyan-50 shadow-[0_0_28px_rgba(34,211,238,0.08)]'
+      : 'border border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.05] hover:text-slate-50',
   ].join(' ')
 
 export function Navbar({ appMode = false }: NavbarProps) {
@@ -33,21 +35,24 @@ export function Navbar({ appMode = false }: NavbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-[#07130f]/90 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/72 backdrop-blur-xl">
       <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-6 lg:px-8">
         <Link
           to="/"
-          className="group flex items-center gap-3 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-300"
+          className="group flex items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
           aria-label="Book Exchange home"
         >
-          <span className="grid h-10 w-10 place-items-center rounded-md border border-emerald-300/40 bg-emerald-300/10">
-            <span className="h-5 w-4 rounded-sm border-l-4 border-amber-200 bg-[#f6eddc]" />
+          <span className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-xl border border-cyan-300/25 bg-white/[0.04] shadow-[0_0_34px_rgba(34,211,238,0.08)]">
+            <span className="absolute inset-0 bg-linear-to-br from-cyan-300/14 via-transparent to-emerald-300/12" />
+            <span className="relative h-5 w-4 rounded-sm border-l-4 border-cyan-200 bg-slate-100 shadow-[0_0_18px_rgba(125,211,252,0.3)]" />
           </span>
           <span>
-            <span className="block text-base font-semibold text-stone-50">
+            <span className="block text-base font-semibold text-slate-50">
               Book Exchange
             </span>
-            <span className="block text-xs text-stone-400">Dark Library UI</span>
+            <span className="block text-xs text-slate-400">
+              Exchange Network
+            </span>
           </span>
         </Link>
 
@@ -59,15 +64,16 @@ export function Navbar({ appMode = false }: NavbarProps) {
                   {link.label}
                 </NavLink>
               ))}
+
               {isAuthenticated ? (
                 <>
-                  <span className="rounded-md border border-white/10 px-3 py-2 text-sm font-medium text-amber-100">
+                  <span className="max-w-52 truncate rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-sm font-medium text-slate-200">
                     {currentUserEmail}
                   </span>
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="rounded-md border border-amber-200/40 px-3 py-2 text-sm font-semibold text-amber-100 transition hover:bg-amber-200/10"
+                    className="rounded-lg border border-cyan-300/25 bg-cyan-300/8 px-3 py-2 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/14"
                   >
                     Logout
                   </button>
@@ -79,18 +85,19 @@ export function Navbar({ appMode = false }: NavbarProps) {
               <NavLink to="/" className={navLinkClass}>
                 Home
               </NavLink>
+
               {isAuthenticated ? (
                 <>
                   <NavLink to="/app/my-books" className={navLinkClass}>
                     My books
                   </NavLink>
-                  <span className="rounded-md border border-white/10 px-3 py-2 text-sm font-medium text-amber-100">
+                  <span className="max-w-52 truncate rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-sm font-medium text-slate-200">
                     {currentUserEmail}
                   </span>
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="rounded-md border border-amber-200/40 px-3 py-2 text-sm font-semibold text-amber-100 transition hover:bg-amber-200/10"
+                    className="rounded-lg border border-cyan-300/25 bg-cyan-300/8 px-3 py-2 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/14"
                   >
                     Logout
                   </button>
@@ -105,11 +112,12 @@ export function Navbar({ appMode = false }: NavbarProps) {
                   </NavLink>
                 </>
               )}
+
               <a
                 href={repositoryLinks.backend}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-md px-3 py-2 text-sm font-medium text-stone-300 transition hover:bg-white/8 hover:text-amber-100"
+                className="rounded-lg border border-transparent px-3 py-2 text-sm font-medium text-slate-300 transition duration-200 hover:border-white/10 hover:bg-white/[0.05] hover:text-slate-50"
               >
                 Backend
               </a>
