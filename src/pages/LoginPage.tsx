@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../auth/useAuth'
 import { Navbar } from '../components/Navbar'
@@ -19,7 +19,7 @@ function getSuccessMessage(state: unknown) {
 export function LoginPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { clearAuthError, error, isLoading, login } = useAuth()
+  const { clearAuthError, error, isAuthenticated, isLoading, login } = useAuth()
   const successMessage = getSuccessMessage(location.state)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -33,6 +33,10 @@ export function LoginPage() {
     } catch {
       return
     }
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to="/app/my-books" replace />
   }
 
   return (
