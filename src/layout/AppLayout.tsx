@@ -1,6 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
-import { useAuth } from '../auth/useAuth'
 import { Navbar } from '../components/Navbar'
 
 const sideLinks = [
@@ -10,7 +9,6 @@ const sideLinks = [
   { to: '/app/share-book', label: 'Share book', hint: 'Offer exchange' },
   { to: '/app/give-book', label: 'Give book', hint: 'Transfer flow' },
   { to: '/app/return-book', label: 'Return book', hint: 'Close hold' },
-  { to: '/app/admin', label: 'Admin panel', hint: 'Portfolio view' },
 ]
 
 const sideLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -22,8 +20,6 @@ const sideLinkClass = ({ isActive }: { isActive: boolean }) =>
   ].join(' ')
 
 export function AppLayout() {
-  const { currentUserEmail } = useAuth()
-
   return (
     <div className="min-h-screen text-slate-100">
       <Navbar appMode />
@@ -32,13 +28,13 @@ export function AppLayout() {
         <aside className="premium-panel reveal-blur rounded-2xl p-4">
           <div className="border-b border-white/10 pb-4">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
-              Signed in as
+              Workspace
             </p>
-            <h2 className="mt-2 truncate text-xl font-semibold text-slate-50">
-              {currentUserEmail}
+            <h2 className="mt-2 text-xl font-semibold text-slate-50">
+              Library dashboard
             </h2>
             <p className="mt-1 text-sm text-slate-400">
-              Basic Auth session
+              Catalog, exchange, and return flows
             </p>
           </div>
 
