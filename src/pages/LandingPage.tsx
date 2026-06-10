@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 
 import { repositoryLinks } from '../api/links'
 import { featuredBooks } from '../api/mockLibrary'
+import { useAuth } from '../auth/useAuth'
 import { BookCard } from '../components/BookCard'
 import { Navbar } from '../components/Navbar'
 
@@ -26,6 +27,8 @@ const features = [
 const techStack = ['React', 'TypeScript', 'Vite', 'Tailwind CSS', 'Spring Boot']
 
 export function LandingPage() {
+  const { isAuthenticated } = useAuth()
+
   return (
     <div className="min-h-screen text-slate-100">
       <Navbar />
@@ -55,9 +58,17 @@ export function LandingPage() {
                   Open dashboard
                 </Link>
 
-                <Link to="/login" className="secondary-action">
-                  Login
-                </Link>
+                {!isAuthenticated && (
+                  <>
+                    <Link to="/login" className="secondary-action">
+                      Login
+                    </Link>
+
+                    <Link to="/register" className="secondary-action">
+                      Register
+                    </Link>
+                  </>
+                )}
 
                 <a
                   href={repositoryLinks.backend}
