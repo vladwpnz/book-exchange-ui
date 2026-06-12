@@ -15,6 +15,14 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
       : 'border border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.05] hover:text-slate-50',
   ].join(' ')
 
+const accountPillClass = ({ isActive }: { isActive: boolean }) =>
+  [
+    'block max-w-52 truncate rounded-lg border px-3 py-2 text-sm font-medium transition duration-200',
+    isActive
+      ? 'border-cyan-300/25 bg-cyan-300/10 text-cyan-50 shadow-[0_0_28px_rgba(34,211,238,0.08)]'
+      : 'border-white/10 bg-white/[0.035] text-slate-200 hover:border-cyan-200/25 hover:bg-white/[0.06] hover:text-slate-50',
+  ].join(' ')
+
 export function Navbar({ appMode = false }: NavbarProps) {
   const navigate = useNavigate()
   const { currentUserEmail, isAuthenticated, logout } = useAuth()
@@ -55,9 +63,9 @@ export function Navbar({ appMode = false }: NavbarProps) {
 
               {isAuthenticated ? (
                 <>
-                  <span className="max-w-52 truncate rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-sm font-medium text-slate-200">
+                  <NavLink to="/app/profile" className={accountPillClass}>
                     {currentUserEmail}
-                  </span>
+                  </NavLink>
                   <button
                     type="button"
                     onClick={handleLogout}
@@ -79,9 +87,9 @@ export function Navbar({ appMode = false }: NavbarProps) {
                   <NavLink to="/app/my-books" className={navLinkClass}>
                     My books
                   </NavLink>
-                  <span className="max-w-52 truncate rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2 text-sm font-medium text-slate-200">
+                  <NavLink to="/app/profile" className={accountPillClass}>
                     {currentUserEmail}
-                  </span>
+                  </NavLink>
                   <button
                     type="button"
                     onClick={handleLogout}

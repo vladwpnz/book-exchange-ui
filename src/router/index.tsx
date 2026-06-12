@@ -9,6 +9,7 @@ import { HeldBooksPage } from '../pages/HeldBooksPage'
 import { LandingPage } from '../pages/LandingPage'
 import { LoginPage } from '../pages/LoginPage'
 import { MyBooksPage } from '../pages/MyBooksPage'
+import { ProfilePage } from '../pages/ProfilePage'
 import { RegisterPage } from '../pages/RegisterPage'
 import { ReturnBookPage } from '../pages/ReturnBookPage'
 import { ShareBookPage } from '../pages/ShareBookPage'
@@ -40,6 +41,10 @@ export const router = createBrowserRouter([
           {
             path: 'my-books',
             element: <MyBooksPage />,
+          },
+          {
+            path: 'profile',
+            element: <ProfilePage />,
           },
           {
             path: 'held-books',
