@@ -55,6 +55,10 @@ export const router = createBrowserRouter([
             element: <AddBookPage />,
           },
           {
+            path: 'add',
+            element: <AddBookPage />,
+          },
+          {
             path: 'share-book',
             element: <ShareBookPage />,
           },
