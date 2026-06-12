@@ -4,6 +4,7 @@ import { Navbar } from '../components/Navbar'
 
 const sideLinks = [
   { to: '/app/my-books', label: 'My books', hint: 'Owned catalog' },
+  { to: '/app/profile', label: 'Profile', hint: 'Account settings' },
   { to: '/app/held-books', label: 'Held books', hint: 'Borrowed items' },
   { to: '/app/add-book', label: 'Add book', hint: 'Create listing' },
   { to: '/app/share-book', label: 'Share book', hint: 'Offer exchange' },
@@ -24,7 +25,7 @@ export function AppLayout() {
     <div className="min-h-screen text-slate-100">
       <Navbar appMode />
 
-      <div className="mx-auto grid max-w-7xl gap-6 px-5 py-6 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
+      <div className="mx-auto grid max-w-7xl items-start gap-6 px-5 py-6 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
         <aside className="premium-panel reveal-blur rounded-2xl p-4">
           <div className="border-b border-white/10 pb-4">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
