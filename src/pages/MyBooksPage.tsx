@@ -61,41 +61,54 @@ export function MyBooksPage() {
   const isEmpty = booksState === 'success' && books.length === 0
 
   return (
-    <section className="space-y-6">
-      <div className="premium-panel motion-line reveal-blur rounded-2xl p-6 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
-          My library
-        </p>
-        <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
-          My books
-        </h1>
-        <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-          Manage the books you own, monitor availability, and prepare exchange
-          actions from a cleaner product dashboard.
-        </p>
+    <section className="space-y-5">
+      <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
+        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
+              My library
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl">
+              My books
+            </h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+              Manage owned books, availability, and exchange actions from a
+              cleaner product dashboard.
+            </p>
+          </div>
+
+          {booksState === 'success' && (
+            <div className="rounded-xl border border-white/10 bg-white/[0.035] px-3.5 py-2.5 text-sm text-slate-300">
+              <span className="font-semibold text-slate-50">
+                {books.length}
+              </span>{' '}
+              owned books
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <nav className="grid gap-3 md:grid-cols-3" aria-label="Book actions">
         {dashboardActions.map((action) => (
           <DashboardCard key={action.href} {...action} />
         ))}
-      </div>
+      </nav>
 
       {booksState === 'loading' && (
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="grid gap-3 xl:grid-cols-2">
           {loadingCards.map((card) => (
             <div
               key={card}
-              className="premium-card min-h-44 rounded-2xl p-5 animate-pulse"
+              className="animate-pulse rounded-xl border border-white/10 bg-white/[0.035] p-3 sm:p-4"
             >
-              <div className="flex gap-4">
-                <div className="h-32 w-20 rounded-xl bg-white/8" />
+              <div className="grid grid-cols-[3.75rem_1fr] gap-3 sm:grid-cols-[4.5rem_1fr] sm:gap-4">
+                <div className="h-24 w-15 rounded-lg bg-white/8 sm:h-28 sm:w-18" />
                 <div className="flex flex-1 flex-col">
                   <div className="h-3 w-24 rounded-full bg-cyan-300/15" />
-                  <div className="mt-4 h-6 w-3/4 rounded-full bg-white/12" />
-                  <div className="mt-3 h-4 w-40 rounded-full bg-white/8" />
-                  <div className="mt-3 h-4 w-32 rounded-full bg-white/8" />
-                  <div className="mt-auto h-4 w-52 rounded-full bg-emerald-300/12" />
+                  <div className="mt-3 h-5 w-3/4 rounded-full bg-white/12" />
+                  <div className="mt-2 h-4 w-40 rounded-full bg-white/8" />
+                  <div className="mt-4 h-4 w-32 rounded-full bg-white/8" />
+                  <div className="mt-2 h-4 w-52 max-w-full rounded-full bg-emerald-300/12" />
                 </div>
               </div>
             </div>
@@ -156,11 +169,24 @@ export function MyBooksPage() {
       )}
 
       {hasBooks && (
-        <div className="grid gap-4 xl:grid-cols-2">
-          {books.map((book) => (
-            <BookCard key={book.id} book={book} />
-          ))}
-        </div>
+        <section className="space-y-3">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+                Owned catalog
+              </p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-50">
+                Current shelf
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid gap-3 xl:grid-cols-2">
+            {books.map((book) => (
+              <BookCard key={book.id} book={book} />
+            ))}
+          </div>
+        </section>
       )}
     </section>
   )

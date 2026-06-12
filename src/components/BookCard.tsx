@@ -26,42 +26,46 @@ const statusClasses = {
 
 export function BookCard({ book }: BookCardProps) {
   return (
-    <article className="premium-card group flex min-h-44 gap-4 rounded-2xl p-4 text-left">
-      <div
-        className={`relative z-10 h-34 w-22 shrink-0 overflow-hidden rounded-xl bg-linear-to-br ${coverClasses[book.tone]} shadow-[0_18px_45px_rgba(0,0,0,0.32)]`}
-      >
-        <div className="absolute inset-y-0 left-3 w-px bg-white/35" />
-        <div className="absolute inset-x-3 top-4 h-px bg-white/18" />
-        <div className="absolute inset-x-3 top-7 h-px bg-white/12" />
-        <div className="absolute bottom-4 left-3 right-3 h-2 rounded-full bg-white/30" />
-      </div>
-
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
-              {book.genre}
-            </p>
-            <h3 className="mt-2 text-lg font-semibold leading-6 text-slate-50">
-              {book.title}
-            </h3>
-          </div>
-
-          <span
-            className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${statusClasses[book.status]}`}
-          >
-            {statusLabels[book.status]}
-          </span>
+    <article className="group rounded-xl border border-white/10 bg-white/[0.035] p-3 text-left shadow-[0_14px_38px_rgba(0,0,0,0.16)] transition duration-200 hover:border-cyan-200/25 hover:bg-white/[0.055] hover:shadow-[0_18px_46px_rgba(0,0,0,0.22)] sm:p-4">
+      <div className="grid grid-cols-[3.75rem_1fr] gap-3 sm:grid-cols-[4.5rem_1fr] sm:gap-4">
+        <div
+          className={`relative h-24 w-15 shrink-0 overflow-hidden rounded-lg bg-linear-to-br sm:h-28 sm:w-18 ${coverClasses[book.tone]} shadow-[0_12px_28px_rgba(0,0,0,0.24)]`}
+        >
+          <div className="absolute inset-y-0 left-3 w-px bg-white/35" />
+          <div className="absolute inset-x-3 top-4 h-px bg-white/18" />
+          <div className="absolute inset-x-3 top-7 h-px bg-white/12" />
+          <div className="absolute bottom-3 left-3 right-3 h-1.5 rounded-full bg-white/30" />
         </div>
 
-        <p className="mt-2 text-sm text-slate-400">{book.author}</p>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
+                {book.genre}
+              </p>
+              <h3 className="mt-1 text-base font-semibold leading-6 text-slate-50 sm:text-lg">
+                {book.title}
+              </h3>
+            </div>
 
-        <p className="mt-auto pt-4 text-sm text-slate-500">
-          Owner:{' '}
-          <span className="font-medium text-slate-300">{book.owner}</span>
-        </p>
+            <span
+              className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.12em] ${statusClasses[book.status]}`}
+            >
+              {statusLabels[book.status]}
+            </span>
+          </div>
 
-        <p className="mt-1 text-sm font-medium text-slate-300">{book.note}</p>
+          <p className="mt-1 text-sm text-slate-400">{book.author}</p>
+
+          <p className="mt-3 text-sm text-slate-500">
+            Owner:{' '}
+            <span className="font-medium text-slate-300">{book.owner}</span>
+          </p>
+
+          <p className="mt-1 text-sm font-medium leading-5 text-slate-300">
+            {book.note}
+          </p>
+        </div>
       </div>
     </article>
   )
