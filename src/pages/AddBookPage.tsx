@@ -5,6 +5,7 @@ import { markAchievementShownOnce } from '../achievements'
 import { createBook } from '../api/booksApi'
 import {
   addBookFromCatalog,
+  isDuplicateCatalogBookError,
   searchCatalogBooks,
   type CatalogBook,
 } from '../api/catalogApi'
@@ -63,6 +64,7 @@ export function AddBookPage() {
   const [catalogAddedBook, setCatalogAddedBook] =
     useState<CreatedBookSummary | null>(null)
   const [addingCatalogBookIds, setAddingCatalogBookIds] = useState<string[]>([])
+  const [ownedCatalogBookIds, setOwnedCatalogBookIds] = useState<string[]>([])
   const [visibleCatalogCount, setVisibleCatalogCount] =
     useState(CATALOG_VISIBLE_STEP)
 
@@ -82,6 +84,14 @@ export function AddBookPage() {
       title: 'Achievement unlocked',
       message: 'First book added',
     })
+  }
+
+  function markCatalogBookAsOwned(catalogBookId: string) {
+    setOwnedCatalogBookIds((currentIds) =>
+      currentIds.includes(catalogBookId)
+        ? currentIds
+        : [...currentIds, catalogBookId],
+    )
   }
 
   useEffect(() => {
@@ -199,6 +209,10 @@ export function AddBookPage() {
   }
 
   async function handleAddCatalogBook(book: CatalogBook) {
+    if (ownedCatalogBookIds.includes(book.catalogBookId)) {
+      return
+    }
+
     setAddingCatalogBookIds((currentIds) =>
       currentIds.includes(book.catalogBookId)
         ? currentIds
@@ -210,6 +224,7 @@ export function AddBookPage() {
     try {
       const addedBook = await addBookFromCatalog(book.catalogBookId)
 
+      markCatalogBookAsOwned(book.catalogBookId)
       setCatalogAddedBook(addedBook)
       showToast({
         tone: 'success',
@@ -219,6 +234,10 @@ export function AddBookPage() {
       showFirstBookAchievementIfNeeded()
     } catch (error) {
       const message = getErrorMessage(error)
+
+      if (isDuplicateCatalogBookError(error)) {
+        markCatalogBookAsOwned(book.catalogBookId)
+      }
 
       setCatalogAddErrorMessage(message)
       showToast({
@@ -390,6 +409,11 @@ export function AddBookPage() {
                 const isAddingBook = addingCatalogBookIds.includes(
                   book.catalogBookId,
                 )
+                const isOwnedCatalogBook = ownedCatalogBookIds.includes(
+                  book.catalogBookId,
+                )
+                const isCatalogActionDisabled =
+                  isAddingBook || isOwnedCatalogBook
 
                 return (
                   <article
@@ -434,10 +458,14 @@ export function AddBookPage() {
                       type="button"
                       className="primary-action w-full shrink-0 whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                       onClick={() => void handleAddCatalogBook(book)}
-                      disabled={isAddingBook}
+                      disabled={isCatalogActionDisabled}
                       aria-busy={isAddingBook}
                     >
-                      {isAddingBook ? 'Adding...' : 'Add to my books'}
+                      {isOwnedCatalogBook
+                        ? 'Already in my books'
+                        : isAddingBook
+                          ? 'Adding...'
+                          : 'Add to my books'}
                     </button>
                   </article>
                 )

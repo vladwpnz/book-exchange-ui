@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 import { loadCredentials } from '../auth/authStorage'
 import { apiClient, createBasicAuthHeaders } from './client'
 
@@ -30,8 +32,60 @@ export type CreatedCatalogBook = {
   author: string
 }
 
+export class CatalogRequestError extends Error {
+  status: number | undefined
+
+  constructor(message: string, status?: number) {
+    super(message)
+    this.name = 'CatalogRequestError'
+    this.status = status
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function getResponseErrorMessage(data: unknown) {
+  if (isRecord(data)) {
+    const responseError = data.error
+    const responseMessage = data.message
+
+    if (typeof responseError === 'string' && responseError.trim().length > 0) {
+      return responseError.trim()
+    }
+
+    if (
+      typeof responseMessage === 'string' &&
+      responseMessage.trim().length > 0
+    ) {
+      return responseMessage.trim()
+    }
+  }
+
+  if (typeof data === 'string' && data.trim().length > 0) {
+    return data.trim()
+  }
+
+  return undefined
+}
+
+function toCatalogRequestError(error: unknown, fallbackMessage: string) {
+  if (!axios.isAxiosError(error)) {
+    return error instanceof Error ? error : new Error(fallbackMessage)
+  }
+
+  const status = error.response?.status
+  const message =
+    status === 409
+      ? 'You have already added this catalog book'
+      : getResponseErrorMessage(error.response?.data) ?? error.message
+
+  return new CatalogRequestError(message || fallbackMessage, status)
+}
+
+export function isDuplicateCatalogBookError(error: unknown) {
+  return error instanceof CatalogRequestError && error.status === 409
 }
 
 function getRequiredText(
@@ -131,12 +185,19 @@ export async function searchCatalogBooks(query: string): Promise<CatalogBook[]> 
   const credentials = getCredentials()
   const trimmedQuery = query.trim()
 
-  const response = await apiClient.get<unknown>('/catalog/books', {
-    headers: createBasicAuthHeaders(credentials),
-    params: trimmedQuery ? { query: trimmedQuery } : undefined,
-  })
+  try {
+    const response = await apiClient.get<unknown>('/catalog/books', {
+      headers: createBasicAuthHeaders(credentials),
+      params: trimmedQuery ? { query: trimmedQuery } : undefined,
+    })
 
-  return getCatalogBooksData(response.data).map(toCatalogBook)
+    return getCatalogBooksData(response.data).map(toCatalogBook)
+  } catch (error) {
+    throw toCatalogRequestError(
+      error,
+      'Could not load catalog books. Please try again.',
+    )
+  }
 }
 
 export async function addBookFromCatalog(
@@ -145,14 +206,21 @@ export async function addBookFromCatalog(
   const credentials = getCredentials()
   const id = getCatalogBookId(catalogBookId)
 
-  const response = await apiClient.post<unknown>(
-    '/book/add/from-catalog',
-    undefined,
-    {
-      headers: createBasicAuthHeaders(credentials),
-      params: { id },
-    },
-  )
+  try {
+    const response = await apiClient.post<unknown>(
+      '/book/add/from-catalog',
+      undefined,
+      {
+        headers: createBasicAuthHeaders(credentials),
+        params: { id },
+      },
+    )
 
-  return toCreatedCatalogBook(response.data)
+    return toCreatedCatalogBook(response.data)
+  } catch (error) {
+    throw toCatalogRequestError(
+      error,
+      'Unable to add this catalog book. Please try again.',
+    )
+  }
 }
