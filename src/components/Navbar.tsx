@@ -9,18 +9,18 @@ type NavbarProps = {
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'rounded-lg px-3 py-2 text-sm font-medium transition duration-200',
+    'rounded-md border px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600',
     isActive
-      ? 'border border-cyan-300/25 bg-cyan-300/10 text-cyan-50 shadow-[0_0_28px_rgba(34,211,238,0.08)]'
-      : 'border border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.05] hover:text-slate-50',
+      ? 'border-blue-200 bg-blue-50 text-blue-700'
+      : 'border-transparent text-zinc-700 hover:border-zinc-200 hover:bg-white hover:text-zinc-950',
   ].join(' ')
 
 const accountPillClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'block max-w-52 truncate rounded-lg border px-3 py-2 text-sm font-medium transition duration-200',
+    'block max-w-52 truncate rounded-md border px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600',
     isActive
-      ? 'border-cyan-300/25 bg-cyan-300/10 text-cyan-50 shadow-[0_0_28px_rgba(34,211,238,0.08)]'
-      : 'border-white/10 bg-white/[0.035] text-slate-200 hover:border-cyan-200/25 hover:bg-white/[0.06] hover:text-slate-50',
+      ? 'border-blue-200 bg-blue-50 text-blue-700'
+      : 'border-zinc-200 bg-white text-zinc-700 hover:border-blue-200 hover:text-zinc-950',
   ].join(' ')
 
 export function Navbar({ appMode = false }: NavbarProps) {
@@ -33,23 +33,25 @@ export function Navbar({ appMode = false }: NavbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/10 bg-slate-950/72 backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-[#FAFAF7]/90 backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-3.5 sm:px-6 lg:px-8">
         <Link
           to="/"
-          className="group flex items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+          className="group flex items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
           aria-label="Book Exchange home"
         >
-          <span className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-xl border border-cyan-300/25 bg-white/[0.04] shadow-[0_0_34px_rgba(34,211,238,0.08)]">
-            <span className="absolute inset-0 bg-linear-to-br from-cyan-300/14 via-transparent to-emerald-300/12" />
-            <span className="relative h-5 w-4 rounded-sm border-l-4 border-cyan-200 bg-slate-100 shadow-[0_0_18px_rgba(125,211,252,0.3)]" />
+          <span className="relative grid h-11 w-11 place-items-center overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-[0_1px_2px_rgba(17,17,17,0.06)]">
+            <span className="absolute inset-y-2 left-3 w-[3px] rounded-full bg-blue-600" />
+            <span className="absolute left-4 top-2.5 h-6 w-5 -rotate-6 rounded-[3px] border border-zinc-300 bg-[#F1EEE8]" />
+            <span className="absolute left-5 top-3 h-6 w-5 rotate-6 rounded-[3px] border border-zinc-300 bg-white" />
+            <span className="absolute bottom-2 h-px w-7 bg-zinc-300" />
           </span>
           <span>
-            <span className="block text-base font-semibold text-slate-50">
+            <span className="block text-base font-bold text-zinc-950">
               Book Exchange
             </span>
-            <span className="block text-xs text-slate-400">
-              Exchange Network
+            <span className="block text-xs font-medium text-zinc-500">
+              Editorial exchange desk
             </span>
           </span>
         </Link>
@@ -69,7 +71,7 @@ export function Navbar({ appMode = false }: NavbarProps) {
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="rounded-lg border border-cyan-300/25 bg-cyan-300/8 px-3 py-2 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/14"
+                    className="rounded-md border border-zinc-200 bg-zinc-950 px-3 py-2 text-sm font-semibold text-white transition duration-200 hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
                   >
                     Logout
                   </button>
@@ -93,7 +95,7 @@ export function Navbar({ appMode = false }: NavbarProps) {
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="rounded-lg border border-cyan-300/25 bg-cyan-300/8 px-3 py-2 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/14"
+                    className="rounded-md border border-zinc-200 bg-zinc-950 px-3 py-2 text-sm font-semibold text-white transition duration-200 hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
                   >
                     Logout
                   </button>
@@ -113,7 +115,7 @@ export function Navbar({ appMode = false }: NavbarProps) {
                 href={repositoryLinks.backend}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-lg border border-transparent px-3 py-2 text-sm font-medium text-slate-300 transition duration-200 hover:border-white/10 hover:bg-white/[0.05] hover:text-slate-50"
+                className="rounded-md border border-transparent px-3 py-2 text-sm font-semibold text-zinc-700 transition duration-200 hover:border-zinc-200 hover:bg-white hover:text-zinc-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
               >
                 Backend
               </a>

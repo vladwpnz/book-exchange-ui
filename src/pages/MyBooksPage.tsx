@@ -65,21 +65,21 @@ export function MyBooksPage() {
       <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
         <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
-              My library
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
+              My library desk
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl">
+            <h1 className="mt-2 font-[var(--font-display)] text-4xl font-semibold leading-tight text-zinc-950 sm:text-5xl">
               My books
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-              Manage owned books, availability, and exchange actions from a
-              cleaner product dashboard.
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
+              Review your owned shelf, check availability, and move quickly into
+              add, share, or return flows from one calm exchange surface.
             </p>
           </div>
 
           {booksState === 'success' && (
-            <div className="rounded-xl border border-white/10 bg-white/[0.035] px-3.5 py-2.5 text-sm text-slate-300">
-              <span className="font-semibold text-slate-50">
+            <div className="rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-600 shadow-[0_1px_2px_rgba(17,17,17,0.04)]">
+              <span className="font-bold text-zinc-950">
                 {books.length}
               </span>{' '}
               owned books
@@ -99,16 +99,16 @@ export function MyBooksPage() {
           {loadingCards.map((card) => (
             <div
               key={card}
-              className="animate-pulse rounded-xl border border-white/10 bg-white/[0.035] p-3 sm:p-4"
+              className="rounded-xl border border-zinc-200 bg-white p-3 sm:p-4"
             >
               <div className="grid grid-cols-[3.75rem_1fr] gap-3 sm:grid-cols-[4.5rem_1fr] sm:gap-4">
-                <div className="h-24 w-15 rounded-lg bg-white/8 sm:h-28 sm:w-18" />
+                <div className="h-24 w-15 rounded-lg border border-zinc-200 bg-[#F1EEE8] sm:h-28 sm:w-18" />
                 <div className="flex flex-1 flex-col">
-                  <div className="h-3 w-24 rounded-full bg-cyan-300/15" />
-                  <div className="mt-3 h-5 w-3/4 rounded-full bg-white/12" />
-                  <div className="mt-2 h-4 w-40 rounded-full bg-white/8" />
-                  <div className="mt-4 h-4 w-32 rounded-full bg-white/8" />
-                  <div className="mt-2 h-4 w-52 max-w-full rounded-full bg-emerald-300/12" />
+                  <div className="h-3 w-24 rounded-full bg-blue-100" />
+                  <div className="mt-3 h-5 w-3/4 rounded-full bg-zinc-200" />
+                  <div className="mt-2 h-4 w-40 rounded-full bg-zinc-100" />
+                  <div className="mt-4 h-4 w-32 rounded-full bg-zinc-100" />
+                  <div className="mt-2 h-4 w-52 max-w-full rounded-full bg-green-100" />
                 </div>
               </div>
             </div>
@@ -117,18 +117,18 @@ export function MyBooksPage() {
       )}
 
       {booksState === 'error' && (
-        <div className="premium-panel rounded-2xl border border-amber-300/20 p-6 sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
+        <div className="premium-panel border-amber-200 p-6 sm:p-7">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-700">
             Books unavailable
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
             Could not load books
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
             {errorMessage}
           </p>
           <button
-            className="mt-5 rounded-xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-2.5 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/16"
+            className="primary-action mt-5"
             type="button"
             onClick={() => setReloadKey((key) => key + 1)}
           >
@@ -138,14 +138,14 @@ export function MyBooksPage() {
       )}
 
       {isEmpty && (
-        <div className="premium-panel rounded-2xl p-6 sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
+        <div className="empty-state p-6 sm:p-7">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-green-700">
             Empty shelf
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
             No owned books yet
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
             Your owned catalog will appear here once you add your first book to
             the exchange network.
           </p>
@@ -153,14 +153,14 @@ export function MyBooksPage() {
           <div className="mt-5 flex flex-wrap gap-3">
             <Link
               to="/app/add-book"
-              className="rounded-xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-2.5 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/16"
+              className="primary-action"
             >
               Add your first book
             </Link>
 
             <Link
               to="/app/share-book"
-              className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition duration-200 hover:bg-white/[0.07]"
+              className="secondary-action"
             >
               Explore exchange flow
             </Link>
@@ -172,10 +172,10 @@ export function MyBooksPage() {
         <section className="space-y-3">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
                 Owned catalog
               </p>
-              <h2 className="mt-1 text-xl font-semibold text-slate-50">
+              <h2 className="mt-1 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
                 Current shelf
               </h2>
             </div>

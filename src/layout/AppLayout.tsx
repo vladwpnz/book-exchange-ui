@@ -14,49 +14,52 @@ const sideLinks = [
 
 const sideLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'group relative flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition duration-200',
+    'group relative flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-blue-600',
     isActive
-      ? 'active border-cyan-300/25 bg-cyan-300/[0.07] text-cyan-50'
-      : 'border-transparent text-slate-300 hover:border-white/10 hover:bg-white/[0.045] hover:text-slate-100',
+      ? 'active border-blue-200 bg-blue-50 text-blue-700'
+      : 'border-transparent text-zinc-700 hover:border-zinc-200 hover:bg-white hover:text-zinc-950',
   ].join(' ')
 
 export function AppLayout() {
   return (
-    <div className="min-h-screen text-slate-100">
+    <div className="min-h-screen text-zinc-950">
       <Navbar appMode />
 
-      <div className="mx-auto grid max-w-7xl items-start gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[244px_1fr] lg:px-8">
-        <aside className="reveal-blur rounded-2xl border border-white/10 bg-slate-950/25 p-3 backdrop-blur">
-          <div className="border-b border-white/10 px-1 pb-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+      <div className="mx-auto grid max-w-7xl items-start gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[260px_1fr] lg:px-8">
+        <aside className="reveal-blur rounded-xl border border-zinc-200 bg-[#F1EEE8] p-3 shadow-[0_1px_2px_rgba(17,17,17,0.04)] lg:sticky lg:top-24">
+          <div className="border-b border-zinc-200 px-1 pb-3">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
               Workspace
             </p>
-            <h2 className="mt-1.5 text-base font-semibold text-slate-50">
-              Library dashboard
+            <h2 className="mt-1.5 font-[var(--font-display)] text-xl font-semibold leading-6 text-zinc-950">
+              Exchange desk
             </h2>
-            <p className="mt-1 text-xs leading-5 text-slate-400">
-              Catalog, exchange, and return flows
+            <p className="mt-1 text-xs leading-5 text-zinc-600">
+              Catalog, exchange, transfer, and return flows
             </p>
           </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1">
+          <nav
+            className="mt-3 grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1"
+            aria-label="Application sections"
+          >
             {sideLinks.map((link) => (
               <NavLink key={link.to} to={link.to} className={sideLinkClass}>
                 <span className="min-w-0">
-                  <span className="block text-sm font-semibold">
+                  <span className="block text-sm font-bold">
                     {link.label}
                   </span>
-                  <span className="mt-0.5 block truncate text-xs text-slate-500 group-hover:text-slate-400">
+                  <span className="mt-0.5 block truncate text-xs text-zinc-500 group-hover:text-zinc-600">
                     {link.hint}
                   </span>
                 </span>
                 <span
-                  className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-200/0 transition duration-200 group-[.active]:bg-cyan-200/80"
+                  className="h-1.5 w-1.5 shrink-0 rounded-full bg-transparent transition duration-200 group-[.active]:bg-blue-600"
                   aria-hidden="true"
                 />
               </NavLink>
             ))}
-          </div>
+          </nav>
         </aside>
 
         <main className="min-w-0 reveal-blur">

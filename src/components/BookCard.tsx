@@ -5,9 +5,15 @@ type BookCardProps = {
 }
 
 const coverClasses = {
-  emerald: 'from-emerald-300/80 via-emerald-500/55 to-cyan-950',
-  amber: 'from-amber-200/80 via-amber-500/50 to-slate-950',
-  paper: 'from-slate-200/70 via-slate-500/35 to-slate-950',
+  emerald: 'border-green-200 from-[#F0FDF4] via-[#FFFFFF] to-[#D9F5E3]',
+  amber: 'border-amber-200 from-[#FFFBEB] via-[#FFFFFF] to-[#F7E7C0]',
+  paper: 'border-zinc-200 from-[#FAFAF7] via-[#FFFFFF] to-[#E7E5E4]',
+} satisfies Record<Book['tone'], string>
+
+const spineClasses = {
+  emerald: 'bg-green-700',
+  amber: 'bg-amber-700',
+  paper: 'bg-zinc-700',
 } satisfies Record<Book['tone'], string>
 
 const statusLabels = {
@@ -18,51 +24,54 @@ const statusLabels = {
 } satisfies Record<Book['status'], string>
 
 const statusClasses = {
-  available: 'border-emerald-300/25 bg-emerald-300/[0.08] text-emerald-100',
-  held: 'border-cyan-300/25 bg-cyan-300/[0.08] text-cyan-100',
-  shared: 'border-violet-300/25 bg-violet-300/[0.08] text-violet-100',
-  pending: 'border-amber-300/25 bg-amber-300/[0.08] text-amber-100',
+  available: 'border-green-200 bg-green-50 text-green-800',
+  held: 'border-blue-200 bg-blue-50 text-blue-800',
+  shared: 'border-violet-200 bg-violet-50 text-violet-800',
+  pending: 'border-amber-200 bg-amber-50 text-amber-800',
 } satisfies Record<Book['status'], string>
 
 export function BookCard({ book }: BookCardProps) {
   return (
-    <article className="group rounded-xl border border-white/10 bg-white/[0.035] p-3 text-left shadow-[0_14px_38px_rgba(0,0,0,0.16)] transition duration-200 hover:border-cyan-200/25 hover:bg-white/[0.055] hover:shadow-[0_18px_46px_rgba(0,0,0,0.22)] sm:p-4">
+    <article className="group rounded-xl border border-zinc-200 bg-white p-3 text-left shadow-[0_1px_2px_rgba(17,17,17,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-[0_14px_28px_rgba(17,17,17,0.07)] sm:p-4">
       <div className="grid grid-cols-[3.75rem_1fr] gap-3 sm:grid-cols-[4.5rem_1fr] sm:gap-4">
         <div
-          className={`relative h-24 w-15 shrink-0 overflow-hidden rounded-lg bg-linear-to-br sm:h-28 sm:w-18 ${coverClasses[book.tone]} shadow-[0_12px_28px_rgba(0,0,0,0.24)]`}
+          className={`relative h-24 w-15 shrink-0 overflow-hidden rounded-lg border bg-linear-to-br shadow-[inset_0_0_0_1px_rgba(255,255,255,0.78),0_8px_18px_rgba(17,17,17,0.08)] sm:h-28 sm:w-18 ${coverClasses[book.tone]}`}
+          aria-hidden="true"
         >
-          <div className="absolute inset-y-0 left-3 w-px bg-white/35" />
-          <div className="absolute inset-x-3 top-4 h-px bg-white/18" />
-          <div className="absolute inset-x-3 top-7 h-px bg-white/12" />
-          <div className="absolute bottom-3 left-3 right-3 h-1.5 rounded-full bg-white/30" />
+          <div
+            className={`absolute inset-y-0 left-0 w-2 ${spineClasses[book.tone]}`}
+          />
+          <div className="absolute left-4 right-3 top-4 h-px bg-zinc-300/80" />
+          <div className="absolute left-4 right-5 top-7 h-px bg-zinc-200" />
+          <div className="absolute bottom-3 left-4 right-3 h-1.5 rounded-full bg-zinc-300/80" />
         </div>
 
         <div className="min-w-0">
           <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-700">
                 {book.genre}
               </p>
-              <h3 className="mt-1 text-base font-semibold leading-6 text-slate-50 sm:text-lg">
+              <h3 className="mt-1 font-[var(--font-display)] text-xl font-semibold leading-6 text-zinc-950 sm:text-2xl">
                 {book.title}
               </h3>
             </div>
 
             <span
-              className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.12em] ${statusClasses[book.status]}`}
+              className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-[0.12em] ${statusClasses[book.status]}`}
             >
               {statusLabels[book.status]}
             </span>
           </div>
 
-          <p className="mt-1 text-sm text-slate-400">{book.author}</p>
+          <p className="mt-1 text-sm font-medium text-zinc-600">{book.author}</p>
 
-          <p className="mt-3 text-sm text-slate-500">
+          <p className="mt-3 text-sm text-zinc-500">
             Owner:{' '}
-            <span className="font-medium text-slate-300">{book.owner}</span>
+            <span className="font-semibold text-zinc-800">{book.owner}</span>
           </p>
 
-          <p className="mt-1 text-sm font-medium leading-5 text-slate-300">
+          <p className="mt-1 text-sm font-medium leading-5 text-zinc-700">
             {book.note}
           </p>
         </div>
