@@ -1,7 +1,7 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 
-import { repositoryLinks } from '../api/links'
 import { useAuth } from '../auth/useAuth'
+import { BrandMark } from './BrandMark'
 
 type NavbarProps = {
   appMode?: boolean
@@ -9,18 +9,10 @@ type NavbarProps = {
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'rounded-md border px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600',
+    'rounded-md border px-3 py-2 text-sm font-bold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]',
     isActive
-      ? 'border-blue-200 bg-blue-50 text-blue-700'
-      : 'border-transparent text-zinc-700 hover:border-zinc-200 hover:bg-white hover:text-zinc-950',
-  ].join(' ')
-
-const accountPillClass = ({ isActive }: { isActive: boolean }) =>
-  [
-    'block max-w-[8.5rem] truncate rounded-md border px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 sm:max-w-52',
-    isActive
-      ? 'border-blue-200 bg-blue-50 text-blue-700'
-      : 'border-zinc-200 bg-white text-zinc-700 hover:border-blue-200 hover:text-zinc-950',
+      ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent-strong)]'
+      : 'border-transparent text-[var(--color-muted)] hover:border-[var(--color-border)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]',
   ].join(' ')
 
 export function Navbar({ appMode = false }: NavbarProps) {
@@ -33,30 +25,17 @@ export function Navbar({ appMode = false }: NavbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-[#FAFAF7]/90 backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:gap-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-30 border-b border-[#ded1c1] bg-[#fffaf2]/92 backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <Link
           to="/"
-          className="group flex items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
+          className="rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
           aria-label="Book Exchange home"
         >
-          <span className="relative grid h-11 w-11 place-items-center overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-[0_1px_2px_rgba(17,17,17,0.06)]">
-            <span className="absolute inset-y-2 left-3 w-[3px] rounded-full bg-blue-600" />
-            <span className="absolute left-4 top-2.5 h-6 w-5 -rotate-6 rounded-[3px] border border-zinc-300 bg-[#F1EEE8]" />
-            <span className="absolute left-5 top-3 h-6 w-5 rotate-6 rounded-[3px] border border-zinc-300 bg-white" />
-            <span className="absolute bottom-2 h-px w-7 bg-zinc-300" />
-          </span>
-          <span>
-            <span className="block text-base font-bold text-zinc-950">
-              Book Exchange
-            </span>
-            <span className="hidden text-xs font-medium text-zinc-500 sm:block">
-              Editorial exchange desk
-            </span>
-          </span>
+          <BrandMark label={appMode ? 'Exchange workspace' : 'Reader network'} />
         </Link>
 
-        <div className="flex flex-wrap items-center justify-end gap-2">
+        <div className="flex min-w-0 items-center justify-end gap-2">
           {appMode ? (
             <>
               <NavLink to="/app/admin" className={navLinkClass}>
@@ -65,13 +44,26 @@ export function Navbar({ appMode = false }: NavbarProps) {
 
               {isAuthenticated ? (
                 <>
-                  <NavLink to="/app/profile" className={accountPillClass}>
-                    {currentUserEmail}
+                  <NavLink
+                    to="/app/profile"
+                    className={({ isActive }) =>
+                      [
+                        'hidden max-w-48 rounded-md border px-3 py-2 text-left text-sm font-bold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)] sm:block',
+                        isActive
+                          ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent-strong)]'
+                          : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] hover:border-[var(--color-border-strong)]',
+                      ].join(' ')
+                    }
+                  >
+                    <span className="block leading-4">Account</span>
+                    <span className="block truncate text-xs font-semibold text-[var(--color-muted)]">
+                      {currentUserEmail}
+                    </span>
                   </NavLink>
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="rounded-md border border-zinc-200 bg-zinc-950 px-3 py-2 text-sm font-semibold text-white transition duration-200 hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
+                    className="secondary-action min-h-0 px-3 py-2 text-sm"
                   >
                     Logout
                   </button>
@@ -87,15 +79,12 @@ export function Navbar({ appMode = false }: NavbarProps) {
               {isAuthenticated ? (
                 <>
                   <NavLink to="/app/my-books" className={navLinkClass}>
-                    My books
-                  </NavLink>
-                  <NavLink to="/app/profile" className={accountPillClass}>
-                    {currentUserEmail}
+                    Open app
                   </NavLink>
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="rounded-md border border-zinc-200 bg-zinc-950 px-3 py-2 text-sm font-semibold text-white transition duration-200 hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
+                    className="secondary-action min-h-0 px-3 py-2 text-sm"
                   >
                     Logout
                   </button>
@@ -105,20 +94,11 @@ export function Navbar({ appMode = false }: NavbarProps) {
                   <NavLink to="/login" className={navLinkClass}>
                     Login
                   </NavLink>
-                  <NavLink to="/register" className={navLinkClass}>
+                  <NavLink to="/register" className="primary-action min-h-0 px-3 py-2 text-sm">
                     Register
                   </NavLink>
                 </>
               )}
-
-              <a
-                href={repositoryLinks.backend}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-md border border-transparent px-3 py-2 text-sm font-semibold text-zinc-700 transition duration-200 hover:border-zinc-200 hover:bg-white hover:text-zinc-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
-              >
-                Backend
-              </a>
             </>
           )}
         </div>

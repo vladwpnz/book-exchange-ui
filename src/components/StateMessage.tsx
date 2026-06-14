@@ -13,24 +13,24 @@ type StateMessageProps = {
 }
 
 const toneClasses = {
-  success: 'border-green-200 bg-green-50 text-green-900',
-  warning: 'border-amber-200 bg-amber-50 text-amber-950',
-  error: 'border-red-200 bg-red-50 text-red-950',
-  info: 'border-blue-200 bg-blue-50 text-blue-950',
+  success: 'border-[#bfd8c7] bg-[#eef7ed] text-[#173d2d]',
+  warning: 'border-[#e5c47f] bg-[#fff3cf] text-[#513615]',
+  error: 'border-[#e4b0a9] bg-[#fff1ed] text-[#74271f]',
+  info: 'border-[#bfd1dc] bg-[#edf5f8] text-[#21455f]',
 } satisfies Record<StateTone, string>
 
 const markerClasses = {
-  success: 'bg-green-700',
-  warning: 'bg-amber-600',
-  error: 'bg-red-700',
-  info: 'bg-blue-700',
+  success: 'bg-[var(--color-forest)]',
+  warning: 'bg-[var(--color-gold)]',
+  error: 'bg-[var(--color-danger)]',
+  info: 'bg-[var(--color-blue)]',
 } satisfies Record<StateTone, string>
 
-const titleClasses = {
-  success: 'text-green-950',
-  warning: 'text-amber-950',
-  error: 'text-red-950',
-  info: 'text-blue-950',
+const toneLabels = {
+  success: 'Success',
+  warning: 'Warning',
+  error: 'Error',
+  info: 'Notice',
 } satisfies Record<StateTone, string>
 
 export function StateMessage({
@@ -48,21 +48,22 @@ export function StateMessage({
 
   return (
     <div
-      className={`rounded-xl border px-4 py-3 text-sm leading-6 shadow-[0_1px_2px_rgba(17,17,17,0.04)] ${toneClasses[tone]} ${className}`}
+      className={`rounded-[0.7rem] border px-4 py-3 text-sm leading-6 shadow-[var(--shadow-restraint)] ${toneClasses[tone]} ${className}`}
       role={resolvedRole}
       aria-live={resolvedLive}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex min-w-0 gap-3">
           <span
-            className={`mt-2 h-2 w-2 shrink-0 rounded-full ${markerClasses[tone]}`}
+            className={`mt-2 h-2.5 w-2.5 shrink-0 rounded-full ${markerClasses[tone]}`}
             aria-hidden="true"
           />
           <div className="min-w-0">
-            {title ? (
-              <p className={`font-bold ${titleClasses[tone]}`}>{title}</p>
-            ) : null}
-            <div className={title ? 'mt-1 opacity-[0.86]' : 'opacity-[0.86]'}>
+            <p className="text-xs font-bold tracking-[0.14em] opacity-80">
+              {toneLabels[tone]}
+            </p>
+            {title ? <p className="mt-0.5 font-bold">{title}</p> : null}
+            <div className={title ? 'mt-1 opacity-[0.88]' : 'mt-1 opacity-[0.88]'}>
               {children}
             </div>
           </div>

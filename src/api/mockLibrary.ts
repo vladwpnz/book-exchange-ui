@@ -93,10 +93,16 @@ export const dashboardActions: DashboardAction[] = [
     accent: 'amber',
   },
   {
+    title: 'Give a book',
+    description: 'Move ownership when a copy should permanently transfer.',
+    href: '/app/give-book',
+    accent: 'paper',
+  },
+  {
     title: 'Return a book',
     description: 'Close an active hold and return a borrowed book to its owner.',
     href: '/app/return-book',
-    accent: 'paper',
+    accent: 'emerald',
   },
 ]
 

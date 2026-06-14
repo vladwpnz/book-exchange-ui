@@ -4,113 +4,100 @@ import { repositoryLinks } from '../api/links'
 import { featuredBooks } from '../api/mockLibrary'
 import { useAuth } from '../auth/useAuth'
 import { BookCard } from '../components/BookCard'
+import { BookCover } from '../components/BookCover'
 import { Navbar } from '../components/Navbar'
 
-const features = [
+const workflow = [
   {
-    title: 'Exchange flows in one rhythm',
+    title: 'Find or add a title',
     description:
-      'Owned books, held books, sharing, giving, returns, and admin recovery stay visible without making the interface feel heavy.',
+      'Start with the catalog search, then add a missing book manually only when needed.',
+    href: '/app/add-book',
   },
   {
-    title: 'Backend-backed product surface',
+    title: 'Share with a reader',
     description:
-      'Core screens still call the Spring Boot API with Basic Auth and reflect real backend responses.',
+      'Send a book to another account while keeping the hold visible in the exchange.',
+    href: '/app/share-book',
   },
   {
-    title: 'Editorial book identity',
+    title: 'Transfer ownership',
     description:
-      'Warm paper tones, restrained borders, and literary type hierarchy make the product feel like a modern reading desk.',
+      'Give a book when the copy should permanently move to another reader.',
+    href: '/app/give-book',
+  },
+  {
+    title: 'Close the hold',
+    description:
+      'Return borrowed books and keep the owned and held shelves clean.',
+    href: '/app/return-book',
   },
 ]
 
-const techStack = ['React', 'TypeScript', 'Vite', 'Tailwind CSS', 'Spring Boot']
-
-const deskStats = [
-  { label: 'Owned shelf', value: '3' },
-  { label: 'Open flows', value: '7' },
-  { label: 'API surface', value: 'Live' },
+const benefits = [
+  'Book-first catalog cards with title, author, owner, status, and notes.',
+  'Separate flows for sharing, giving, returning, and admin recovery.',
+  'A compact app shell that works across phone, tablet, and desktop layouts.',
 ]
 
 export function LandingPage() {
   const { isAuthenticated } = useAuth()
+  const primaryHref = isAuthenticated ? '/app/my-books' : '/register'
+  const primaryLabel = isAuthenticated ? 'Open my shelf' : 'Create account'
 
   return (
-    <div className="min-h-screen text-zinc-950">
+    <div className="min-h-screen text-[var(--color-ink)]">
       <Navbar />
 
       <main>
-        <section className="relative overflow-hidden border-b border-zinc-200">
-          <div className="mx-auto grid max-w-7xl gap-10 px-5 py-10 sm:px-6 lg:grid-cols-[minmax(0,1fr)_500px] lg:items-center lg:px-8 lg:py-12">
+        <section className="relative overflow-hidden border-b border-[var(--color-border)]">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 md:py-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.75fr)] lg:items-center lg:px-8">
             <div className="max-w-3xl">
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-blue-700">
-                Editorial Exchange Desk
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                A reader-to-reader exchange service
               </p>
 
-              <h1 className="mt-5 font-[var(--font-display)] text-5xl font-semibold leading-[0.98] text-zinc-950 sm:text-6xl lg:text-7xl">
+              <h1 className="mt-4 max-w-4xl font-[var(--font-display)] text-5xl font-semibold leading-[0.98] text-[var(--color-ink)] sm:text-6xl lg:text-7xl">
                 Book Exchange
               </h1>
 
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-zinc-600">
-                A warm, precise front desk for sharing books: owned catalog,
-                borrowed shelf, transfers, returns, and admin recovery connected
-                through the existing Spring Boot backend.
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-muted)]">
+                Keep your owned shelf, borrowed books, collaborative shares,
+                transfers, returns, and admin recovery in one calm publishing
+                workspace.
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link to="/app/my-books" className="primary-action">
-                  Open exchange desk
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link to={primaryHref} className="primary-action">
+                  {primaryLabel}
                 </Link>
 
-                {!isAuthenticated && (
-                  <>
-                    <Link to="/login" className="secondary-action">
-                      Login
-                    </Link>
-
-                    <Link to="/register" className="secondary-action">
-                      Register
-                    </Link>
-                  </>
+                {!isAuthenticated ? (
+                  <Link to="/login" className="secondary-action">
+                    Login
+                  </Link>
+                ) : (
+                  <Link to="/app/add-book" className="secondary-action">
+                    Add a book
+                  </Link>
                 )}
-
-                <a
-                  href={repositoryLinks.backend}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="secondary-action"
-                >
-                  View backend
-                </a>
-
-                <a
-                  href={repositoryLinks.apiTests}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="secondary-action"
-                >
-                  View API tests
-                </a>
               </div>
 
-              <div
-                className="mt-7 flex h-20 items-end gap-2 lg:hidden"
-                aria-hidden="true"
-              >
-                <span className="h-16 w-9 rounded-md border border-green-200 bg-[#F0FDF4] shadow-[0_8px_18px_rgba(17,17,17,0.06)]" />
-                <span className="h-20 w-10 rounded-md border border-amber-200 bg-[#FFFBEB] shadow-[0_8px_18px_rgba(17,17,17,0.06)]" />
-                <span className="h-14 w-9 rounded-md border border-zinc-200 bg-white shadow-[0_8px_18px_rgba(17,17,17,0.06)]" />
-                <span className="ml-2 h-px flex-1 bg-zinc-200" />
-              </div>
-
-              <dl className="mt-7 hidden max-w-xl grid-cols-3 gap-px overflow-hidden rounded-xl border border-zinc-200 bg-zinc-200 sm:grid">
-                {deskStats.map((stat) => (
-                  <div key={stat.label} className="bg-white px-4 py-3">
-                    <dt className="text-xs font-semibold text-zinc-500">
-                      {stat.label}
+              <dl className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-3">
+                {[
+                  ['Catalog first', 'Search before manual entry'],
+                  ['Clear flows', 'Share, give, return'],
+                  ['Admin ready', 'Force-return visibility'],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="border-l border-[var(--color-border-strong)] pl-4"
+                  >
+                    <dt className="text-sm font-bold text-[var(--color-ink)]">
+                      {label}
                     </dt>
-                    <dd className="mt-1 font-[var(--font-display)] text-2xl font-semibold text-zinc-950">
-                      {stat.value}
+                    <dd className="mt-1 text-sm leading-5 text-[var(--color-muted)]">
+                      {value}
                     </dd>
                   </div>
                 ))}
@@ -118,82 +105,173 @@ export function LandingPage() {
             </div>
 
             <aside
-              className="reveal-blur relative hidden lg:block"
-              aria-label="Exchange desk preview"
+              className="relative min-h-[25rem] overflow-hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[#fffaf2] p-4 shadow-[var(--shadow-restraint)] sm:p-5"
+              aria-label="Book Exchange catalog preview"
             >
-              <div className="absolute inset-x-6 top-6 h-[88%] rounded-xl border border-zinc-200 bg-[#F1EEE8]" />
-              <div className="relative mx-auto max-w-[29rem]">
-                <div className="mb-3 flex items-center justify-between border-b border-zinc-200 pb-3">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
-                      Desk preview
-                    </p>
-                    <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
-                      Active shelf
-                    </h2>
-                  </div>
-
-                  <span className="rounded-full border border-green-200 bg-green-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-green-800">
-                    Live shape
-                  </span>
+              <div className="brand-ribbon absolute inset-x-0 top-0 h-1" />
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                    Live shelf shape
+                  </p>
+                  <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
+                    Books stay central
+                  </h2>
                 </div>
+                <span className="rounded-full border border-[#bfd8c7] bg-[#eef7ed] px-3 py-1 text-xs font-bold text-[#194934]">
+                  Product preview
+                </span>
+              </div>
 
-                <div className="grid gap-3">
-                  {featuredBooks.map((book) => (
-                    <BookCard key={book.id} book={book} />
-                  ))}
+              <div className="mt-8 flex items-end justify-center gap-3 sm:gap-4">
+                {featuredBooks.map((book, index) => (
+                  <BookCover
+                    key={book.id}
+                    title={book.title}
+                    author={book.author}
+                    genre={book.genre}
+                    tone={book.tone}
+                    size={index === 1 ? 'hero' : 'lg'}
+                    className={index === 0 ? 'rotate-[-5deg]' : index === 2 ? 'rotate-[5deg]' : ''}
+                  />
+                ))}
+              </div>
+
+              <div className="mt-8 rounded-[0.7rem] border border-[var(--color-border)] bg-white p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-bold text-[var(--color-ink)]">
+                      Share request
+                    </p>
+                    <p className="mt-1 text-sm text-[var(--color-muted)]">
+                      Maps of Quiet Cities is held until Sunday.
+                    </p>
+                  </div>
+                  <Link to="/app/share-book" className="secondary-action min-h-0 px-3 py-2 text-sm">
+                    Open share
+                  </Link>
                 </div>
               </div>
             </aside>
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8">
-          <div className="mb-7 max-w-3xl">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-              Direction
-            </p>
-            <h2 className="mt-2 font-[var(--font-display)] text-4xl font-semibold text-zinc-950">
-              Premium, restrained, and unmistakably bookish.
-            </h2>
-          </div>
+        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+            <div>
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                Product workflow
+              </p>
+              <h2 className="mt-3 font-[var(--font-display)] text-4xl font-semibold leading-tight text-[var(--color-ink)]">
+                A simple circulation desk for everyday exchanges.
+              </h2>
+              <p className="mt-4 text-base leading-7 text-[var(--color-muted)]">
+                Each route reflects one real backend-backed action. The
+                interface separates collaboration from final transfer so readers
+                understand what will happen before they submit.
+              </p>
+            </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
-            {features.map((feature) => (
-              <article
-                key={feature.title}
-                className="border-l border-zinc-200 pl-5"
-              >
-                <div className="mb-5 h-1.5 w-14 rounded-full bg-linear-to-r from-blue-600 via-green-700 to-amber-600" />
-                <h2 className="font-[var(--font-display)] text-2xl font-semibold leading-7 text-zinc-950">
-                  {feature.title}
-                </h2>
-                <p className="mt-3 text-sm leading-6 text-zinc-600">
-                  {feature.description}
-                </p>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section className="border-t border-zinc-200 bg-white/60">
-          <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-              Tech stack
-            </p>
-
-            <div className="mt-5 flex flex-wrap gap-3">
-              {techStack.map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-700"
+            <div className="grid gap-3 sm:grid-cols-2">
+              {workflow.map((item, index) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="group rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-white hover:shadow-[var(--shadow-lift)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
                 >
-                  {item}
-                </span>
+                  <span className="text-sm font-bold text-[var(--color-accent)]">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <h3 className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+                    {item.description}
+                  </p>
+                  <span className="mt-4 inline-flex text-sm font-bold text-[var(--color-accent)] transition duration-200 group-hover:translate-x-1">
+                    Open route -&gt;
+                  </span>
+                </Link>
               ))}
             </div>
           </div>
         </section>
+
+        <section className="border-y border-[var(--color-border)] bg-[#fffaf2]/72">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+            <div>
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                Catalog presentation
+              </p>
+              <h2 className="mt-3 font-[var(--font-display)] text-4xl font-semibold text-[var(--color-ink)]">
+                Every book gets a real hierarchy.
+              </h2>
+              <ul className="mt-5 grid gap-3">
+                {benefits.map((benefit) => (
+                  <li
+                    key={benefit}
+                    className="flex gap-3 text-sm leading-6 text-[var(--color-muted)]"
+                  >
+                    <span
+                      className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[var(--color-forest)]"
+                      aria-hidden="true"
+                    />
+                    <span>{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="grid gap-3">
+              {featuredBooks.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  contextLabel="Featured catalog"
+                  actions={
+                    <Link
+                      to="/app/my-books"
+                      className="secondary-action min-h-0 px-3 py-2 text-sm"
+                    >
+                      View in app
+                    </Link>
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <footer className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 border-t border-[var(--color-border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
+                Book Exchange
+              </p>
+              <p className="mt-1 text-sm text-[var(--color-muted)]">
+                A premium, editorial front end for a Spring Boot book exchange.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 text-sm font-bold text-[var(--color-muted)]">
+              <a
+                href={repositoryLinks.backend}
+                target="_blank"
+                rel="noreferrer"
+                className="transition duration-200 hover:text-[var(--color-accent)]"
+              >
+                Backend
+              </a>
+              <a
+                href={repositoryLinks.apiTests}
+                target="_blank"
+                rel="noreferrer"
+                className="transition duration-200 hover:text-[var(--color-accent)]"
+              >
+                API tests
+              </a>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   )

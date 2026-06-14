@@ -6,6 +6,7 @@ import { dashboardActions } from '../api/mockLibrary'
 import { BookCard } from '../components/BookCard'
 import { BookListSkeleton } from '../components/BookListSkeleton'
 import { DashboardCard } from '../components/DashboardCard'
+import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
 import type { Book } from '../types/book'
 
@@ -59,38 +60,57 @@ export function MyBooksPage() {
 
   const hasBooks = booksState === 'success' && books.length > 0
   const isEmpty = booksState === 'success' && books.length === 0
+  const availableCount = books.filter((book) => book.status === 'available').length
+  const activeCount = books.filter((book) => book.status !== 'available').length
 
   return (
     <section className="space-y-5">
-      <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
-        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-              My library desk
-            </p>
-            <h1 className="mt-2 font-[var(--font-display)] text-4xl font-semibold leading-tight text-zinc-950 sm:text-5xl">
-              My books
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
-              Review your owned shelf, check availability, and move quickly into
-              add, share, or return flows from one calm exchange surface.
-            </p>
-          </div>
-
-          {booksState === 'success' && (
-            <div className="rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-600 shadow-[0_1px_2px_rgba(17,17,17,0.04)]">
-              <span className="font-bold text-zinc-950">
+      <PageHeader
+        eyebrow="My library desk"
+        title="My books"
+        description="Your owned shelf is the working center for sharing, giving, and catalog upkeep."
+        action={
+          <Link className="primary-action" to="/app/add-book">
+            Add book
+          </Link>
+        }
+        meta={
+          booksState === 'success' ? (
+            <div className="rounded-[0.7rem] border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-muted)] shadow-[var(--shadow-restraint)]">
+              <span className="font-bold text-[var(--color-ink)]">
                 {books.length}
               </span>{' '}
               owned books
             </div>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
-      <nav className="grid gap-3 md:grid-cols-3" aria-label="Book actions">
-        {dashboardActions.map((action) => (
-          <DashboardCard key={action.href} {...action} />
+      {booksState === 'success' ? (
+        <dl className="grid gap-3 sm:grid-cols-3">
+          {[
+            ['Total shelf', books.length],
+            ['Available', availableCount],
+            ['In motion', activeCount],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-restraint)]"
+            >
+              <dt className="text-sm font-bold text-[var(--color-muted)]">
+                {label}
+              </dt>
+              <dd className="mt-2 font-[var(--font-display)] text-4xl font-semibold text-[var(--color-ink)]">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+
+      <nav className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Book workflows">
+        {dashboardActions.map((action, index) => (
+          <DashboardCard key={action.href} {...action} index={index + 1} />
         ))}
       </nav>
 
@@ -99,14 +119,14 @@ export function MyBooksPage() {
       )}
 
       {booksState === 'error' && (
-        <div className="premium-panel border-amber-200 p-6 sm:p-7" role="alert">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-700">
+        <div className="premium-panel border-[#e5c47f] p-6 sm:p-7" role="alert">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
             Books unavailable
           </p>
-          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
             Could not load books
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
             {errorMessage}
           </p>
           <button
@@ -121,30 +141,24 @@ export function MyBooksPage() {
 
       {isEmpty && (
         <div className="empty-state p-6 sm:p-7" role="status" aria-live="polite">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-green-700">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
             Empty shelf
           </p>
-          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
-            No owned books yet
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
+            Add your first exchange copy
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
-            Your owned catalog will appear here once you add your first book to
-            the exchange network.
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
+            Start with catalog search so your book enters the exchange with the
+            richest available details.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link
-              to="/app/add-book"
-              className="primary-action"
-            >
-              Add your first book
+            <Link to="/app/add-book" className="primary-action">
+              Search catalog
             </Link>
 
-            <Link
-              to="/app/share-book"
-              className="secondary-action"
-            >
-              Explore exchange flow
+            <Link to="/app/share-book" className="secondary-action">
+              Preview share flow
             </Link>
           </div>
         </div>
@@ -154,10 +168,10 @@ export function MyBooksPage() {
         <section className="space-y-3">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
                 Owned catalog
               </p>
-              <h2 className="mt-1 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
+              <h2 className="mt-1 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
                 Current shelf
               </h2>
             </div>
@@ -165,7 +179,27 @@ export function MyBooksPage() {
 
           <div className="grid gap-3 xl:grid-cols-2">
             {books.map((book) => (
-              <BookCard key={book.id} book={book} />
+              <BookCard
+                key={book.id}
+                book={book}
+                contextLabel="Owned copy"
+                actions={
+                  <>
+                    <Link
+                      to="/app/share-book"
+                      className="secondary-action min-h-0 px-3 py-2 text-sm"
+                    >
+                      Share
+                    </Link>
+                    <Link
+                      to="/app/give-book"
+                      className="danger-action min-h-0 px-3 py-2 text-sm"
+                    >
+                      Give
+                    </Link>
+                  </>
+                }
+              />
             ))}
           </div>
         </section>

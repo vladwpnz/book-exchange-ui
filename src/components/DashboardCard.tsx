@@ -7,18 +7,13 @@ type DashboardCardProps = {
   description: string
   href: string
   accent?: AccentTone
+  index?: number
 }
 
 const accentClasses: Record<AccentTone, string> = {
-  emerald: 'border-green-200 bg-green-700',
-  amber: 'border-amber-200 bg-amber-600',
-  paper: 'border-zinc-200 bg-zinc-700',
-}
-
-const labelClasses: Record<AccentTone, string> = {
-  emerald: 'text-green-700',
-  amber: 'text-amber-700',
-  paper: 'text-zinc-700',
+  emerald: 'border-[#b9d7c5] bg-[#eef7ed] text-[#194934]',
+  amber: 'border-[#e3bf9a] bg-[#fff3cf] text-[#704712]',
+  paper: 'border-[#d5c4b1] bg-[#fffaf2] text-[#6f2f22]',
 }
 
 export function DashboardCard({
@@ -26,37 +21,33 @@ export function DashboardCard({
   description,
   href,
   accent = 'emerald',
+  index = 1,
 }: DashboardCardProps) {
   return (
     <Link
       to={href}
-      className="group flex h-full min-h-[10rem] gap-3 rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-[0_1px_2px_rgba(17,17,17,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-blue-200 hover:bg-[#fffefa] hover:shadow-[0_14px_28px_rgba(17,17,17,0.07)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
+      className="group flex h-full min-h-[9.5rem] flex-col justify-between rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-left shadow-[var(--shadow-restraint)] transition duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-white hover:shadow-[var(--shadow-lift)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
     >
       <span
-        className={`mt-1.5 h-3 w-3 shrink-0 rounded-full border ${accentClasses[accent]}`}
+        className={`inline-flex h-9 w-9 items-center justify-center rounded-md border text-sm font-bold ${accentClasses[accent]}`}
         aria-hidden="true"
-      />
+      >
+        {String(index).padStart(2, '0')}
+      </span>
 
-      <div className="min-w-0">
-        <span
-          className={`text-[0.65rem] font-bold uppercase tracking-[0.18em] ${labelClasses[accent]}`}
-        >
-          Desk action
-        </span>
-
-        <h3 className="mt-2 font-[var(--font-display)] text-2xl font-semibold leading-7 text-zinc-950">
+      <span className="mt-4 block min-w-0">
+        <span className="block font-[var(--font-display)] text-2xl font-semibold leading-7 text-[var(--color-ink)]">
           {title}
-        </h3>
-
-        <p className="mt-2 text-sm leading-6 text-zinc-600">
-          {description}
-        </p>
-
-        <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-blue-700 transition duration-200 group-hover:gap-3">
-          Open section
-          <span aria-hidden="true">-&gt;</span>
         </span>
-      </div>
+        <span className="mt-2 block text-sm leading-6 text-[var(--color-muted)]">
+          {description}
+        </span>
+      </span>
+
+      <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--color-accent)] transition duration-200 group-hover:gap-3">
+        Open workflow
+        <span aria-hidden="true">-&gt;</span>
+      </span>
     </Link>
   )
 }

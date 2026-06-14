@@ -2,13 +2,30 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
 import { giveBook } from '../api/booksApi'
+import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
+import { WorkflowSteps } from '../components/WorkflowSteps'
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 type GivenBookSummary = {
   title: string
   username: string
 }
+
+const giveSteps = [
+  {
+    title: 'Verify the title',
+    description: 'Use the exact owned title that should leave your shelf.',
+  },
+  {
+    title: 'Confirm recipient',
+    description: 'The target email receives ownership after the backend accepts.',
+  },
+  {
+    title: 'Submit final transfer',
+    description: 'This is intentionally more serious than a shared hold.',
+  },
+]
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error
@@ -62,36 +79,32 @@ export function GiveBookPage() {
   }
 
   return (
-    <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <div className="space-y-5">
-        <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
-          <div className="relative z-10">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-              Ownership transfer
-            </p>
-            <h1 className="mt-2 font-[var(--font-display)] text-4xl font-semibold leading-tight text-zinc-950 sm:text-5xl">
-              Give book
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
-              Transfer ownership of one of your books to another reader by
-              email.
-            </p>
-          </div>
-        </div>
+    <section className="space-y-5">
+      <PageHeader
+        eyebrow="Ownership transfer"
+        title="Give book"
+        description="Move a copy from your owned shelf to another reader as a final transfer."
+        action={
+          <Link className="secondary-action" to="/app/my-books">
+            Check owned shelf
+          </Link>
+        }
+      />
 
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
         <form
           className="form-panel p-5 sm:p-6"
           onSubmit={handleSubmit}
           aria-busy={isSubmitting}
         >
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-              Final action
+            <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-danger)]">
+              Final transfer
             </p>
-            <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
-              Confirm the recipient
+            <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
+              Confirm ownership move
             </h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-600">
+            <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
               Giving changes ownership after the backend accepts the request.
             </p>
           </div>
@@ -102,7 +115,7 @@ export function GiveBookPage() {
 
           <div className="mt-5 grid gap-5">
             <label
-              className="block text-sm font-bold text-zinc-800"
+              className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="give-title"
             >
               Book title
@@ -123,7 +136,7 @@ export function GiveBookPage() {
             </label>
 
             <label
-              className="block text-sm font-bold text-zinc-800"
+              className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="give-reader"
             >
               Target user email
@@ -174,29 +187,28 @@ export function GiveBookPage() {
             {isSubmitting ? 'Giving...' : 'Give book'}
           </button>
         </form>
+
+        <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="give-status-heading">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-danger)]">
+            Transfer checks
+          </p>
+          <h2
+            id="give-status-heading"
+            className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]"
+          >
+            Before you give
+          </h2>
+          <div className="mt-4">
+            <WorkflowSteps steps={giveSteps} currentStep={3} />
+          </div>
+
+          {givenBook && (
+            <StateMessage className="mt-5" tone="success">
+              Last given: {givenBook.title} to {givenBook.username}.
+            </StateMessage>
+          )}
+        </aside>
       </div>
-
-      <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="give-status-heading">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-          Backend action
-        </p>
-        <h2
-          id="give-status-heading"
-          className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-zinc-950"
-        >
-          Transfer status
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-zinc-600">
-          Give requests are sent to the backend using your current signed-in
-          session.
-        </p>
-
-        {givenBook && (
-          <StateMessage className="mt-5" tone="success">
-            Last given: {givenBook.title} to {givenBook.username}.
-          </StateMessage>
-        )}
-      </aside>
     </section>
   )
 }

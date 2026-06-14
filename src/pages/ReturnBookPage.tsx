@@ -2,12 +2,29 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
 import { returnBook } from '../api/booksApi'
+import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
+import { WorkflowSteps } from '../components/WorkflowSteps'
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 type ReturnedBookSummary = {
   title: string
 }
+
+const returnSteps = [
+  {
+    title: 'Check held shelf',
+    description: 'Confirm the book appears in your currently held list.',
+  },
+  {
+    title: 'Enter the title',
+    description: 'Use the borrowed title so the backend can close the hold.',
+  },
+  {
+    title: 'Return to owner',
+    description: 'A successful response removes the active hold state.',
+  },
+]
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error
@@ -57,43 +74,39 @@ export function ReturnBookPage() {
   }
 
   return (
-    <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <div className="space-y-5">
-        <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
-          <div className="relative z-10">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-              Return flow
-            </p>
-            <h1 className="mt-2 font-[var(--font-display)] text-4xl font-semibold leading-tight text-zinc-950 sm:text-5xl">
-              Return book
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
-              Send a borrowed book back to its owner using your current
-              signed-in session.
-            </p>
-          </div>
-        </div>
+    <section className="space-y-5">
+      <PageHeader
+        eyebrow="Return workflow"
+        title="Return book"
+        description="Close an active hold when a borrowed copy goes back to its owner."
+        action={
+          <Link className="secondary-action" to="/app/held-books">
+            Open held books
+          </Link>
+        }
+      />
 
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
         <form
           className="form-panel p-5 sm:p-6"
           onSubmit={handleSubmit}
           aria-busy={isSubmitting}
         >
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-blue)]">
               Close a hold
             </p>
-            <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
+            <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
               Confirm the borrowed title
             </h2>
-            <p className="mt-2 text-sm leading-6 text-zinc-600">
+            <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
               Returns are accepted only for books you currently hold and do not
               own.
             </p>
           </div>
 
           <label
-            className="mt-5 block text-sm font-bold text-zinc-800"
+            className="mt-6 block text-sm font-bold text-[var(--color-ink-soft)]"
             htmlFor="return-title"
           >
             Book title
@@ -142,32 +155,28 @@ export function ReturnBookPage() {
             {isSubmitting ? 'Returning...' : 'Return book'}
           </button>
         </form>
+
+        <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="return-status-heading">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-blue)]">
+            Hold closure
+          </p>
+          <h2
+            id="return-status-heading"
+            className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]"
+          >
+            Return sequence
+          </h2>
+          <div className="mt-4">
+            <WorkflowSteps steps={returnSteps} currentStep={2} />
+          </div>
+
+          {returnedBook && (
+            <StateMessage className="mt-5" tone="success">
+              Last returned: {returnedBook.title}.
+            </StateMessage>
+          )}
+        </aside>
       </div>
-
-      <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="return-status-heading">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-          Backend action
-        </p>
-        <h2
-          id="return-status-heading"
-          className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-zinc-950"
-        >
-          Return status
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-zinc-600">
-          Use this flow after checking your held shelf.
-        </p>
-
-        {returnedBook && (
-          <StateMessage className="mt-5" tone="success">
-            Last returned: {returnedBook.title}.
-          </StateMessage>
-        )}
-
-        <Link className="secondary-action mt-5" to="/app/held-books">
-          Open held books
-        </Link>
-      </aside>
     </section>
   )
 }

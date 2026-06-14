@@ -2,61 +2,74 @@ import { NavLink, Outlet } from 'react-router-dom'
 
 import { Navbar } from '../components/Navbar'
 
-const sideLinks = [
-  { to: '/app/my-books', label: 'My books', hint: 'Owned catalog' },
-  { to: '/app/profile', label: 'Profile', hint: 'Account settings' },
-  { to: '/app/held-books', label: 'Held books', hint: 'Borrowed items' },
-  { to: '/app/add-book', label: 'Add book', hint: 'Create listing' },
-  { to: '/app/share-book', label: 'Share book', hint: 'Offer exchange' },
-  { to: '/app/give-book', label: 'Give book', hint: 'Transfer flow' },
-  { to: '/app/return-book', label: 'Return book', hint: 'Close hold' },
+const appLinks = [
+  { to: '/app/my-books', label: 'My books', hint: 'Owned shelf', mark: '01' },
+  { to: '/app/held-books', label: 'Held', hint: 'Borrowed shelf', mark: '02' },
+  { to: '/app/add-book', label: 'Add', hint: 'Catalog first', mark: '03' },
+  { to: '/app/share-book', label: 'Share', hint: 'Collaborate', mark: '04' },
+  { to: '/app/give-book', label: 'Give', hint: 'Final transfer', mark: '05' },
+  { to: '/app/return-book', label: 'Return', hint: 'Close hold', mark: '06' },
+  { to: '/app/profile', label: 'Profile', hint: 'Account', mark: '07' },
+  { to: '/app/admin', label: 'Admin', hint: 'Operations', mark: '08' },
 ]
 
-const sideLinkClass = ({ isActive }: { isActive: boolean }) =>
+const appNavClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'group relative flex min-h-[2.75rem] items-center justify-center gap-2 rounded-lg border px-2.5 py-2 text-center transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-blue-600 lg:justify-between lg:gap-3 lg:px-3 lg:py-2.5 lg:text-left',
+    'group flex shrink-0 items-center gap-3 rounded-[0.65rem] border px-3 py-2.5 text-left transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-[var(--color-accent)] lg:w-full',
     isActive
-      ? 'active border-blue-200 bg-blue-50 text-blue-700'
-      : 'border-transparent text-zinc-700 hover:border-zinc-200 hover:bg-white hover:text-zinc-950',
+      ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent-strong)] shadow-[var(--shadow-restraint)]'
+      : 'border-transparent text-[var(--color-muted)] hover:border-[var(--color-border)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]',
   ].join(' ')
 
 export function AppLayout() {
   return (
-    <div className="min-h-screen text-zinc-950">
+    <div className="min-h-screen text-[var(--color-ink)]">
       <Navbar appMode />
 
-      <div className="mx-auto grid max-w-7xl items-start gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[260px_1fr] lg:px-8">
-        <aside className="reveal-blur rounded-xl border border-zinc-200 bg-[#F1EEE8] p-2 shadow-[0_1px_2px_rgba(17,17,17,0.04)] sm:p-3 lg:sticky lg:top-24">
-          <div className="border-b border-zinc-200 px-1 pb-3">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
-              Workspace
-            </p>
-            <h2 className="mt-1.5 font-[var(--font-display)] text-xl font-semibold leading-6 text-zinc-950">
-              Exchange desk
-            </h2>
-            <p className="mt-1 hidden text-xs leading-5 text-zinc-600 lg:block">
-              Catalog, exchange, transfer, and return flows
-            </p>
+      <div className="mx-auto grid max-w-7xl items-start gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[248px_minmax(0,1fr)] lg:px-8 lg:py-6">
+        <aside className="reveal-blur lg:sticky lg:top-24">
+          <div className="hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[#f4eadc]/78 p-3 shadow-[var(--shadow-restraint)] lg:block">
+            <div className="border-b border-[var(--color-border)] px-2 pb-4">
+              <p className="text-xs font-bold tracking-[0.18em] text-[var(--color-accent)]">
+                Workspace
+              </p>
+              <h2 className="mt-1.5 font-[var(--font-display)] text-2xl font-semibold leading-7 text-[var(--color-ink)]">
+                Exchange shelf
+              </h2>
+              <p className="mt-2 text-sm leading-5 text-[var(--color-muted)]">
+                Catalog, holds, transfers, returns, and operations.
+              </p>
+            </div>
+
+            <nav className="mt-3 grid gap-1" aria-label="Application sections">
+              {appLinks.map((link) => (
+                <NavLink key={link.to} to={link.to} className={appNavClass}>
+                  <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-current/20 bg-white/55 text-xs font-bold">
+                    {link.mark}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-bold">
+                      {link.label}
+                    </span>
+                    <span className="mt-0.5 block truncate text-xs text-current/68">
+                      {link.hint}
+                    </span>
+                  </span>
+                </NavLink>
+              ))}
+            </nav>
           </div>
 
           <nav
-            className="mt-3 grid grid-cols-2 gap-1 sm:grid-cols-4 md:grid-cols-7 lg:grid-cols-1"
+            className="scrollbar-thin -mx-4 flex gap-2 overflow-x-auto border-y border-[var(--color-border)] bg-[#fffaf2]/78 px-4 py-2 sm:-mx-6 sm:px-6 lg:hidden"
             aria-label="Application sections"
           >
-            {sideLinks.map((link) => (
-              <NavLink key={link.to} to={link.to} className={sideLinkClass}>
-                <span className="min-w-0">
-                  <span className="block truncate text-[0.82rem] font-bold sm:text-sm">
-                    {link.label}
-                  </span>
-                  <span className="mt-0.5 hidden truncate text-xs text-zinc-500 group-hover:text-zinc-600 lg:block">
-                    {link.hint}
-                  </span>
+            {appLinks.map((link) => (
+              <NavLink key={link.to} to={link.to} className={appNavClass}>
+                <span className="text-xs font-bold">{link.mark}</span>
+                <span className="whitespace-nowrap text-sm font-bold">
+                  {link.label}
                 </span>
-                <span
-                  className="h-1.5 w-1.5 shrink-0 rounded-full bg-transparent transition duration-200 group-[.active]:bg-blue-600"
-                  aria-hidden="true"
-                />
               </NavLink>
             ))}
           </nav>

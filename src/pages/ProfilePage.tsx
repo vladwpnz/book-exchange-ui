@@ -6,6 +6,7 @@ import {
   updateProfile,
   type UserProfile,
 } from '../api/profileApi'
+import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
 
 type ProfileState = 'loading' | 'success' | 'error'
@@ -160,20 +161,11 @@ export function ProfilePage() {
 
   return (
     <section className="space-y-5">
-      <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
-        <div className="relative z-10">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-            Account settings
-          </p>
-          <h1 className="mt-2 font-[var(--font-display)] text-4xl font-semibold leading-tight text-zinc-950 sm:text-5xl">
-            Profile
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
-            Review your account details and keep your reader name current across
-            the exchange network.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Account"
+        title="Profile"
+        description="Manage the reader identity used across owned books, held copies, and exchange actions."
+      />
 
       {profileState === 'loading' && (
         <div
@@ -183,37 +175,40 @@ export function ProfilePage() {
         >
           <span className="sr-only">Loading profile.</span>
           <div className="premium-panel p-5 sm:p-6" aria-hidden="true">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              <div className="h-24 w-24 rounded-xl border border-zinc-200 bg-[#F1EEE8]" />
-              <div className="min-w-0 flex-1">
-                <div className="h-3 w-28 rounded-full bg-blue-100" />
-                <div className="mt-4 h-7 w-3/4 rounded-full bg-zinc-200" />
-                <div className="mt-3 h-4 w-64 max-w-full rounded-full bg-zinc-100" />
-                <div className="mt-5 h-8 w-32 rounded-full bg-green-100" />
+            <div className="grid gap-5 sm:grid-cols-[7rem_minmax(0,1fr)]">
+              <div className="h-28 w-28 rounded-[0.75rem] border border-[var(--color-border)] bg-[#eadfce]" />
+              <div className="min-w-0">
+                <div className="h-3 w-28 rounded-full bg-[#e8cfc4]" />
+                <div className="mt-4 h-8 w-3/4 rounded-full bg-[#ddd0bf]" />
+                <div className="mt-3 h-4 w-64 max-w-full rounded-full bg-[#eadfce]" />
+                <div className="mt-6 grid gap-3 sm:grid-cols-4">
+                  <div className="h-16 rounded-lg bg-[#f1e7da]" />
+                  <div className="h-16 rounded-lg bg-[#f1e7da]" />
+                  <div className="h-16 rounded-lg bg-[#f1e7da]" />
+                  <div className="h-16 rounded-lg bg-[#f1e7da]" />
+                </div>
               </div>
             </div>
           </div>
 
           <div className="form-panel self-start p-5 sm:p-6" aria-hidden="true">
-            <div className="h-3 w-32 rounded-full bg-blue-100" />
-            <div className="mt-3 h-7 w-40 rounded-full bg-zinc-200" />
-            <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_8rem]">
-              <div className="h-11 rounded-xl bg-zinc-100" />
-              <div className="h-11 rounded-xl bg-blue-100" />
-            </div>
+            <div className="h-3 w-32 rounded-full bg-[#e8cfc4]" />
+            <div className="mt-3 h-7 w-40 rounded-full bg-[#ddd0bf]" />
+            <div className="mt-5 h-11 rounded-[0.7rem] bg-[#f1e7da]" />
+            <div className="mt-3 h-11 rounded-[0.7rem] bg-[#eadfce]" />
           </div>
         </div>
       )}
 
       {profileState === 'error' && (
-        <div className="premium-panel border-amber-200 p-6 sm:p-7" role="alert">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-700">
+        <div className="premium-panel border-[#e5c47f] p-6 sm:p-7" role="alert">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
             Profile unavailable
           </p>
-          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
             Could not load profile
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
             {profileError}
           </p>
           <button
@@ -228,9 +223,9 @@ export function ProfilePage() {
 
       {profileState === 'success' && profile && (
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
-          <section className="premium-panel p-5 sm:p-6">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              <div className="grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-xl border border-zinc-200 bg-[#F1EEE8] shadow-[0_1px_2px_rgba(17,17,17,0.06)]">
+          <section className="premium-panel overflow-hidden">
+            <div className="grid gap-6 p-5 sm:grid-cols-[7rem_minmax(0,1fr)] sm:p-6">
+              <div className="grid h-28 w-28 shrink-0 place-items-center overflow-hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[#fffaf2] shadow-[var(--shadow-restraint)]">
                 {profile.avatarUrl ? (
                   <img
                     src={profile.avatarUrl}
@@ -238,172 +233,153 @@ export function ProfilePage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <span className="font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
+                  <span className="font-[var(--font-display)] text-4xl font-semibold text-[var(--color-ink)]">
                     {initials}
                   </span>
                 )}
               </div>
 
               <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
+                <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
                   Signed-in reader
                 </p>
-                <h2 className="mt-2 break-words font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
+                <h2 className="mt-2 break-words font-[var(--font-display)] text-4xl font-semibold leading-tight text-[var(--color-ink)]">
                   {profile.name}
                 </h2>
                 <p
-                  className="mt-2 max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-sm text-zinc-600 sm:max-w-[28rem]"
+                  className="mt-2 max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-sm text-[var(--color-muted)]"
                   title={profile.email}
                 >
                   {profile.email}
                 </p>
-                <span className="mt-4 inline-flex max-w-full rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.18em] text-blue-800">
-                  {profile.authority}
-                </span>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-[#bfd1dc] bg-[#edf5f8] px-3 py-1 text-xs font-bold text-[#21455f]">
+                    {profile.authority}
+                  </span>
+                  <span className="rounded-full border border-[#bfd8c7] bg-[#eef7ed] px-3 py-1 text-xs font-bold text-[#194934]">
+                    {accountStatus}
+                  </span>
+                </div>
               </div>
             </div>
 
-            <dl className="mt-6 grid overflow-hidden rounded-xl border border-zinc-200 bg-zinc-200 sm:grid-cols-2">
+            <dl className="grid border-y border-[var(--color-border)] bg-[#f4eadc] sm:grid-cols-4">
               {[
                 ['Owned books', formatStatValue(profileStats.ownedBooks)],
                 ['Held books', formatStatValue(profileStats.heldBooks)],
                 ['Role', profile.authority],
-                ['Account status', accountStatus],
+                ['Status', accountStatus],
               ].map(([label, value]) => (
-                <div key={label} className="bg-white p-4">
-                  <dt className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-500">
+                <div key={label} className="border-[var(--color-border)] bg-white p-4 sm:border-r sm:last:border-r-0">
+                  <dt className="text-xs font-bold tracking-[0.14em] text-[var(--color-muted)]">
                     {label}
                   </dt>
-                  <dd className="mt-3 break-words font-semibold text-zinc-950">
+                  <dd className="mt-2 break-words font-semibold text-[var(--color-ink)]">
                     {value}
                   </dd>
                 </div>
               ))}
             </dl>
 
-            <div className="mt-6 border-t border-zinc-200 pt-5">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-                Achievements
-              </p>
-              <ul className="mt-4 grid gap-2">
-                {achievements.map((achievement) => (
-                  <li
-                    key={achievement}
-                    className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-white px-4 py-3"
-                  >
-                    <span
-                      className="h-2.5 w-2.5 shrink-0 rounded-full bg-green-700"
-                      aria-hidden="true"
-                    />
-                    <span className="min-w-0 break-words text-sm font-semibold text-zinc-800">
-                      {achievement}
-                    </span>
-                  </li>
-                ))}
-              </ul>
+            <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
+              <div>
+                <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
+                  Achievements
+                </p>
+                <ul className="mt-4 grid gap-2 sm:grid-cols-3">
+                  {achievements.map((achievement) => (
+                    <li
+                      key={achievement}
+                      className="rounded-[0.65rem] border border-[var(--color-border)] bg-[#fffaf2] px-4 py-3"
+                    >
+                      <span className="block text-sm font-bold text-[var(--color-ink)]">
+                        {achievement}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="rounded-[0.7rem] border border-[var(--color-border)] bg-[#fbf4ea] p-4">
+                <p className="text-sm font-bold text-[var(--color-ink)]">
+                  Avatar support
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+                  This layout displays an avatar when the API provides one.
+                  Upload controls are planned, but not part of this frontend.
+                </p>
+              </div>
             </div>
           </section>
 
-          <div className="grid content-start gap-5">
-            <form
-              className="form-panel p-5 sm:p-6"
-              onSubmit={handleSubmit}
-              aria-busy={isSubmitting}
+          <form
+            className="form-panel p-5 sm:p-6"
+            onSubmit={handleSubmit}
+            aria-busy={isSubmitting}
+          >
+            <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+              Edit identity
+            </p>
+            <h2 className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
+              Reader name
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-[var(--color-muted)]">
+              This name appears across your account surfaces.
+            </p>
+
+            <label
+              className="mt-5 block text-sm font-bold text-[var(--color-ink-soft)]"
+              htmlFor="profile-name"
             >
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-                Edit profile
-              </p>
-              <h2 className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-zinc-950">
-                Profile name
-              </h2>
-              <p className="mt-1 text-sm leading-5 text-zinc-600">
-                Shown across your exchange activity.
-              </p>
+              Name
+              <input
+                id="profile-name"
+                value={name}
+                onChange={(event) => {
+                  setName(event.target.value)
+                  if (submitState !== 'submitting') {
+                    setSubmitState('idle')
+                    setStatusMessage(null)
+                  }
+                }}
+                className="field-input mt-2"
+                placeholder="Your name"
+                disabled={isSubmitting}
+                aria-invalid={submitState === 'error'}
+                aria-describedby={
+                  submitState === 'error' ? 'profile-save-message' : undefined
+                }
+              />
+            </label>
 
-              <div className="mt-5 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-                <label
-                  className="block text-sm font-bold text-zinc-800"
-                  htmlFor="profile-name"
-                >
-                  Name
-                  <input
-                    id="profile-name"
-                    value={name}
-                    onChange={(event) => {
-                      setName(event.target.value)
-                      if (submitState !== 'submitting') {
-                        setSubmitState('idle')
-                        setStatusMessage(null)
-                      }
-                    }}
-                    className="field-input mt-2"
-                    placeholder="Your name"
-                    disabled={isSubmitting}
-                    aria-invalid={submitState === 'error'}
-                    aria-describedby={
-                      submitState === 'error'
-                        ? 'profile-save-message'
-                        : undefined
-                    }
-                  />
-                </label>
+            <button
+              type="submit"
+              className="primary-action mt-4 w-full disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : 'Save profile'}
+            </button>
 
-                <button
-                  type="submit"
-                  className="primary-action w-full whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? 'Saving...' : 'Save'}
-                </button>
-              </div>
+            {submitState === 'success' && statusMessage && (
+              <StateMessage
+                className="mt-4"
+                tone="success"
+                title="Profile saved"
+              >
+                <span id="profile-save-message">{statusMessage}</span>
+              </StateMessage>
+            )}
 
-              {submitState === 'success' && statusMessage && (
-                <StateMessage
-                  className="mt-4"
-                  tone="success"
-                  title="Profile saved"
-                >
-                  <span id="profile-save-message">{statusMessage}</span>
-                </StateMessage>
-              )}
-
-              {submitState === 'error' && statusMessage && (
-                <StateMessage
-                  className="mt-4"
-                  tone="error"
-                  title="Could not save profile"
-                >
-                  <span id="profile-save-message">{statusMessage}</span>
-                </StateMessage>
-              )}
-            </form>
-
-            <section className="status-panel p-5 sm:p-6">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-green-700">
-                Account status
-              </p>
-              <h2 className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-zinc-950">
-                Active account
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-600">
-                Your saved credentials are accepted by the protected profile
-                endpoint, and the account role is available for navigation.
-              </p>
-            </section>
-
-            <section className="status-panel p-5 sm:p-6" aria-disabled="true">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-700">
-                Avatar
-              </p>
-              <h2 className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-zinc-950">
-                Avatar upload unavailable
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-600">
-                The screen displays an avatar when the API provides one. Upload
-                controls are intentionally not part of this release.
-              </p>
-            </section>
-          </div>
+            {submitState === 'error' && statusMessage && (
+              <StateMessage
+                className="mt-4"
+                tone="error"
+                title="Could not save profile"
+              >
+                <span id="profile-save-message">{statusMessage}</span>
+              </StateMessage>
+            )}
+          </form>
         </div>
       )}
     </section>

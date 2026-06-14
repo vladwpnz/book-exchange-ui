@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { getHeldBooks } from '../api/booksApi'
 import { BookCard } from '../components/BookCard'
 import { BookListSkeleton } from '../components/BookListSkeleton'
+import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
 import type { Book } from '../types/book'
 
@@ -60,45 +61,40 @@ export function HeldBooksPage() {
 
   return (
     <section className="space-y-5">
-      <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
-        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-              Borrowed shelf
-            </p>
-            <h1 className="mt-2 font-[var(--font-display)] text-4xl font-semibold leading-tight text-zinc-950 sm:text-5xl">
-              Held books
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
-              Track books currently borrowed by the signed-in reader and keep
-              the return flow visible from one place.
-            </p>
-          </div>
-
-          {booksState === 'success' && (
-            <div className="rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-600 shadow-[0_1px_2px_rgba(17,17,17,0.04)]">
-              <span className="font-bold text-zinc-950">
+      <PageHeader
+        eyebrow="Borrowed shelf"
+        title="Held books"
+        description="Track the books currently in your care and close a hold when a copy goes back to its owner."
+        action={
+          <Link className="primary-action" to="/app/return-book">
+            Return a book
+          </Link>
+        }
+        meta={
+          booksState === 'success' ? (
+            <div className="rounded-[0.7rem] border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-muted)] shadow-[var(--shadow-restraint)]">
+              <span className="font-bold text-[var(--color-ink)]">
                 {books.length}
               </span>{' '}
               held books
             </div>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       {booksState === 'loading' && (
         <BookListSkeleton label="Loading held books" />
       )}
 
       {booksState === 'error' && (
-        <div className="premium-panel border-amber-200 p-6 sm:p-7" role="alert">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-700">
+        <div className="premium-panel border-[#e5c47f] p-6 sm:p-7" role="alert">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
             Held books unavailable
           </p>
-          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
             Could not load held books
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
             {errorMessage}
           </p>
           <button
@@ -113,15 +109,15 @@ export function HeldBooksPage() {
 
       {isEmpty && (
         <div className="empty-state p-6 sm:p-7" role="status" aria-live="polite">
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-green-700">
-            Empty shelf
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
+            No active holds
           </p>
-          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
-            No held books yet
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
+            Your borrowed shelf is clear
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
-            Borrowed books will appear here after another reader shares or gives
-            a book to your account.
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
+            Books shared or given to your account will appear here with their
+            owner and status details.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-3">
@@ -130,28 +126,55 @@ export function HeldBooksPage() {
             </Link>
 
             <Link to="/app/return-book" className="secondary-action">
-              View return flow
+              Open return flow
             </Link>
           </div>
         </div>
       )}
 
       {hasBooks && (
-        <section className="space-y-3">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-              Borrowed catalog
-            </p>
-            <h2 className="mt-1 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
-              Active holds
-            </h2>
+        <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem]">
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                Borrowed catalog
+              </p>
+              <h2 className="mt-1 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
+                Active holds
+              </h2>
+            </div>
+
+            <div className="grid gap-3">
+              {books.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  contextLabel="Held copy"
+                  actions={
+                    <Link
+                      to="/app/return-book"
+                      className="primary-action min-h-0 px-3 py-2 text-sm"
+                    >
+                      Return this title
+                    </Link>
+                  }
+                />
+              ))}
+            </div>
           </div>
 
-          <div className="grid gap-3 xl:grid-cols-2">
-            {books.map((book) => (
-              <BookCard key={book.id} book={book} />
-            ))}
-          </div>
+          <aside className="status-panel h-fit p-5">
+            <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-blue)]">
+              Return rhythm
+            </p>
+            <h2 className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
+              Close holds promptly
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-[var(--color-muted)]">
+              Use the return workflow when the borrowed copy goes back to its
+              owner. The backend decides whether the title can be returned.
+            </p>
+          </aside>
         </section>
       )}
 

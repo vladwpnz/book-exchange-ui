@@ -2,13 +2,30 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
 import { shareBook } from '../api/booksApi'
+import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
+import { WorkflowSteps } from '../components/WorkflowSteps'
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 type SharedBookSummary = {
   title: string
   username: string
 }
+
+const shareSteps = [
+  {
+    title: 'Name the owned copy',
+    description: 'Use the title exactly as it appears on your shelf.',
+  },
+  {
+    title: 'Choose the reader',
+    description: 'Enter the recipient email so the backend can create the hold.',
+  },
+  {
+    title: 'Keep it collaborative',
+    description: 'The book remains part of the exchange while it is shared.',
+  },
+]
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error
@@ -62,40 +79,46 @@ export function ShareBookPage() {
   }
 
   return (
-    <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <div className="space-y-5">
-        <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
-          <div className="relative z-10">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-              Share flow
-            </p>
-            <h1 className="mt-2 font-[var(--font-display)] text-4xl font-semibold leading-tight text-zinc-950 sm:text-5xl">
-              Share book
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
-              Send an owned book to another reader by email while keeping the
-              exchange tied to your signed-in session.
-            </p>
-          </div>
-        </div>
+    <section className="space-y-5">
+      <PageHeader
+        eyebrow="Share workflow"
+        title="Share book"
+        description="Create a collaborative handoff by pairing one owned title with another reader account."
+        action={
+          <Link className="secondary-action" to="/app/my-books">
+            Check owned shelf
+          </Link>
+        }
+      />
 
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
         <form
           className="form-panel p-5 sm:p-6"
           onSubmit={handleSubmit}
           aria-busy={isSubmitting}
         >
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-              Exchange request
-            </p>
-            <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
-              Choose a book and reader
-            </h2>
+          <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_14rem] md:items-start">
+            <div>
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                Collaborative exchange
+              </p>
+              <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
+                Send a readable copy
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+                Sharing is a temporary exchange state, not a final transfer of
+                ownership.
+              </p>
+            </div>
+
+            <div className="rounded-[0.7rem] border border-[#bfd1dc] bg-[#edf5f8] p-4 text-sm leading-6 text-[#21455f]">
+              The recipient email connects this action to a real user account.
+            </div>
           </div>
 
-          <div className="mt-5 grid gap-5">
+          <div className="mt-6 grid gap-5">
             <label
-              className="block text-sm font-bold text-zinc-800"
+              className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="share-title"
             >
               Book title
@@ -116,7 +139,7 @@ export function ShareBookPage() {
             </label>
 
             <label
-              className="block text-sm font-bold text-zinc-800"
+              className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="share-reader"
             >
               Target user email
@@ -167,29 +190,28 @@ export function ShareBookPage() {
             {isSubmitting ? 'Sharing...' : 'Share book'}
           </button>
         </form>
+
+        <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="share-status-heading">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-blue)]">
+            Workflow
+          </p>
+          <h2
+            id="share-status-heading"
+            className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]"
+          >
+            How sharing works
+          </h2>
+          <div className="mt-4">
+            <WorkflowSteps steps={shareSteps} currentStep={2} />
+          </div>
+
+          {sharedBook && (
+            <StateMessage className="mt-5" tone="success">
+              Last shared: {sharedBook.title} to {sharedBook.username}.
+            </StateMessage>
+          )}
+        </aside>
       </div>
-
-      <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="share-status-heading">
-        <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
-          Backend action
-        </p>
-        <h2
-          id="share-status-heading"
-          className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-zinc-950"
-        >
-          Exchange status
-        </h2>
-        <p className="mt-3 text-sm leading-6 text-zinc-600">
-          Share requests are sent to the backend using your current signed-in
-          session.
-        </p>
-
-        {sharedBook && (
-          <StateMessage className="mt-5" tone="success">
-            Last shared: {sharedBook.title} to {sharedBook.username}.
-          </StateMessage>
-        )}
-      </aside>
     </section>
   )
 }
