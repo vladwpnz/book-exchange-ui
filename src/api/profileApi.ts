@@ -21,7 +21,7 @@ function getRequiredText(value: unknown, fieldName: string) {
     return value.trim()
   }
 
-  throw new Error(`Profile response contains an invalid ${fieldName}.`)
+  throw new Error(`Could not read profile ${fieldName}. Please try again.`)
 }
 
 function getAvatarUrl(value: unknown) {
@@ -35,12 +35,12 @@ function getAvatarUrl(value: unknown) {
     return trimmedValue.length > 0 ? trimmedValue : null
   }
 
-  throw new Error('Profile response contains an invalid avatarUrl.')
+  throw new Error('Could not read your profile avatar. Please try again.')
 }
 
 function toUserProfile(data: unknown): UserProfile {
   if (!isRecord(data)) {
-    throw new Error('Profile response has an unexpected format.')
+    throw new Error('Could not load profile details. Please try again.')
   }
 
   return {

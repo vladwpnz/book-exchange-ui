@@ -8,12 +8,18 @@ import {
 } from '../api/profileApi'
 import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
 
 type ProfileState = 'loading' | 'success' | 'error'
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 type ProfileStats = {
   ownedBooks: number | null
   heldBooks: number | null
+}
+type Achievement = {
+  id: string
+  label: string
+  unlocked: boolean
 }
 
 function getErrorMessage(error: unknown, fallbackMessage: string) {
@@ -52,6 +58,7 @@ function formatStatValue(value: number | null) {
 }
 
 export function ProfilePage() {
+  const { showToast } = useToast()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [profileStats, setProfileStats] = useState<ProfileStats>({
     ownedBooks: null,
@@ -96,16 +103,24 @@ export function ProfilePage() {
           return
         }
 
+        const message = getErrorMessage(
+          error,
+          'Unable to load your profile. Please try again.',
+        )
+
         setProfile(null)
         setProfileStats({
           ownedBooks: null,
           heldBooks: null,
         })
         setName('')
-        setProfileError(
-          getErrorMessage(error, 'Unable to load your profile. Please try again.'),
-        )
+        setProfileError(message)
         setProfileState('error')
+        showToast({
+          tone: 'error',
+          title: 'Could not load profile',
+          message,
+        })
       }
     }
 
@@ -114,20 +129,36 @@ export function ProfilePage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey])
+  }, [reloadKey, showToast])
 
   const initials = useMemo(
     () => (profile ? getInitials(profile) : ''),
     [profile],
   )
   const accountStatus = profileState === 'success' ? 'Active' : '-'
-  const achievements = [
-    'Profile ready',
-    profileStats.ownedBooks !== null && profileStats.ownedBooks > 0
-      ? 'First book added'
-      : 'Add your first book',
-    'Exchange ready',
-  ]
+  const achievements = useMemo<Achievement[]>(
+    () => [
+      {
+        id: 'profile-ready',
+        label: 'Profile ready',
+        unlocked: profileState === 'success',
+      },
+      {
+        id: 'first-book-added',
+        label:
+          profileStats.ownedBooks !== null && profileStats.ownedBooks > 0
+            ? 'First book added'
+            : 'Add your first book',
+        unlocked: profileStats.ownedBooks !== null && profileStats.ownedBooks > 0,
+      },
+      {
+        id: 'exchange-ready',
+        label: 'Exchange ready',
+        unlocked: profileState === 'success',
+      },
+    ],
+    [profileState, profileStats.ownedBooks],
+  )
   const isSubmitting = submitState === 'submitting'
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -136,8 +167,15 @@ export function ProfilePage() {
     const trimmedName = name.trim()
 
     if (!trimmedName) {
-      setStatusMessage('Name cannot be empty.')
+      const message = 'Name cannot be empty.'
+
+      setStatusMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'warning',
+        title: 'Name required',
+        message,
+      })
       return
     }
 
@@ -151,11 +189,24 @@ export function ProfilePage() {
       setName(updatedProfile.name)
       setStatusMessage('Profile updated successfully.')
       setSubmitState('success')
+      showToast({
+        tone: 'success',
+        title: 'Profile saved',
+        message: 'Your reader name was updated.',
+      })
     } catch (error) {
-      setStatusMessage(
-        getErrorMessage(error, 'Unable to update your profile. Please try again.'),
+      const message = getErrorMessage(
+        error,
+        'Unable to update your profile. Please try again.',
       )
+
+      setStatusMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'error',
+        title: 'Could not save profile',
+        message,
+      })
     }
   }
 
@@ -281,34 +332,24 @@ export function ProfilePage() {
               ))}
             </dl>
 
-            <div className="grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.8fr)]">
-              <div>
-                <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
-                  Achievements
-                </p>
-                <ul className="mt-4 grid gap-2 sm:grid-cols-3">
-                  {achievements.map((achievement) => (
-                    <li
-                      key={achievement}
-                      className="rounded-[0.65rem] border border-[var(--color-border)] bg-[#fffaf2] px-4 py-3"
-                    >
-                      <span className="block text-sm font-bold text-[var(--color-ink)]">
-                        {achievement}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="rounded-[0.7rem] border border-[var(--color-border)] bg-[#fbf4ea] p-4">
-                <p className="text-sm font-bold text-[var(--color-ink)]">
-                  Avatar support
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-                  This layout displays an avatar when the API provides one.
-                  Upload controls are planned, but not part of this frontend.
-                </p>
-              </div>
+            <div className="p-5 sm:p-6">
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
+                Achievements
+              </p>
+              <ul className="mt-4 grid gap-2 sm:grid-cols-3">
+                {achievements.map((achievement) => (
+                  <li
+                    key={achievement.id}
+                    className={`rounded-[0.65rem] border border-[var(--color-border)] bg-[#fffaf2] px-4 py-3 ${
+                      achievement.unlocked ? '' : 'opacity-70'
+                    }`}
+                  >
+                    <span className="block text-sm font-bold text-[var(--color-ink)]">
+                      {achievement.label}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </section>
 

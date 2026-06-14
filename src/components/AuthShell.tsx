@@ -81,8 +81,8 @@ export function AuthShell({ children, title, description }: AuthShellProps) {
             </div>
 
             <p className="max-w-md text-sm leading-6 text-[var(--color-muted)]">
-              Access is backed by the existing API authentication flow and keeps
-              the frontend aligned with the real exchange data model.
+              Sign in once to keep your shelves, holds, and exchanges connected
+              to your reader account.
             </p>
           </div>
         </aside>

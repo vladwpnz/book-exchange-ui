@@ -31,8 +31,9 @@ export function WorkflowSteps({ steps, currentStep = 1 }: WorkflowStepsProps) {
                     ? 'border-[var(--color-accent)] text-[var(--color-accent-strong)]'
                     : 'border-[var(--color-border-strong)] text-[var(--color-muted)]'
                 }`}
+                aria-hidden="true"
               >
-                {String(stepNumber).padStart(2, '0')}
+                <span className="h-2.5 w-2.5 rounded-full bg-current" />
               </span>
               <div className="min-w-0">
                 <p className="font-bold text-[var(--color-ink)]">{step.title}</p>

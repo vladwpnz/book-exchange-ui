@@ -8,6 +8,7 @@ import { BookListSkeleton } from '../components/BookListSkeleton'
 import { DashboardCard } from '../components/DashboardCard'
 import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
 import type { Book } from '../types/book'
 
 type BooksState = 'loading' | 'success' | 'error'
@@ -19,6 +20,7 @@ function getErrorMessage(error: unknown) {
 }
 
 export function MyBooksPage() {
+  const { showToast } = useToast()
   const [books, setBooks] = useState<Book[]>([])
   const [booksState, setBooksState] = useState<BooksState>('loading')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -45,9 +47,16 @@ export function MyBooksPage() {
           return
         }
 
+        const message = getErrorMessage(error)
+
         setBooks([])
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(message)
         setBooksState('error')
+        showToast({
+          tone: 'error',
+          title: 'Could not load your books',
+          message,
+        })
       }
     }
 
@@ -56,7 +65,7 @@ export function MyBooksPage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey])
+  }, [reloadKey, showToast])
 
   const hasBooks = booksState === 'success' && books.length > 0
   const isEmpty = booksState === 'success' && books.length === 0
@@ -109,8 +118,8 @@ export function MyBooksPage() {
       ) : null}
 
       <nav className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Book workflows">
-        {dashboardActions.map((action, index) => (
-          <DashboardCard key={action.href} {...action} index={index + 1} />
+        {dashboardActions.map((action) => (
+          <DashboardCard key={action.href} {...action} />
         ))}
       </nav>
 

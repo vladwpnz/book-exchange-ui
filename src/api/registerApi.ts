@@ -15,7 +15,7 @@ const genericRegisterError =
   'Unable to create the account. Please check your details and try again.'
 
 const backendUnavailableError =
-  'Backend is unavailable. Check that the API is running and try again.'
+  'The book service is unavailable right now. Please try again shortly.'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)

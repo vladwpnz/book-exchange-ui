@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { giveBook } from '../api/booksApi'
 import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
 import { WorkflowSteps } from '../components/WorkflowSteps'
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
@@ -19,7 +20,7 @@ const giveSteps = [
   },
   {
     title: 'Confirm recipient',
-    description: 'The target email receives ownership after the backend accepts.',
+    description: 'The target email receives ownership after the transfer is confirmed.',
   },
   {
     title: 'Submit final transfer',
@@ -34,6 +35,7 @@ function getErrorMessage(error: unknown) {
 }
 
 export function GiveBookPage() {
+  const { showToast } = useToast()
   const [title, setTitle] = useState('')
   const [username, setUsername] = useState('')
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
@@ -49,9 +51,16 @@ export function GiveBookPage() {
     const trimmedUsername = username.trim()
 
     if (!trimmedTitle || !trimmedUsername) {
+      const message = 'Title and target user email are required.'
+
       setGivenBook(null)
-      setErrorMessage('Title and target user email are required.')
+      setErrorMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'warning',
+        title: 'Give details needed',
+        message,
+      })
       return
     }
 
@@ -71,10 +80,22 @@ export function GiveBookPage() {
       setTitle('')
       setUsername('')
       setSubmitState('success')
+      showToast({
+        tone: 'success',
+        title: 'Book given',
+        message: `${trimmedTitle} was given to ${trimmedUsername}.`,
+      })
     } catch (error) {
+      const message = getErrorMessage(error)
+
       setGivenBook(null)
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'error',
+        title: 'Could not give book',
+        message,
+      })
     }
   }
 
@@ -105,7 +126,7 @@ export function GiveBookPage() {
               Confirm ownership move
             </h2>
             <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-              Giving changes ownership after the backend accepts the request.
+              Giving changes ownership after the transfer is confirmed.
             </p>
           </div>
 

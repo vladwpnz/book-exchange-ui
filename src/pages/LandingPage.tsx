@@ -166,21 +166,24 @@ export function LandingPage() {
                 A simple circulation desk for everyday exchanges.
               </h2>
               <p className="mt-4 text-base leading-7 text-[var(--color-muted)]">
-                Each route reflects one real backend-backed action. The
-                interface separates collaboration from final transfer so readers
-                understand what will happen before they submit.
+                Each area focuses on one familiar exchange task. The interface
+                separates collaboration from final transfer so readers understand
+                what will happen before they submit.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              {workflow.map((item, index) => (
+              {workflow.map((item) => (
                 <Link
                   key={item.href}
                   to={item.href}
                   className="group rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-white hover:shadow-[var(--shadow-lift)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
                 >
-                  <span className="text-sm font-bold text-[var(--color-accent)]">
-                    {String(index + 1).padStart(2, '0')}
+                  <span
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#b9d7c5] bg-[#eef7ed] text-[#194934]"
+                    aria-hidden="true"
+                  >
+                    <span className="h-2.5 w-2.5 rounded-full bg-current" />
                   </span>
                   <h3 className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
                     {item.title}
@@ -189,7 +192,7 @@ export function LandingPage() {
                     {item.description}
                   </p>
                   <span className="mt-4 inline-flex text-sm font-bold text-[var(--color-accent)] transition duration-200 group-hover:translate-x-1">
-                    Open route -&gt;
+                    Open workflow -&gt;
                   </span>
                 </Link>
               ))}
@@ -249,7 +252,7 @@ export function LandingPage() {
                 Book Exchange
               </p>
               <p className="mt-1 text-sm text-[var(--color-muted)]">
-                A premium, editorial front end for a Spring Boot book exchange.
+                A premium, editorial workspace for reader-to-reader exchanges.
               </p>
             </div>
             <div className="flex flex-wrap gap-3 text-sm font-bold text-[var(--color-muted)]">
@@ -259,7 +262,7 @@ export function LandingPage() {
                 rel="noreferrer"
                 className="transition duration-200 hover:text-[var(--color-accent)]"
               >
-                Backend
+                Service repo
               </a>
               <a
                 href={repositoryLinks.apiTests}
@@ -267,7 +270,7 @@ export function LandingPage() {
                 rel="noreferrer"
                 className="transition duration-200 hover:text-[var(--color-accent)]"
               >
-                API tests
+                Quality checks
               </a>
             </div>
           </div>

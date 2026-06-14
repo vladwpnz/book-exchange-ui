@@ -7,6 +7,7 @@ import {
 } from '../api/booksApi'
 import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
 
 type BooksState = 'loading' | 'success' | 'error'
 
@@ -29,6 +30,7 @@ function getStatusClassName(book: AdminBook) {
 }
 
 export function AdminPanelPage() {
+  const { showToast } = useToast()
   const [books, setBooks] = useState<AdminBook[]>([])
   const [booksState, setBooksState] = useState<BooksState>('loading')
   const [loadErrorMessage, setLoadErrorMessage] = useState<string | null>(null)
@@ -60,14 +62,19 @@ export function AdminPanelPage() {
           return
         }
 
-        setBooks([])
-        setLoadErrorMessage(
-          getErrorMessage(
-            error,
-            'Unable to load admin books. Please try again.',
-          ),
+        const message = getErrorMessage(
+          error,
+          'Unable to load admin books. Please try again.',
         )
+
+        setBooks([])
+        setLoadErrorMessage(message)
         setBooksState('error')
+        showToast({
+          tone: 'error',
+          title: 'Could not load admin books',
+          message,
+        })
       }
     }
 
@@ -76,9 +83,18 @@ export function AdminPanelPage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey])
+  }, [reloadKey, showToast])
 
   async function handleForceReturn(book: AdminBook) {
+    if (isBookWithOwner(book)) {
+      showToast({
+        tone: 'info',
+        title: 'No action needed',
+        message: `${book.title} is already with its owner.`,
+      })
+      return
+    }
+
     setReturningBookIds((bookIds) =>
       bookIds.includes(book.id) ? bookIds : [...bookIds, book.id],
     )
@@ -87,15 +103,27 @@ export function AdminPanelPage() {
 
     try {
       await forceReturnBook(book.id)
-      setSuccessMessage(`${book.title} was returned to its owner.`)
+      const message = `${book.title} was returned to its owner.`
+
+      setSuccessMessage(message)
+      showToast({
+        tone: 'success',
+        title: 'Force return complete',
+        message,
+      })
       setReloadKey((key) => key + 1)
     } catch (error) {
-      setActionErrorMessage(
-        getErrorMessage(
-          error,
-          'Unable to force return this book. Please try again.',
-        ),
+      const message = getErrorMessage(
+        error,
+        'Unable to force return this book. Please try again.',
       )
+
+      setActionErrorMessage(message)
+      showToast({
+        tone: 'error',
+        title: 'Could not force return book',
+        message,
+      })
     } finally {
       setReturningBookIds((bookIds) =>
         bookIds.filter((bookId) => bookId !== book.id),
@@ -108,9 +136,9 @@ export function AdminPanelPage() {
   const hasBooks = booksState === 'success' && books.length > 0
   const isEmpty = booksState === 'success' && books.length === 0
   const metrics = [
-    { label: 'Total books', value: books.length, status: 'Loaded inventory' },
-    { label: 'Borrowed', value: borrowedBooks, status: 'Holder differs' },
-    { label: 'With owner', value: ownedHeldBooks, status: 'Holder matches' },
+    { label: 'Total books', value: books.length, status: 'Inventory ready' },
+    { label: 'Borrowed', value: borrowedBooks, status: 'On loan' },
+    { label: 'With owner', value: ownedHeldBooks, status: 'At home' },
   ]
 
   return (
@@ -118,7 +146,7 @@ export function AdminPanelPage() {
       <PageHeader
         eyebrow="Admin operations"
         title="Admin panel"
-        description="Monitor backend inventory and force borrowed copies back to their owners when an operational recovery is needed."
+        description="Monitor inventory and force borrowed copies back to their owners when an operational recovery is needed."
       />
 
       {booksState === 'success' && (
@@ -199,8 +227,7 @@ export function AdminPanelPage() {
             No books found
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
-            Books returned from the backend admin endpoint will appear here once
-            the exchange catalog has items.
+            Books will appear here once the exchange catalog has items.
           </p>
         </div>
       )}
@@ -293,16 +320,22 @@ export function AdminPanelPage() {
                         </span>
                       </td>
                       <td className="px-5 py-4 text-sm">
-                        <button
-                          className="secondary-action min-h-0 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
-                          type="button"
-                          disabled={isReturning}
-                          onClick={() => void handleForceReturn(book)}
-                          aria-label={`Force return ${book.title}`}
-                          aria-busy={isReturning}
-                        >
-                          {isReturning ? 'Returning...' : 'Force return'}
-                        </button>
+                        {isBookWithOwner(book) ? (
+                          <span className="inline-flex rounded-full border border-[#bfd8c7] bg-[#eef7ed] px-3 py-1 text-xs font-bold text-[#194934]">
+                            No action needed
+                          </span>
+                        ) : (
+                          <button
+                            className="secondary-action min-h-0 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                            type="button"
+                            disabled={isReturning}
+                            onClick={() => void handleForceReturn(book)}
+                            aria-label={`Force return ${book.title}`}
+                            aria-busy={isReturning}
+                          >
+                            {isReturning ? 'Returning...' : 'Force return'}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   )

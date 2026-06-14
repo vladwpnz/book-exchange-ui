@@ -1,15 +1,18 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
+import { markAchievementShownOnce } from '../achievements'
 import { createBook } from '../api/booksApi'
 import {
   addBookFromCatalog,
   searchCatalogBooks,
   type CatalogBook,
 } from '../api/catalogApi'
+import { useAuth } from '../auth/useAuth'
 import { BookCover } from '../components/BookCover'
 import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 type CatalogSearchState = 'loading' | 'ready' | 'empty' | 'error'
@@ -38,6 +41,8 @@ function getCatalogTone(index: number) {
 }
 
 export function AddBookPage() {
+  const { currentUserEmail } = useAuth()
+  const { showToast } = useToast()
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
@@ -67,6 +72,18 @@ export function AddBookPage() {
   const shownCatalogCount = Math.min(visibleCatalogCount, catalogBooks.length)
   const isFilteredCatalogSearch = catalogQuery.trim().length >= 2
 
+  function showFirstBookAchievementIfNeeded() {
+    if (!markAchievementShownOnce(currentUserEmail, 'first-book-added')) {
+      return
+    }
+
+    showToast({
+      tone: 'success',
+      title: 'Achievement unlocked',
+      message: 'First book added',
+    })
+  }
+
   useEffect(() => {
     const trimmedQuery = catalogQuery.trim()
     const catalogQueryValue = trimmedQuery.length >= 2 ? trimmedQuery : ''
@@ -91,9 +108,16 @@ export function AddBookPage() {
           return
         }
 
+        const message = getErrorMessage(error)
+
         setCatalogBooks([])
-        setCatalogErrorMessage(getErrorMessage(error))
+        setCatalogErrorMessage(message)
         setCatalogSearchState('error')
+        showToast({
+          tone: 'error',
+          title: 'Could not search catalog',
+          message,
+        })
       }
     }, 300)
 
@@ -101,7 +125,7 @@ export function AddBookPage() {
       isCurrentSearch = false
       window.clearTimeout(searchTimeoutId)
     }
-  }, [catalogQuery])
+  }, [catalogQuery, showToast])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -110,9 +134,16 @@ export function AddBookPage() {
     const trimmedAuthor = author.trim()
 
     if (!trimmedTitle || !trimmedAuthor) {
+      const message = 'Title and author are required.'
+
       setCreatedBook(null)
-      setErrorMessage('Title and author are required.')
+      setErrorMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'warning',
+        title: 'Add title and author',
+        message,
+      })
       return
     }
 
@@ -132,10 +163,23 @@ export function AddBookPage() {
       setTitle('')
       setAuthor('')
       setSubmitState('success')
+      showToast({
+        tone: 'success',
+        title: 'Book added',
+        message: `${trimmedTitle} by ${trimmedAuthor} is now on your owned shelf.`,
+      })
+      showFirstBookAchievementIfNeeded()
     } catch (error) {
+      const message = getErrorMessage(error)
+
       setCreatedBook(null)
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'error',
+        title: 'Could not add book',
+        message,
+      })
     }
   }
 
@@ -167,8 +211,21 @@ export function AddBookPage() {
       const addedBook = await addBookFromCatalog(book.catalogBookId)
 
       setCatalogAddedBook(addedBook)
+      showToast({
+        tone: 'success',
+        title: 'Book added',
+        message: `${addedBook.title} by ${addedBook.author} is now on your owned shelf.`,
+      })
+      showFirstBookAchievementIfNeeded()
     } catch (error) {
-      setCatalogAddErrorMessage(getErrorMessage(error))
+      const message = getErrorMessage(error)
+
+      setCatalogAddErrorMessage(message)
+      showToast({
+        tone: 'error',
+        title: 'Could not add catalog book',
+        message,
+      })
     } finally {
       setAddingCatalogBookIds((currentIds) =>
         currentIds.filter(
@@ -218,7 +275,8 @@ export function AddBookPage() {
               Catalog behavior
             </p>
             <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-              Debounced search, Show more, and catalog adding are unchanged.
+              Search waits briefly while you type. Use Show more to browse the
+              rest of the catalog.
             </p>
           </aside>
         </div>
@@ -412,7 +470,8 @@ export function AddBookPage() {
               Add manually
             </h2>
             <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-              Use this path only when the catalog does not contain the title.
+              Can't find your book? Add a real title that is missing from the
+              shared catalog.
             </p>
           </div>
 

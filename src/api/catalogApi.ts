@@ -47,7 +47,9 @@ function getRequiredText(
     return String(value)
   }
 
-  throw new Error(`${responseName} response contains an invalid ${fieldName}.`)
+  throw new Error(
+    `Could not read ${fieldName} for ${responseName.toLowerCase()}. Please try again.`,
+  )
 }
 
 function getOptionalText(value: unknown) {
@@ -58,15 +60,15 @@ function getOptionalText(value: unknown) {
 
 function getCatalogBooksData(data: unknown) {
   if (!isRecord(data) || !Array.isArray(data.books)) {
-    throw new Error('Catalog books response has an unexpected format.')
+    throw new Error('Could not load catalog books. Please try again.')
   }
 
   return data.books.map((bookDto, index) => {
     if (!isRecord(bookDto)) {
       throw new Error(
-        `Catalog books response contains an invalid book entry at position ${
+        `Could not read catalog book ${
           index + 1
-        }.`,
+        }. Please refresh and try again.`,
       )
     }
 
@@ -92,7 +94,7 @@ function toCatalogBook(dto: CatalogBookDto): CatalogBook {
 
 function toCreatedCatalogBook(data: unknown): CreatedCatalogBook {
   if (!isRecord(data)) {
-    throw new Error('Add catalog book response has an unexpected format.')
+    throw new Error('We could not read the added catalog book. Please try again.')
   }
 
   const book = isRecord(data.book) ? data.book : data

@@ -63,7 +63,7 @@ export function BookCard({ book, actions, contextLabel }: BookCardProps) {
             {book.note}
           </p>
 
-          <dl className="mt-4 grid gap-2 text-sm text-[var(--color-muted)] sm:grid-cols-3">
+          <dl className="mt-4 grid gap-2 text-sm text-[var(--color-muted)] sm:grid-cols-2">
             <div className="min-w-0">
               <dt className="font-bold text-[var(--color-ink-soft)]">Owner</dt>
               <dd className="truncate" title={book.owner}>
@@ -74,12 +74,6 @@ export function BookCard({ book, actions, contextLabel }: BookCardProps) {
               <dt className="font-bold text-[var(--color-ink-soft)]">Genre</dt>
               <dd className="truncate" title={book.genre}>
                 {book.genre}
-              </dd>
-            </div>
-            <div className="min-w-0">
-              <dt className="font-bold text-[var(--color-ink-soft)]">Book ID</dt>
-              <dd className="truncate" title={book.id}>
-                {book.id}
               </dd>
             </div>
           </dl>

@@ -6,6 +6,7 @@ import { BookCard } from '../components/BookCard'
 import { BookListSkeleton } from '../components/BookListSkeleton'
 import { PageHeader } from '../components/PageHeader'
 import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
 import type { Book } from '../types/book'
 
 type BooksState = 'loading' | 'success' | 'error'
@@ -17,6 +18,7 @@ function getErrorMessage(error: unknown) {
 }
 
 export function HeldBooksPage() {
+  const { showToast } = useToast()
   const [books, setBooks] = useState<Book[]>([])
   const [booksState, setBooksState] = useState<BooksState>('loading')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -43,9 +45,16 @@ export function HeldBooksPage() {
           return
         }
 
+        const message = getErrorMessage(error)
+
         setBooks([])
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(message)
         setBooksState('error')
+        showToast({
+          tone: 'error',
+          title: 'Could not load held books',
+          message,
+        })
       }
     }
 
@@ -54,7 +63,7 @@ export function HeldBooksPage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey])
+  }, [reloadKey, showToast])
 
   const hasBooks = booksState === 'success' && books.length > 0
   const isEmpty = booksState === 'success' && books.length === 0
@@ -172,7 +181,7 @@ export function HeldBooksPage() {
             </h2>
             <p className="mt-3 text-sm leading-6 text-[var(--color-muted)]">
               Use the return workflow when the borrowed copy goes back to its
-              owner. The backend decides whether the title can be returned.
+              owner. The return is checked against your borrowed shelf.
             </p>
           </aside>
         </section>

@@ -86,7 +86,7 @@ function getRequiredCreateBookText(value: unknown) {
     return value.trim()
   }
 
-  throw new Error('Add book response has an unexpected format.')
+  throw new Error('We could not read the added book. Please try again.')
 }
 
 function getOptionalCreateBookText(value: unknown) {
@@ -147,11 +147,11 @@ function assertBookActionAccepted(
   actionName: string,
 ) {
   if (responseUrl && isUnexpectedResponseUrl(responseUrl, expectedUrl)) {
-    throw new Error(`${actionName} request was redirected. Please sign in again.`)
+    throw new Error(`Please sign in again to continue ${actionName.toLowerCase()}.`)
   }
 
   if (isHtmlResponse(data, contentType)) {
-    throw new Error(`${actionName} response has an unexpected format.`)
+    throw new Error(`${actionName} could not be completed. Please try again.`)
   }
 }
 
@@ -201,20 +201,18 @@ function getBooksData(data: unknown, responseName: string) {
     }
   }
 
-  throw new Error(`${responseName} response has an unexpected format.`)
+  throw new Error(`Could not load ${responseName.toLowerCase()}. Please try again.`)
 }
 
 function getAdminBooksData(data: unknown) {
   if (!isRecord(data) || !Array.isArray(data.books)) {
-    throw new Error('Admin books response has an unexpected format.')
+    throw new Error('Could not load admin books. Please try again.')
   }
 
   return data.books.map((bookDto, index) => {
     if (!isRecord(bookDto)) {
       throw new Error(
-        `Admin books response contains an invalid book entry at position ${
-          index + 1
-        }.`,
+        `Could not read admin book ${index + 1}. Please refresh and try again.`,
       )
     }
 
@@ -239,7 +237,7 @@ export function isOwnedBooksPayload(data: unknown) {
 
 function toCreatedBook(data: unknown): CreatedBook {
   if (!isRecord(data)) {
-    throw new Error('Add book response has an unexpected format.')
+    throw new Error('We could not read the added book. Please try again.')
   }
 
   const createdBook: CreatedBook = {
@@ -306,9 +304,9 @@ function getRequiredAdminBookText(
   }
 
   throw new Error(
-    `Admin books response contains an invalid ${fieldName} for book ${
+    `Could not read ${fieldName} for admin book ${
       index + 1
-    }.`,
+    }. Please refresh and try again.`,
   )
 }
 
@@ -326,9 +324,9 @@ function getRequiredAdminBookId(
   }
 
   throw new Error(
-    `Admin books response contains an invalid ${fieldName} for book ${
+    `Could not read ${fieldName} for admin book ${
       index + 1
-    }.`,
+    }. Please refresh and try again.`,
   )
 }
 
@@ -380,7 +378,7 @@ function toAdminRequestError(error: unknown, fallbackMessage: string) {
   const status = getErrorStatus(error)
 
   if (status === 401) {
-    return new Error('Admin request is unauthorized. Please sign in again.')
+    return new Error('Please sign in again to continue.')
   }
 
   if (status === 403) {
@@ -404,7 +402,7 @@ function getForceReturnId(id: string | number) {
     return id.trim()
   }
 
-  throw new Error('Book id is required for force return.')
+  throw new Error('Choose a book before forcing a return.')
 }
 
 function assertForceReturnAccepted(data: unknown) {
@@ -413,13 +411,13 @@ function assertForceReturnAccepted(data: unknown) {
   }
 
   if (typeof data !== 'string') {
-    throw new Error('Force return response has an unexpected format.')
+    throw new Error('Force return could not be confirmed. Please refresh and try again.')
   }
 
   const message = data.trim()
 
   if (message.length > 0 && message !== 'The book was returned') {
-    throw new Error('Force return response has an unexpected format.')
+    throw new Error('Force return could not be confirmed. Please refresh and try again.')
   }
 }
 

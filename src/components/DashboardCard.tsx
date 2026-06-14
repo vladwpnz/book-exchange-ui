@@ -7,7 +7,6 @@ type DashboardCardProps = {
   description: string
   href: string
   accent?: AccentTone
-  index?: number
 }
 
 const accentClasses: Record<AccentTone, string> = {
@@ -21,7 +20,6 @@ export function DashboardCard({
   description,
   href,
   accent = 'emerald',
-  index = 1,
 }: DashboardCardProps) {
   return (
     <Link
@@ -32,7 +30,7 @@ export function DashboardCard({
         className={`inline-flex h-9 w-9 items-center justify-center rounded-md border text-sm font-bold ${accentClasses[accent]}`}
         aria-hidden="true"
       >
-        {String(index).padStart(2, '0')}
+        <span className="h-2.5 w-2.5 rounded-full bg-current" />
       </span>
 
       <span className="mt-4 block min-w-0">

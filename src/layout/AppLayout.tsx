@@ -3,14 +3,14 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { Navbar } from '../components/Navbar'
 
 const appLinks = [
-  { to: '/app/my-books', label: 'My books', hint: 'Owned shelf', mark: '01' },
-  { to: '/app/held-books', label: 'Held', hint: 'Borrowed shelf', mark: '02' },
-  { to: '/app/add-book', label: 'Add', hint: 'Catalog first', mark: '03' },
-  { to: '/app/share-book', label: 'Share', hint: 'Collaborate', mark: '04' },
-  { to: '/app/give-book', label: 'Give', hint: 'Final transfer', mark: '05' },
-  { to: '/app/return-book', label: 'Return', hint: 'Close hold', mark: '06' },
-  { to: '/app/profile', label: 'Profile', hint: 'Account', mark: '07' },
-  { to: '/app/admin', label: 'Admin', hint: 'Operations', mark: '08' },
+  { to: '/app/my-books', label: 'My books', hint: 'Owned shelf' },
+  { to: '/app/held-books', label: 'Held', hint: 'Borrowed shelf' },
+  { to: '/app/add-book', label: 'Add', hint: 'Catalog first' },
+  { to: '/app/share-book', label: 'Share', hint: 'Collaborate' },
+  { to: '/app/give-book', label: 'Give', hint: 'Final transfer' },
+  { to: '/app/return-book', label: 'Return', hint: 'Close hold' },
+  { to: '/app/profile', label: 'Profile', hint: 'Account' },
+  { to: '/app/admin', label: 'Admin', hint: 'Operations' },
 ]
 
 const appNavClass = ({ isActive }: { isActive: boolean }) =>
@@ -44,9 +44,6 @@ export function AppLayout() {
             <nav className="mt-3 grid gap-1" aria-label="Application sections">
               {appLinks.map((link) => (
                 <NavLink key={link.to} to={link.to} className={appNavClass}>
-                  <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-current/20 bg-white/55 text-xs font-bold">
-                    {link.mark}
-                  </span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-bold">
                       {link.label}
@@ -66,7 +63,6 @@ export function AppLayout() {
           >
             {appLinks.map((link) => (
               <NavLink key={link.to} to={link.to} className={appNavClass}>
-                <span className="text-xs font-bold">{link.mark}</span>
                 <span className="whitespace-nowrap text-sm font-bold">
                   {link.label}
                 </span>
