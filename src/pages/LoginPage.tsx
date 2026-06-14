@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../auth/useAuth'
+import { StateMessage } from '../components/StateMessage'
 
 function getSuccessMessage(state: unknown) {
   if (!state || typeof state !== 'object') {
@@ -39,46 +40,50 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen text-slate-100">
-      <main className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-6">
+    <div className="min-h-screen text-zinc-950">
+      <main className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-6">
         <div className="w-full max-w-md">
-          <form
-            className="form-panel reveal-blur p-6 sm:p-8"
-            onSubmit={handleSubmit}
+          <Link
+            className="secondary-action mb-4"
+            to="/"
+            aria-label="Back to Book Exchange home"
           >
-            <div className="flex flex-col items-center text-center">
-              <div className="relative grid h-20 w-20 place-items-center overflow-hidden rounded-2xl border border-cyan-300/25 bg-white/[0.045] shadow-[0_0_44px_rgba(34,211,238,0.12)]">
-                <span className="absolute inset-0 bg-linear-to-br from-cyan-300/16 via-transparent to-emerald-300/14" />
-                <span className="absolute h-11 w-8 -rotate-6 rounded-sm border-l-[7px] border-cyan-200 bg-slate-100 shadow-[0_0_18px_rgba(125,211,252,0.34)]" />
-                <span className="absolute h-10 w-8 translate-x-3 rotate-6 rounded-sm border-l-[7px] border-emerald-200 bg-cyan-50/90 shadow-[0_0_18px_rgba(52,211,153,0.22)]" />
-                <span className="absolute bottom-5 h-1 w-12 rounded-full bg-linear-to-r from-cyan-300 to-emerald-300" />
-              </div>
+            Back to home
+          </Link>
 
-              <p className="mt-5 text-xl font-semibold text-slate-50">
-                Book Exchange
-              </p>
-              <p className="mt-1 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
-                Exchange Network
-              </p>
+          <form
+            className="form-panel motion-line reveal-blur p-6 sm:p-8"
+            onSubmit={handleSubmit}
+            aria-busy={isLoading}
+          >
+            <div className="flex items-center gap-3">
+              <div className="relative grid h-14 w-14 place-items-center overflow-hidden rounded-xl border border-zinc-200 bg-[#F1EEE8] shadow-[0_1px_2px_rgba(17,17,17,0.06)]">
+                <span className="absolute inset-y-3 left-4 w-[3px] rounded-full bg-blue-600" />
+                <span className="absolute left-5 top-3 h-8 w-6 -rotate-6 rounded-[3px] border border-zinc-300 bg-white" />
+                <span className="absolute bottom-3 h-px w-9 bg-zinc-300" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-zinc-950">Book Exchange</p>
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
+                  Editorial desk
+                </p>
+              </div>
             </div>
 
-            <h1 className="mt-8 text-3xl font-semibold tracking-tight text-slate-50">
+            <h1 className="mt-8 font-[var(--font-display)] text-4xl font-semibold leading-tight text-zinc-950">
               Login
             </h1>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
+            <p className="mt-2 text-sm leading-6 text-zinc-600">
               Use your email and password to continue to your exchange
               dashboard.
             </p>
             {successMessage ? (
-              <p
-                className="mt-5 rounded-xl border border-emerald-300/25 bg-emerald-400/10 px-4 py-3 text-sm font-medium text-emerald-100"
-                role="status"
-              >
+              <StateMessage className="mt-5" tone="success">
                 {successMessage}
-              </p>
+              </StateMessage>
             ) : null}
             <label
-              className="mt-6 block text-sm font-semibold text-slate-200"
+              className="mt-6 block text-sm font-bold text-zinc-800"
               htmlFor="email"
             >
               Email
@@ -94,10 +99,12 @@ export function LoginPage() {
               placeholder="reader@example.com"
               required
               autoComplete="email"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'login-error' : undefined}
               className="field-input mt-2"
             />
             <label
-              className="mt-4 block text-sm font-semibold text-slate-200"
+              className="mt-4 block text-sm font-bold text-zinc-800"
               htmlFor="password"
             >
               Password
@@ -113,15 +120,25 @@ export function LoginPage() {
               placeholder="Password"
               required
               autoComplete="current-password"
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'login-error' : undefined}
               className="field-input mt-2"
             />
             {error ? (
-              <p
-                className="mt-5 rounded-xl border border-red-300/25 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-100"
-                role="alert"
+              <StateMessage
+                className="mt-5"
+                tone="error"
+                title="Could not sign in"
               >
-                {error.message}
-              </p>
+                <span id="login-error">
+                  {error.message}
+                </span>
+              </StateMessage>
+            ) : null}
+            {isLoading ? (
+              <span className="sr-only" role="status" aria-live="polite">
+                Signing in.
+              </span>
             ) : null}
             <button
               type="submit"
@@ -130,25 +147,16 @@ export function LoginPage() {
             >
               {isLoading ? 'Signing in...' : 'Continue'}
             </button>
-            <p className="mt-5 text-center text-sm text-slate-400">
+            <p className="mt-5 text-center text-sm text-zinc-600">
               New here?{' '}
               <Link
-                className="font-semibold text-cyan-200 transition hover:text-cyan-100"
+                className="font-bold text-blue-700 transition duration-200 hover:text-blue-800"
                 to="/register"
               >
                 Create an account
               </Link>
             </p>
           </form>
-
-          <p className="mt-5 text-center text-sm">
-            <Link
-              className="font-semibold text-slate-400 transition hover:text-slate-200"
-              to="/"
-            >
-              Back to home
-            </Link>
-          </p>
         </div>
       </main>
     </div>

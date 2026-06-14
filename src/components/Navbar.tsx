@@ -17,7 +17,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 const accountPillClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'block max-w-52 truncate rounded-md border px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600',
+    'block max-w-[8.5rem] truncate rounded-md border px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600 sm:max-w-52',
     isActive
       ? 'border-blue-200 bg-blue-50 text-blue-700'
       : 'border-zinc-200 bg-white text-zinc-700 hover:border-blue-200 hover:text-zinc-950',
@@ -34,7 +34,7 @@ export function Navbar({ appMode = false }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-zinc-200/80 bg-[#FAFAF7]/90 backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-5 py-3.5 sm:px-6 lg:px-8">
+      <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:gap-4 sm:px-6 lg:px-8">
         <Link
           to="/"
           className="group flex items-center gap-3 rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-600"
@@ -50,7 +50,7 @@ export function Navbar({ appMode = false }: NavbarProps) {
             <span className="block text-base font-bold text-zinc-950">
               Book Exchange
             </span>
-            <span className="block text-xs font-medium text-zinc-500">
+            <span className="hidden text-xs font-medium text-zinc-500 sm:block">
               Editorial exchange desk
             </span>
           </span>

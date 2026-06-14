@@ -5,6 +5,7 @@ import {
   getAdminBooks,
   type AdminBook,
 } from '../api/booksApi'
+import { StateMessage } from '../components/StateMessage'
 
 type BooksState = 'loading' | 'success' | 'error'
 
@@ -22,8 +23,8 @@ function getStatusLabel(book: AdminBook) {
 
 function getStatusClassName(book: AdminBook) {
   return isBookWithOwner(book)
-    ? 'border-emerald-300/20 bg-emerald-300/[0.08] text-emerald-100'
-    : 'border-amber-300/20 bg-amber-300/[0.08] text-amber-100'
+    ? 'border-green-200 bg-green-50 text-green-800'
+    : 'border-amber-200 bg-amber-50 text-amber-800'
 }
 
 export function AdminPanelPage() {
@@ -112,32 +113,34 @@ export function AdminPanelPage() {
   ]
 
   return (
-    <section className="space-y-6">
-      <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
+    <section className="space-y-5">
+      <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
         <div className="relative z-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
             Admin operations
           </p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
+          <h1 className="mt-2 font-[var(--font-display)] text-4xl font-semibold leading-tight text-zinc-950 sm:text-5xl">
             Admin panel
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-            Review all backend books and force borrowed copies back to their
-            owners when an admin action is required.
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
+            Review backend books and force borrowed copies back to their owners
+            when an admin action is required.
           </p>
         </div>
       </div>
 
       {booksState === 'success' && (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           {metrics.map((metric) => (
-            <article key={metric.label} className="premium-card rounded-2xl p-5">
+            <article key={metric.label} className="premium-card p-5">
               <div className="relative z-10">
-                <p className="text-sm text-slate-400">{metric.label}</p>
-                <p className="mt-3 text-4xl font-semibold text-slate-50">
+                <p className="text-sm font-semibold text-zinc-600">
+                  {metric.label}
+                </p>
+                <p className="mt-3 font-[var(--font-display)] text-4xl font-semibold text-zinc-950">
                   {metric.value}
                 </p>
-                <span className="mt-4 inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/[0.08] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100">
+                <span className="mt-4 inline-flex rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-blue-800">
                   {metric.status}
                 </span>
               </div>
@@ -147,38 +150,42 @@ export function AdminPanelPage() {
       )}
 
       {successMessage && (
-        <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-5 py-4 text-sm font-semibold text-emerald-50">
+        <StateMessage tone="success" title="Force return complete">
           {successMessage}
-        </div>
+        </StateMessage>
       )}
 
       {actionErrorMessage && (
-        <div className="rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] px-5 py-4 text-sm leading-6 text-amber-50">
-          <p className="font-semibold">Could not force return book</p>
-          <p className="mt-1 text-amber-100/80">{actionErrorMessage}</p>
-        </div>
+        <StateMessage tone="error" title="Could not force return book">
+          {actionErrorMessage}
+        </StateMessage>
       )}
 
       {booksState === 'loading' && (
-        <div className="premium-panel rounded-2xl p-6">
-          <div className="h-3 w-40 animate-pulse rounded-full bg-cyan-300/20" />
-          <div className="mt-5 grid gap-3">
-            <div className="h-4 animate-pulse rounded-full bg-white/10" />
-            <div className="h-4 w-5/6 animate-pulse rounded-full bg-white/10" />
-            <div className="h-4 w-2/3 animate-pulse rounded-full bg-white/10" />
+        <div
+          className="premium-panel p-6"
+          role="status"
+          aria-live="polite"
+        >
+          <span className="sr-only">Loading admin books.</span>
+          <div className="h-3 w-40 rounded-full bg-blue-100" />
+          <div className="mt-5 grid gap-3" aria-hidden="true">
+            <div className="h-4 rounded-full bg-zinc-100" />
+            <div className="h-4 w-5/6 rounded-full bg-zinc-100" />
+            <div className="h-4 w-2/3 rounded-full bg-zinc-100" />
           </div>
         </div>
       )}
 
       {booksState === 'error' && (
-        <div className="premium-panel rounded-2xl border border-amber-300/20 p-6 sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
+        <div className="premium-panel border-amber-200 p-6 sm:p-7" role="alert">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-700">
             Admin books unavailable
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
             Could not load admin books
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
             {loadErrorMessage}
           </p>
           <button
@@ -196,14 +203,14 @@ export function AdminPanelPage() {
       )}
 
       {isEmpty && (
-        <div className="empty-state p-6 sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
+        <div className="empty-state p-6 sm:p-7" role="status" aria-live="polite">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-green-700">
             Empty catalog
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
             No books found
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
             Books returned from the backend admin endpoint will appear here once
             the exchange catalog has items.
           </p>
@@ -211,17 +218,35 @@ export function AdminPanelPage() {
       )}
 
       {hasBooks && (
-        <div className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/50 shadow-[0_24px_90px_rgba(0,0,0,0.32)]">
-          <table className="w-full min-w-[860px] border-collapse text-left text-slate-200">
-            <thead className="border-b border-white/10 bg-white/[0.035] text-slate-100">
+        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-[0_1px_2px_rgba(17,17,17,0.04)]">
+          <table className="w-full min-w-[860px] border-collapse text-left text-zinc-700">
+            <caption className="sr-only">
+              Admin book inventory with owner, holder, status, and force return
+              actions.
+            </caption>
+            <thead className="border-b border-zinc-200 bg-[#F1EEE8] text-zinc-950">
               <tr>
-                <th className="px-5 py-4 text-sm font-semibold">ID</th>
-                <th className="px-5 py-4 text-sm font-semibold">Title</th>
-                <th className="px-5 py-4 text-sm font-semibold">Author</th>
-                <th className="px-5 py-4 text-sm font-semibold">Owner ID</th>
-                <th className="px-5 py-4 text-sm font-semibold">Holder ID</th>
-                <th className="px-5 py-4 text-sm font-semibold">Status</th>
-                <th className="px-5 py-4 text-sm font-semibold">Action</th>
+                <th scope="col" className="px-5 py-4 text-sm font-bold">
+                  ID
+                </th>
+                <th scope="col" className="px-5 py-4 text-sm font-bold">
+                  Title
+                </th>
+                <th scope="col" className="px-5 py-4 text-sm font-bold">
+                  Author
+                </th>
+                <th scope="col" className="px-5 py-4 text-sm font-bold">
+                  Owner ID
+                </th>
+                <th scope="col" className="px-5 py-4 text-sm font-bold">
+                  Holder ID
+                </th>
+                <th scope="col" className="px-5 py-4 text-sm font-bold">
+                  Status
+                </th>
+                <th scope="col" className="px-5 py-4 text-sm font-bold">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -231,26 +256,26 @@ export function AdminPanelPage() {
                 return (
                   <tr
                     key={book.id}
-                    className="border-t border-white/8 transition duration-200 hover:bg-white/[0.035]"
+                    className="border-t border-zinc-200 transition duration-200 hover:bg-[#fffefa]"
                   >
-                    <td className="px-5 py-4 text-sm font-semibold text-slate-300">
+                    <td className="px-5 py-4 text-sm font-semibold text-zinc-700">
                       {book.id}
                     </td>
-                    <td className="px-5 py-4 text-sm font-semibold text-slate-50">
+                    <td className="px-5 py-4 text-sm font-bold text-zinc-950">
                       {book.title}
                     </td>
-                    <td className="px-5 py-4 text-sm text-slate-300">
+                    <td className="px-5 py-4 text-sm text-zinc-700">
                       {book.author}
                     </td>
-                    <td className="px-5 py-4 text-sm text-slate-400">
+                    <td className="px-5 py-4 text-sm text-zinc-600">
                       {book.ownerId}
                     </td>
-                    <td className="px-5 py-4 text-sm text-slate-400">
+                    <td className="px-5 py-4 text-sm text-zinc-600">
                       {book.holderId}
                     </td>
                     <td className="px-5 py-4 text-sm">
                       <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${getStatusClassName(
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] ${getStatusClassName(
                           book,
                         )}`}
                       >
@@ -259,10 +284,12 @@ export function AdminPanelPage() {
                     </td>
                     <td className="px-5 py-4 text-sm">
                       <button
-                        className="rounded-xl border border-cyan-300/25 bg-cyan-300/[0.08] px-4 py-2 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/[0.14] disabled:cursor-not-allowed disabled:border-slate-500/20 disabled:bg-slate-500/10 disabled:text-slate-500"
+                        className="secondary-action min-h-0 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
                         type="button"
                         disabled={isReturning}
                         onClick={() => void handleForceReturn(book)}
+                        aria-label={`Force return ${book.title}`}
+                        aria-busy={isReturning}
                       >
                         {isReturning ? 'Returning...' : 'Force return'}
                       </button>

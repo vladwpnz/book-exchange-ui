@@ -14,7 +14,7 @@ const sideLinks = [
 
 const sideLinkClass = ({ isActive }: { isActive: boolean }) =>
   [
-    'group relative flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-blue-600',
+    'group relative flex min-h-[2.75rem] items-center justify-center gap-2 rounded-lg border px-2.5 py-2 text-center transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-blue-600 lg:justify-between lg:gap-3 lg:px-3 lg:py-2.5 lg:text-left',
     isActive
       ? 'active border-blue-200 bg-blue-50 text-blue-700'
       : 'border-transparent text-zinc-700 hover:border-zinc-200 hover:bg-white hover:text-zinc-950',
@@ -26,7 +26,7 @@ export function AppLayout() {
       <Navbar appMode />
 
       <div className="mx-auto grid max-w-7xl items-start gap-5 px-4 py-5 sm:px-6 lg:grid-cols-[260px_1fr] lg:px-8">
-        <aside className="reveal-blur rounded-xl border border-zinc-200 bg-[#F1EEE8] p-3 shadow-[0_1px_2px_rgba(17,17,17,0.04)] lg:sticky lg:top-24">
+        <aside className="reveal-blur rounded-xl border border-zinc-200 bg-[#F1EEE8] p-2 shadow-[0_1px_2px_rgba(17,17,17,0.04)] sm:p-3 lg:sticky lg:top-24">
           <div className="border-b border-zinc-200 px-1 pb-3">
             <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
               Workspace
@@ -34,22 +34,22 @@ export function AppLayout() {
             <h2 className="mt-1.5 font-[var(--font-display)] text-xl font-semibold leading-6 text-zinc-950">
               Exchange desk
             </h2>
-            <p className="mt-1 text-xs leading-5 text-zinc-600">
+            <p className="mt-1 hidden text-xs leading-5 text-zinc-600 lg:block">
               Catalog, exchange, transfer, and return flows
             </p>
           </div>
 
           <nav
-            className="mt-3 grid grid-cols-2 gap-1 sm:grid-cols-3 lg:grid-cols-1"
+            className="mt-3 grid grid-cols-2 gap-1 sm:grid-cols-4 md:grid-cols-7 lg:grid-cols-1"
             aria-label="Application sections"
           >
             {sideLinks.map((link) => (
               <NavLink key={link.to} to={link.to} className={sideLinkClass}>
                 <span className="min-w-0">
-                  <span className="block text-sm font-bold">
+                  <span className="block truncate text-[0.82rem] font-bold sm:text-sm">
                     {link.label}
                   </span>
-                  <span className="mt-0.5 block truncate text-xs text-zinc-500 group-hover:text-zinc-600">
+                  <span className="mt-0.5 hidden truncate text-xs text-zinc-500 group-hover:text-zinc-600 lg:block">
                     {link.hint}
                   </span>
                 </span>

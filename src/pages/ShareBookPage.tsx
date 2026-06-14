@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
 import { shareBook } from '../api/booksApi'
+import { StateMessage } from '../components/StateMessage'
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 type SharedBookSummary = {
@@ -61,27 +62,40 @@ export function ShareBookPage() {
   }
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <div className="space-y-6">
-        <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
+    <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="space-y-5">
+        <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
           <div className="relative z-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
               Share flow
             </p>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
+            <h1 className="mt-2 font-[var(--font-display)] text-4xl font-semibold leading-tight text-zinc-950 sm:text-5xl">
               Share book
             </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-              Send a book from your owned shelf to another reader by email and
-              keep the exchange action tied to your current session.
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-zinc-600">
+              Send an owned book to another reader by email while keeping the
+              exchange tied to your signed-in session.
             </p>
           </div>
         </div>
 
-        <form className="form-panel p-6 sm:p-7" onSubmit={handleSubmit}>
-          <div className="grid gap-5">
+        <form
+          className="form-panel p-5 sm:p-6"
+          onSubmit={handleSubmit}
+          aria-busy={isSubmitting}
+        >
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
+              Exchange request
+            </p>
+            <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-zinc-950">
+              Choose a book and reader
+            </h2>
+          </div>
+
+          <div className="mt-5 grid gap-5">
             <label
-              className="block text-sm font-semibold text-slate-200"
+              className="block text-sm font-bold text-zinc-800"
               htmlFor="share-title"
             >
               Book title
@@ -92,11 +106,17 @@ export function ShareBookPage() {
                 className="field-input mt-2"
                 placeholder="Effective Java"
                 disabled={isSubmitting}
+                aria-invalid={submitState === 'error' && Boolean(errorMessage)}
+                aria-describedby={
+                  submitState === 'error' && errorMessage
+                    ? 'share-error'
+                    : undefined
+                }
               />
             </label>
 
             <label
-              className="block text-sm font-semibold text-slate-200"
+              className="block text-sm font-bold text-zinc-800"
               htmlFor="share-reader"
             >
               Target user email
@@ -108,32 +128,40 @@ export function ShareBookPage() {
                 className="field-input mt-2"
                 placeholder="reader@example.com"
                 disabled={isSubmitting}
+                aria-invalid={submitState === 'error' && Boolean(errorMessage)}
+                aria-describedby={
+                  submitState === 'error' && errorMessage
+                    ? 'share-error'
+                    : undefined
+                }
               />
             </label>
           </div>
 
           {submitState === 'success' && sharedBook && (
-            <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-4 py-4 text-sm leading-6 text-emerald-50">
-              <p className="font-semibold">Book shared successfully.</p>
-              <p className="mt-1 text-emerald-100/80">
-                {sharedBook.title} was shared with {sharedBook.username}.
-              </p>
-              <Link className="secondary-action mt-4 inline-flex" to="/app/my-books">
-                View my books
-              </Link>
-            </div>
+            <StateMessage
+              className="mt-5"
+              tone="success"
+              title="Book shared successfully"
+              action={
+                <Link className="secondary-action" to="/app/my-books">
+                  View my books
+                </Link>
+              }
+            >
+              {sharedBook.title} was shared with {sharedBook.username}.
+            </StateMessage>
           )}
 
           {submitState === 'error' && errorMessage && (
-            <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] px-4 py-4 text-sm leading-6 text-amber-50">
-              <p className="font-semibold">Could not share book</p>
-              <p className="mt-1 text-amber-100/80">{errorMessage}</p>
-            </div>
+            <StateMessage className="mt-5" tone="error" title="Could not share book">
+              <span id="share-error">{errorMessage}</span>
+            </StateMessage>
           )}
 
           <button
             type="submit"
-            className="primary-action mt-6 disabled:cursor-not-allowed disabled:opacity-60"
+            className="primary-action mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Sharing...' : 'Share book'}
@@ -141,25 +169,26 @@ export function ShareBookPage() {
         </form>
       </div>
 
-      <aside className="status-panel h-fit p-6 sm:p-7">
-        <div className="relative z-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
-            Backend action
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
-            Exchange status
-          </h2>
-          <p className="mt-3 text-sm leading-6 text-slate-400">
-            Share requests are sent to the backend using your current signed-in
-            session.
-          </p>
+      <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="share-status-heading">
+        <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700">
+          Backend action
+        </p>
+        <h2
+          id="share-status-heading"
+          className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-zinc-950"
+        >
+          Exchange status
+        </h2>
+        <p className="mt-3 text-sm leading-6 text-zinc-600">
+          Share requests are sent to the backend using your current signed-in
+          session.
+        </p>
 
-          {sharedBook && (
-            <p className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-4 py-3 text-sm leading-6 text-emerald-50">
-              Last shared: {sharedBook.title} to {sharedBook.username}.
-            </p>
-          )}
-        </div>
+        {sharedBook && (
+          <StateMessage className="mt-5" tone="success">
+            Last shared: {sharedBook.title} to {sharedBook.username}.
+          </StateMessage>
+        )}
       </aside>
     </section>
   )

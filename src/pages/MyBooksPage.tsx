@@ -4,12 +4,12 @@ import { Link } from 'react-router-dom'
 import { getOwnedBooks } from '../api/booksApi'
 import { dashboardActions } from '../api/mockLibrary'
 import { BookCard } from '../components/BookCard'
+import { BookListSkeleton } from '../components/BookListSkeleton'
 import { DashboardCard } from '../components/DashboardCard'
+import { StateMessage } from '../components/StateMessage'
 import type { Book } from '../types/book'
 
 type BooksState = 'loading' | 'success' | 'error'
-
-const loadingCards = ['owned-books-loading-1', 'owned-books-loading-2']
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error
@@ -95,29 +95,11 @@ export function MyBooksPage() {
       </nav>
 
       {booksState === 'loading' && (
-        <div className="grid gap-3 xl:grid-cols-2">
-          {loadingCards.map((card) => (
-            <div
-              key={card}
-              className="rounded-xl border border-zinc-200 bg-white p-3 sm:p-4"
-            >
-              <div className="grid grid-cols-[3.75rem_1fr] gap-3 sm:grid-cols-[4.5rem_1fr] sm:gap-4">
-                <div className="h-24 w-15 rounded-lg border border-zinc-200 bg-[#F1EEE8] sm:h-28 sm:w-18" />
-                <div className="flex flex-1 flex-col">
-                  <div className="h-3 w-24 rounded-full bg-blue-100" />
-                  <div className="mt-3 h-5 w-3/4 rounded-full bg-zinc-200" />
-                  <div className="mt-2 h-4 w-40 rounded-full bg-zinc-100" />
-                  <div className="mt-4 h-4 w-32 rounded-full bg-zinc-100" />
-                  <div className="mt-2 h-4 w-52 max-w-full rounded-full bg-green-100" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <BookListSkeleton label="Loading owned books" />
       )}
 
       {booksState === 'error' && (
-        <div className="premium-panel border-amber-200 p-6 sm:p-7">
+        <div className="premium-panel border-amber-200 p-6 sm:p-7" role="alert">
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-700">
             Books unavailable
           </p>
@@ -138,7 +120,7 @@ export function MyBooksPage() {
       )}
 
       {isEmpty && (
-        <div className="empty-state p-6 sm:p-7">
+        <div className="empty-state p-6 sm:p-7" role="status" aria-live="polite">
           <p className="text-xs font-bold uppercase tracking-[0.22em] text-green-700">
             Empty shelf
           </p>
@@ -188,6 +170,12 @@ export function MyBooksPage() {
           </div>
         </section>
       )}
+
+      {booksState === 'success' && hasBooks ? (
+        <StateMessage tone="success" className="sr-only">
+          Owned books loaded.
+        </StateMessage>
+      ) : null}
     </section>
   )
 }
