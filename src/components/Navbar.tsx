@@ -1,6 +1,7 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../auth/useAuth'
+import { useTheme } from '../theme/useTheme'
 import { BrandMark } from './BrandMark'
 
 type NavbarProps = {
@@ -15,6 +16,28 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
       : 'border-transparent text-[var(--color-muted)] hover:border-[var(--color-border)] hover:bg-[var(--color-surface)] hover:text-[var(--color-ink)]',
   ].join(' ')
 
+function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme()
+  const isDark = theme === 'dark'
+  const nextThemeName = isDark ? 'Light theme' : 'Nocturne Archive'
+
+  return (
+    <button
+      type="button"
+      className="theme-toggle"
+      onClick={toggleTheme}
+      aria-label={`Switch to ${nextThemeName}`}
+      aria-pressed={isDark}
+      title={`Switch to ${nextThemeName}`}
+    >
+      <span className="theme-toggle__icon" aria-hidden="true" />
+      <span className="hidden sm:inline">
+        {isDark ? 'Nocturne Archive' : 'Light theme'}
+      </span>
+    </button>
+  )
+}
+
 export function Navbar({ appMode = false }: NavbarProps) {
   const navigate = useNavigate()
   const { currentUserEmail, isAuthenticated, logout } = useAuth()
@@ -25,7 +48,7 @@ export function Navbar({ appMode = false }: NavbarProps) {
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[#ded1c1] bg-[#fffaf2]/92 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-nav)] backdrop-blur-xl">
       <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
         <Link
           to="/"
@@ -101,6 +124,7 @@ export function Navbar({ appMode = false }: NavbarProps) {
               )}
             </>
           )}
+          <ThemeToggle />
         </div>
       </nav>
     </header>

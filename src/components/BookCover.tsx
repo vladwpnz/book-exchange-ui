@@ -13,17 +13,17 @@ type BookCoverProps = {
 
 const toneClasses = {
   emerald:
-    'border-[#b9d7c5] from-[#eef7ed] via-[#fffdf8] to-[#cfe6d5] text-[#163c2d]',
+    'border-[var(--cover-emerald-border)] from-[var(--cover-emerald-from)] via-[var(--cover-emerald-via)] to-[var(--cover-emerald-to)] text-[var(--cover-emerald-text)]',
   amber:
-    'border-[#e3bf78] from-[#fff4cf] via-[#fffdf8] to-[#ead199] text-[#4c3214]',
+    'border-[var(--cover-amber-border)] from-[var(--cover-amber-from)] via-[var(--cover-amber-via)] to-[var(--cover-amber-to)] text-[var(--cover-amber-text)]',
   paper:
-    'border-[#d7c8b7] from-[#fffdf8] via-[#f4eadc] to-[#d8c6b4] text-[#2d241e]',
+    'border-[var(--cover-paper-border)] from-[var(--cover-paper-from)] via-[var(--cover-paper-via)] to-[var(--cover-paper-to)] text-[var(--cover-paper-text)]',
 } satisfies Record<AccentTone, string>
 
 const spineClasses = {
-  emerald: 'bg-[#2f684f]',
-  amber: 'bg-[#a36a24]',
-  paper: 'bg-[#8f3f2b]',
+  emerald: 'bg-[var(--color-forest)]',
+  amber: 'bg-[var(--color-gold)]',
+  paper: 'bg-[var(--color-accent)]',
 } satisfies Record<AccentTone, string>
 
 const sizeClasses = {
@@ -58,7 +58,7 @@ export function BookCover({
 }: BookCoverProps) {
   return (
     <div
-      className={`relative shrink-0 overflow-hidden border bg-linear-to-br shadow-[inset_0_0_0_1px_rgba(255,255,255,0.78),0_12px_22px_rgba(52,36,24,0.12)] ${toneClasses[tone]} ${sizeClasses[size]} ${className}`}
+      className={`relative shrink-0 overflow-hidden border bg-linear-to-br shadow-[var(--cover-shadow)] ${toneClasses[tone]} ${sizeClasses[size]} ${className}`}
       aria-hidden="true"
     >
       <span

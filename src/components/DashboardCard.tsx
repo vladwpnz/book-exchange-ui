@@ -10,9 +10,12 @@ type DashboardCardProps = {
 }
 
 const accentClasses: Record<AccentTone, string> = {
-  emerald: 'border-[#b9d7c5] bg-[#eef7ed] text-[#194934]',
-  amber: 'border-[#e3bf9a] bg-[#fff3cf] text-[#704712]',
-  paper: 'border-[#d5c4b1] bg-[#fffaf2] text-[#6f2f22]',
+  emerald:
+    'border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] text-[var(--color-status-success-text)]',
+  amber:
+    'border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning-text)]',
+  paper:
+    'border-[var(--color-status-paper-border)] bg-[var(--color-status-paper-bg)] text-[var(--color-status-paper-text)]',
 }
 
 export function DashboardCard({
@@ -24,7 +27,7 @@ export function DashboardCard({
   return (
     <Link
       to={href}
-      className="group flex h-full min-h-[9.5rem] flex-col justify-between rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-left shadow-[var(--shadow-restraint)] transition duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-white hover:shadow-[var(--shadow-lift)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
+      className="group flex h-full min-h-[9.5rem] flex-col justify-between rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 text-left shadow-[var(--shadow-restraint)] transition duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-card-hover)] hover:shadow-[var(--shadow-lift)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
     >
       <span
         className={`inline-flex h-9 w-9 items-center justify-center rounded-md border text-sm font-bold ${accentClasses[accent]}`}

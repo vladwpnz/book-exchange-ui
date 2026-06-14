@@ -14,17 +14,17 @@ export function BookListSkeleton({ count = 2, label }: BookListSkeletonProps) {
           aria-hidden="true"
         >
           <div className="grid gap-4 sm:grid-cols-[5rem_1fr]">
-            <div className="mx-auto h-28 w-20 rounded-lg border border-[var(--color-border)] bg-[#eadfce] sm:mx-0" />
+            <div className="mx-auto h-28 w-20 rounded-lg border border-[var(--color-border)] bg-[var(--color-skeleton)] sm:mx-0" />
             <div className="min-w-0">
-              <div className="h-3 w-20 rounded-full bg-[#e8cfc4]" />
-              <div className="mt-3 h-7 w-3/4 rounded-full bg-[#ddd0bf]" />
-              <div className="mt-3 h-4 w-44 max-w-full rounded-full bg-[#dfeaf1]" />
-              <div className="mt-5 h-4 w-full rounded-full bg-[#eadfce]" />
-              <div className="mt-2 h-4 w-4/5 rounded-full bg-[#eadfce]" />
+              <div className="h-3 w-20 rounded-full bg-[var(--color-skeleton-warm)]" />
+              <div className="mt-3 h-7 w-3/4 rounded-full bg-[var(--color-skeleton-strong)]" />
+              <div className="mt-3 h-4 w-44 max-w-full rounded-full bg-[var(--color-skeleton-cool)]" />
+              <div className="mt-5 h-4 w-full rounded-full bg-[var(--color-skeleton)]" />
+              <div className="mt-2 h-4 w-4/5 rounded-full bg-[var(--color-skeleton)]" />
               <div className="mt-5 grid gap-2 sm:grid-cols-3">
-                <div className="h-8 rounded-md bg-[#f1e7da]" />
-                <div className="h-8 rounded-md bg-[#f1e7da]" />
-                <div className="h-8 rounded-md bg-[#f1e7da]" />
+                <div className="h-8 rounded-md bg-[var(--color-skeleton-soft)]" />
+                <div className="h-8 rounded-md bg-[var(--color-skeleton-soft)]" />
+                <div className="h-8 rounded-md bg-[var(--color-skeleton-soft)]" />
               </div>
             </div>
           </div>

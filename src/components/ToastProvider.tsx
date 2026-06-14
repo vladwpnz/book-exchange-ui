@@ -23,10 +23,13 @@ type ToastProviderProps = {
 const AUTO_DISMISS_MS = 4000
 
 const toneClasses = {
-  success: 'border-[#bfd8c7] bg-[#eef7ed] text-[#173d2d]',
-  warning: 'border-[#e5c47f] bg-[#fff3cf] text-[#513615]',
-  error: 'border-[#e4b0a9] bg-[#fff1ed] text-[#74271f]',
-  info: 'border-[#bfd1dc] bg-[#edf5f8] text-[#21455f]',
+  success:
+    'border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] text-[var(--color-status-success-text)]',
+  warning:
+    'border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning-text)]',
+  error:
+    'border-[var(--color-status-error-border)] bg-[var(--color-status-error-bg)] text-[var(--color-status-error-text)]',
+  info: 'border-[var(--color-status-info-border)] bg-[var(--color-status-info-bg)] text-[var(--color-status-info-text)]',
 } satisfies Record<ToastTone, string>
 
 const markerClasses = {
@@ -80,7 +83,7 @@ function ToastItem({
 
         <button
           type="button"
-          className="ml-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-current/20 bg-white/45 text-sm font-bold text-current transition duration-200 hover:bg-white/75 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          className="ml-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-current/20 bg-[var(--color-surface-strong)] text-sm font-bold text-current transition duration-200 hover:bg-[var(--color-card-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
           onClick={() => onClose(toast.id)}
           aria-label="Close notification"
         >

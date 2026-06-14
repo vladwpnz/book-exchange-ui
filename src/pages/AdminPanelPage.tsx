@@ -25,8 +25,8 @@ function getStatusLabel(book: AdminBook) {
 
 function getStatusClassName(book: AdminBook) {
   return isBookWithOwner(book)
-    ? 'border-[#bfd8c7] bg-[#eef7ed] text-[#194934]'
-    : 'border-[#e5c47f] bg-[#fff3cf] text-[#704712]'
+    ? 'border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] text-[var(--color-status-success-text)]'
+    : 'border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning-text)]'
 }
 
 export function AdminPanelPage() {
@@ -160,7 +160,7 @@ export function AdminPanelPage() {
                 <p className="mt-3 font-[var(--font-display)] text-4xl font-semibold text-[var(--color-ink)]">
                   {metric.value}
                 </p>
-                <span className="mt-4 inline-flex rounded-full border border-[#bfd1dc] bg-[#edf5f8] px-3 py-1 text-xs font-bold text-[#21455f]">
+                <span className="mt-4 inline-flex rounded-full border border-[var(--color-status-info-border)] bg-[var(--color-status-info-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-info-text)]">
                   {metric.status}
                 </span>
               </div>
@@ -184,17 +184,17 @@ export function AdminPanelPage() {
       {booksState === 'loading' && (
         <div className="premium-panel p-6" role="status" aria-live="polite">
           <span className="sr-only">Loading admin books.</span>
-          <div className="h-3 w-40 rounded-full bg-[#e8cfc4]" />
+          <div className="h-3 w-40 rounded-full bg-[var(--color-skeleton-warm)]" />
           <div className="mt-5 grid gap-3" aria-hidden="true">
-            <div className="h-4 rounded-full bg-[#eadfce]" />
-            <div className="h-4 w-5/6 rounded-full bg-[#eadfce]" />
-            <div className="h-4 w-2/3 rounded-full bg-[#eadfce]" />
+            <div className="h-4 rounded-full bg-[var(--color-skeleton)]" />
+            <div className="h-4 w-5/6 rounded-full bg-[var(--color-skeleton)]" />
+            <div className="h-4 w-2/3 rounded-full bg-[var(--color-skeleton)]" />
           </div>
         </div>
       )}
 
       {booksState === 'error' && (
-        <div className="premium-panel border-[#e5c47f] p-6 sm:p-7" role="alert">
+        <div className="premium-panel border-[var(--color-status-warning-border)] p-6 sm:p-7" role="alert">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
             Admin books unavailable
           </p>
@@ -234,7 +234,7 @@ export function AdminPanelPage() {
 
       {hasBooks && (
         <section className="premium-panel overflow-hidden" aria-labelledby="admin-books-heading">
-          <div className="flex flex-col gap-3 border-b border-[var(--color-border)] bg-[#fffaf2] px-4 py-4 sm:flex-row sm:items-end sm:justify-between sm:px-5">
+          <div className="flex flex-col gap-3 border-b border-[var(--color-border)] bg-[var(--color-paper)] px-4 py-4 sm:flex-row sm:items-end sm:justify-between sm:px-5">
             <div>
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
                 Inventory
@@ -247,10 +247,10 @@ export function AdminPanelPage() {
               </h2>
             </div>
             <div className="flex flex-wrap gap-2 text-xs font-bold">
-              <span className="rounded-full border border-[#bfd8c7] bg-[#eef7ed] px-3 py-1 text-[#194934]">
+              <span className="rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-[var(--color-status-success-text)]">
                 With owner
               </span>
-              <span className="rounded-full border border-[#e5c47f] bg-[#fff3cf] px-3 py-1 text-[#704712]">
+              <span className="rounded-full border border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] px-3 py-1 text-[var(--color-status-warning-text)]">
                 Borrowed
               </span>
             </div>
@@ -262,7 +262,7 @@ export function AdminPanelPage() {
                 Admin book inventory with owner, holder, status, and force
                 return actions.
               </caption>
-              <thead className="border-b border-[var(--color-border)] bg-[#f4eadc] text-[var(--color-ink)]">
+              <thead className="border-b border-[var(--color-border)] bg-[var(--color-table-head)] text-[var(--color-ink)]">
                 <tr>
                   <th scope="col" className="px-5 py-4 text-sm font-bold">
                     Book
@@ -291,7 +291,7 @@ export function AdminPanelPage() {
                   return (
                     <tr
                       key={book.id}
-                      className="border-t border-[var(--color-border)] bg-white transition duration-200 hover:bg-[#fffaf2]"
+                      className="border-t border-[var(--color-border)] bg-[var(--color-table-row)] transition duration-200 hover:bg-[var(--color-table-row-hover)]"
                     >
                       <th scope="row" className="px-5 py-4 text-left">
                         <span className="block font-[var(--font-display)] text-xl font-semibold leading-6 text-[var(--color-ink)]">
@@ -321,7 +321,7 @@ export function AdminPanelPage() {
                       </td>
                       <td className="px-5 py-4 text-sm">
                         {isBookWithOwner(book) ? (
-                          <span className="inline-flex rounded-full border border-[#bfd8c7] bg-[#eef7ed] px-3 py-1 text-xs font-bold text-[#194934]">
+                          <span className="inline-flex rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-success-text)]">
                             No action needed
                           </span>
                         ) : (

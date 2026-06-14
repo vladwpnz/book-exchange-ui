@@ -132,7 +132,7 @@ export function ShareBookPage() {
               </p>
             </div>
 
-            <div className="rounded-[0.7rem] border border-[#bfd1dc] bg-[#edf5f8] p-4 text-sm leading-6 text-[#21455f]">
+            <div className="rounded-[0.7rem] border border-[var(--color-status-info-border)] bg-[var(--color-status-info-bg)] p-4 text-sm leading-6 text-[var(--color-status-info-text)]">
               The recipient email connects this action to a real user account.
             </div>
           </div>

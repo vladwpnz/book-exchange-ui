@@ -105,7 +105,7 @@ export function LandingPage() {
             </div>
 
             <aside
-              className="relative min-h-[25rem] overflow-hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[#fffaf2] p-4 shadow-[var(--shadow-restraint)] sm:p-5"
+              className="relative min-h-[25rem] overflow-hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[var(--color-paper)] p-4 shadow-[var(--shadow-restraint)] sm:p-5"
               aria-label="Book Exchange catalog preview"
             >
               <div className="brand-ribbon absolute inset-x-0 top-0 h-1" />
@@ -118,7 +118,7 @@ export function LandingPage() {
                     Books stay central
                   </h2>
                 </div>
-                <span className="rounded-full border border-[#bfd8c7] bg-[#eef7ed] px-3 py-1 text-xs font-bold text-[#194934]">
+                <span className="rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-success-text)]">
                   Product preview
                 </span>
               </div>
@@ -137,7 +137,7 @@ export function LandingPage() {
                 ))}
               </div>
 
-              <div className="mt-8 rounded-[0.7rem] border border-[var(--color-border)] bg-white p-4">
+              <div className="mt-8 rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-bold text-[var(--color-ink)]">
@@ -177,10 +177,10 @@ export function LandingPage() {
                 <Link
                   key={item.href}
                   to={item.href}
-                  className="group rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-white hover:shadow-[var(--shadow-lift)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
+                  className="group rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-card-hover)] hover:shadow-[var(--shadow-lift)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
                 >
                   <span
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#b9d7c5] bg-[#eef7ed] text-[#194934]"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] text-[var(--color-status-success-text)]"
                     aria-hidden="true"
                   >
                     <span className="h-2.5 w-2.5 rounded-full bg-current" />
@@ -200,7 +200,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="border-y border-[var(--color-border)] bg-[#fffaf2]/72">
+        <section className="border-y border-[var(--color-border)] bg-[var(--color-band)]">
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
             <div>
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">

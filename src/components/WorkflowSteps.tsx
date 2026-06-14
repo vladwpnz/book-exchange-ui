@@ -21,7 +21,7 @@ export function WorkflowSteps({ steps, currentStep = 1 }: WorkflowStepsProps) {
             className={`rounded-[0.65rem] border p-3 ${
               isCurrent
                 ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]'
-                : 'border-[var(--color-border)] bg-white'
+                : 'border-[var(--color-border)] bg-[var(--color-surface-strong)]'
             }`}
           >
             <div className="flex gap-3">

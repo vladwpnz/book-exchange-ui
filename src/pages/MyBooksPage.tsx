@@ -85,7 +85,7 @@ export function MyBooksPage() {
         }
         meta={
           booksState === 'success' ? (
-            <div className="rounded-[0.7rem] border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-muted)] shadow-[var(--shadow-restraint)]">
+            <div className="rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface-strong)] px-4 py-3 text-sm text-[var(--color-muted)] shadow-[var(--shadow-restraint)]">
               <span className="font-bold text-[var(--color-ink)]">
                 {books.length}
               </span>{' '}
@@ -128,7 +128,7 @@ export function MyBooksPage() {
       )}
 
       {booksState === 'error' && (
-        <div className="premium-panel border-[#e5c47f] p-6 sm:p-7" role="alert">
+        <div className="premium-panel border-[var(--color-status-warning-border)] p-6 sm:p-7" role="alert">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
             Books unavailable
           </p>

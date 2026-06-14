@@ -227,32 +227,32 @@ export function ProfilePage() {
           <span className="sr-only">Loading profile.</span>
           <div className="premium-panel p-5 sm:p-6" aria-hidden="true">
             <div className="grid gap-5 sm:grid-cols-[7rem_minmax(0,1fr)]">
-              <div className="h-28 w-28 rounded-[0.75rem] border border-[var(--color-border)] bg-[#eadfce]" />
+              <div className="h-28 w-28 rounded-[0.75rem] border border-[var(--color-border)] bg-[var(--color-skeleton)]" />
               <div className="min-w-0">
-                <div className="h-3 w-28 rounded-full bg-[#e8cfc4]" />
-                <div className="mt-4 h-8 w-3/4 rounded-full bg-[#ddd0bf]" />
-                <div className="mt-3 h-4 w-64 max-w-full rounded-full bg-[#eadfce]" />
+                <div className="h-3 w-28 rounded-full bg-[var(--color-skeleton-warm)]" />
+                <div className="mt-4 h-8 w-3/4 rounded-full bg-[var(--color-skeleton-strong)]" />
+                <div className="mt-3 h-4 w-64 max-w-full rounded-full bg-[var(--color-skeleton)]" />
                 <div className="mt-6 grid gap-3 sm:grid-cols-4">
-                  <div className="h-16 rounded-lg bg-[#f1e7da]" />
-                  <div className="h-16 rounded-lg bg-[#f1e7da]" />
-                  <div className="h-16 rounded-lg bg-[#f1e7da]" />
-                  <div className="h-16 rounded-lg bg-[#f1e7da]" />
+                  <div className="h-16 rounded-lg bg-[var(--color-skeleton-soft)]" />
+                  <div className="h-16 rounded-lg bg-[var(--color-skeleton-soft)]" />
+                  <div className="h-16 rounded-lg bg-[var(--color-skeleton-soft)]" />
+                  <div className="h-16 rounded-lg bg-[var(--color-skeleton-soft)]" />
                 </div>
               </div>
             </div>
           </div>
 
           <div className="form-panel self-start p-5 sm:p-6" aria-hidden="true">
-            <div className="h-3 w-32 rounded-full bg-[#e8cfc4]" />
-            <div className="mt-3 h-7 w-40 rounded-full bg-[#ddd0bf]" />
-            <div className="mt-5 h-11 rounded-[0.7rem] bg-[#f1e7da]" />
-            <div className="mt-3 h-11 rounded-[0.7rem] bg-[#eadfce]" />
+            <div className="h-3 w-32 rounded-full bg-[var(--color-skeleton-warm)]" />
+            <div className="mt-3 h-7 w-40 rounded-full bg-[var(--color-skeleton-strong)]" />
+            <div className="mt-5 h-11 rounded-[0.7rem] bg-[var(--color-skeleton-soft)]" />
+            <div className="mt-3 h-11 rounded-[0.7rem] bg-[var(--color-skeleton)]" />
           </div>
         </div>
       )}
 
       {profileState === 'error' && (
-        <div className="premium-panel border-[#e5c47f] p-6 sm:p-7" role="alert">
+        <div className="premium-panel border-[var(--color-status-warning-border)] p-6 sm:p-7" role="alert">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
             Profile unavailable
           </p>
@@ -276,7 +276,7 @@ export function ProfilePage() {
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_22rem]">
           <section className="premium-panel overflow-hidden">
             <div className="grid gap-6 p-5 sm:grid-cols-[7rem_minmax(0,1fr)] sm:p-6">
-              <div className="grid h-28 w-28 shrink-0 place-items-center overflow-hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[#fffaf2] shadow-[var(--shadow-restraint)]">
+              <div className="grid h-28 w-28 shrink-0 place-items-center overflow-hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[var(--color-paper)] shadow-[var(--shadow-restraint)]">
                 {profile.avatarUrl ? (
                   <img
                     src={profile.avatarUrl}
@@ -304,24 +304,24 @@ export function ProfilePage() {
                   {profile.email}
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="rounded-full border border-[#bfd1dc] bg-[#edf5f8] px-3 py-1 text-xs font-bold text-[#21455f]">
+                  <span className="rounded-full border border-[var(--color-status-info-border)] bg-[var(--color-status-info-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-info-text)]">
                     {profile.authority}
                   </span>
-                  <span className="rounded-full border border-[#bfd8c7] bg-[#eef7ed] px-3 py-1 text-xs font-bold text-[#194934]">
+                  <span className="rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-success-text)]">
                     {accountStatus}
                   </span>
                 </div>
               </div>
             </div>
 
-            <dl className="grid border-y border-[var(--color-border)] bg-[#f4eadc] sm:grid-cols-4">
+            <dl className="grid border-y border-[var(--color-border)] bg-[var(--color-table-head)] sm:grid-cols-4">
               {[
                 ['Owned books', formatStatValue(profileStats.ownedBooks)],
                 ['Held books', formatStatValue(profileStats.heldBooks)],
                 ['Role', profile.authority],
                 ['Status', accountStatus],
               ].map(([label, value]) => (
-                <div key={label} className="border-[var(--color-border)] bg-white p-4 sm:border-r sm:last:border-r-0">
+                <div key={label} className="border-[var(--color-border)] bg-[var(--color-table-row)] p-4 sm:border-r sm:last:border-r-0">
                   <dt className="text-xs font-bold tracking-[0.14em] text-[var(--color-muted)]">
                     {label}
                   </dt>
@@ -340,7 +340,7 @@ export function ProfilePage() {
                 {achievements.map((achievement) => (
                   <li
                     key={achievement.id}
-                    className={`rounded-[0.65rem] border border-[var(--color-border)] bg-[#fffaf2] px-4 py-3 ${
+                    className={`rounded-[0.65rem] border border-[var(--color-border)] bg-[var(--color-paper)] px-4 py-3 ${
                       achievement.unlocked ? '' : 'opacity-70'
                     }`}
                   >

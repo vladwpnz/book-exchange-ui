@@ -289,7 +289,7 @@ export function AddBookPage() {
             </p>
           </div>
 
-          <aside className="rounded-[0.7rem] border border-[var(--color-border)] bg-[#fbf4ea] p-4">
+          <aside className="rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-panel-tint)] p-4">
             <p className="text-sm font-bold text-[var(--color-ink)]">
               Catalog behavior
             </p>
@@ -355,16 +355,16 @@ export function AddBookPage() {
             {Array.from({ length: 3 }, (_, index) => (
               <div
                 key={`catalog-loading-${index}`}
-                className="rounded-[0.7rem] border border-[var(--color-border)] bg-white px-4 py-4"
+                className="rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface-strong)] px-4 py-4"
                 aria-hidden="true"
               >
                 <div className="flex gap-4">
-                  <div className="h-20 w-14 shrink-0 rounded-md border border-[var(--color-border)] bg-[#eadfce]" />
+                  <div className="h-20 w-14 shrink-0 rounded-md border border-[var(--color-border)] bg-[var(--color-skeleton)]" />
                   <div className="min-w-0 flex-1">
-                    <div className="h-5 w-2/3 rounded-full bg-[#ddd0bf]" />
-                    <div className="mt-3 h-3 w-40 rounded-full bg-[#dfeaf1]" />
-                    <div className="mt-4 h-3 w-full rounded-full bg-[#eadfce]" />
-                    <div className="mt-2 h-3 w-4/5 rounded-full bg-[#eadfce]" />
+                    <div className="h-5 w-2/3 rounded-full bg-[var(--color-skeleton-strong)]" />
+                    <div className="mt-3 h-3 w-40 rounded-full bg-[var(--color-skeleton-cool)]" />
+                    <div className="mt-4 h-3 w-full rounded-full bg-[var(--color-skeleton)]" />
+                    <div className="mt-2 h-3 w-4/5 rounded-full bg-[var(--color-skeleton)]" />
                   </div>
                 </div>
               </div>
@@ -418,7 +418,7 @@ export function AddBookPage() {
                 return (
                   <article
                     key={book.catalogBookId}
-                    className="grid gap-4 rounded-[0.7rem] border border-[var(--color-border)] bg-white p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:border-[var(--color-border-strong)] hover:bg-[#fffdf8] sm:grid-cols-[4.5rem_minmax(0,1fr)_auto] sm:items-center"
+                    className="grid gap-4 rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-card-hover)] sm:grid-cols-[4.5rem_minmax(0,1fr)_auto] sm:items-center"
                   >
                     <BookCover
                       title={book.title}
@@ -434,7 +434,7 @@ export function AddBookPage() {
                         <h4 className="min-w-0 font-[var(--font-display)] text-2xl font-semibold leading-7 text-[var(--color-ink)]">
                           {book.title}
                         </h4>
-                        <span className="rounded-full border border-[#bfd8c7] bg-[#eef7ed] px-2.5 py-0.5 text-xs font-bold text-[#194934]">
+                        <span className="rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-status-success-text)]">
                           {book.genre}
                         </span>
                       </div>

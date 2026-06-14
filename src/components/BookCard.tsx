@@ -17,15 +17,18 @@ const statusLabels = {
 } satisfies Record<Book['status'], string>
 
 const statusClasses = {
-  available: 'border-[#bfd8c7] bg-[#eef7ed] text-[#194934]',
-  held: 'border-[#bfd1dc] bg-[#edf5f8] text-[#21455f]',
-  shared: 'border-[#e7c1b5] bg-[#f5ddd3] text-[#6f2f22]',
-  pending: 'border-[#e5c47f] bg-[#fff3cf] text-[#704712]',
+  available:
+    'border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] text-[var(--color-status-success-text)]',
+  held: 'border-[var(--color-status-info-border)] bg-[var(--color-status-info-bg)] text-[var(--color-status-info-text)]',
+  shared:
+    'border-[var(--color-status-accent-border)] bg-[var(--color-status-accent-bg)] text-[var(--color-status-accent-text)]',
+  pending:
+    'border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning-text)]',
 } satisfies Record<Book['status'], string>
 
 export function BookCard({ book, actions, contextLabel }: BookCardProps) {
   return (
-    <article className="group overflow-hidden rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] text-left shadow-[var(--shadow-restraint)] transition duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-white hover:shadow-[var(--shadow-lift)]">
+    <article className="group overflow-hidden rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] text-left shadow-[var(--shadow-restraint)] transition duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-card-hover)] hover:shadow-[var(--shadow-lift)]">
       <div className="grid gap-4 p-3 sm:grid-cols-[5rem_1fr] sm:p-4">
         <BookCover
           title={book.title}
@@ -81,7 +84,7 @@ export function BookCard({ book, actions, contextLabel }: BookCardProps) {
       </div>
 
       {actions ? (
-        <div className="flex flex-wrap gap-2 border-t border-[var(--color-border)] bg-[#fbf4ea] px-3 py-3 sm:px-4">
+        <div className="flex flex-wrap gap-2 border-t border-[var(--color-border)] bg-[var(--color-panel-tint)] px-3 py-3 sm:px-4">
           {actions}
         </div>
       ) : null}

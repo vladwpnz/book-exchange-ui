@@ -13,10 +13,13 @@ type StateMessageProps = {
 }
 
 const toneClasses = {
-  success: 'border-[#bfd8c7] bg-[#eef7ed] text-[#173d2d]',
-  warning: 'border-[#e5c47f] bg-[#fff3cf] text-[#513615]',
-  error: 'border-[#e4b0a9] bg-[#fff1ed] text-[#74271f]',
-  info: 'border-[#bfd1dc] bg-[#edf5f8] text-[#21455f]',
+  success:
+    'border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] text-[var(--color-status-success-text)]',
+  warning:
+    'border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning-text)]',
+  error:
+    'border-[var(--color-status-error-border)] bg-[var(--color-status-error-bg)] text-[var(--color-status-error-text)]',
+  info: 'border-[var(--color-status-info-border)] bg-[var(--color-status-info-bg)] text-[var(--color-status-info-text)]',
 } satisfies Record<StateTone, string>
 
 const markerClasses = {

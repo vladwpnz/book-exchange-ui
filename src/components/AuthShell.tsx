@@ -49,7 +49,7 @@ export function AuthShell({ children, title, description }: AuthShellProps) {
           </div>
         </section>
 
-        <aside className="relative hidden overflow-hidden border-l border-[var(--color-border)] bg-[#fffaf2] p-8 lg:block">
+        <aside className="relative hidden overflow-hidden border-l border-[var(--color-border)] bg-[var(--color-paper)] p-8 lg:block">
           <div className="brand-ribbon absolute inset-x-0 top-0 h-1" />
           <div className="flex h-full flex-col justify-between">
             <div>

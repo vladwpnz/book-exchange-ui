@@ -5,6 +5,26 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>book-exchange-ui</title>
+    <script>
+      ;(() => {
+        const storageKey = 'bookExchange.theme'
+        const fallbackTheme = 'dark'
+        let theme = fallbackTheme
+
+        try {
+          const storedTheme = window.localStorage.getItem(storageKey)
+
+          if (storedTheme === 'light' || storedTheme === 'dark') {
+            theme = storedTheme
+          }
+        } catch {
+          theme = fallbackTheme
+        }
+
+        document.documentElement.dataset.theme = theme
+        document.documentElement.style.colorScheme = theme
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

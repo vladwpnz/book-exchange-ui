@@ -264,7 +264,7 @@ export function ReturnBookPage() {
                         disabled={isSubmitting}
                         onChange={() => handleSelectBook(book.id)}
                       />
-                      <span className="grid gap-4 rounded-[0.7rem] border border-[var(--color-border)] bg-white p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:border-[var(--color-border-strong)] hover:bg-[#fffdf8] peer-checked:border-[var(--color-accent)] peer-checked:bg-[var(--color-accent-soft)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-[var(--color-accent)] sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:items-center">
+                      <span className="grid gap-4 rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-card-hover)] peer-checked:border-[var(--color-accent)] peer-checked:bg-[var(--color-accent-soft)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-[var(--color-accent)] sm:grid-cols-[4.5rem_minmax(0,1fr)] sm:items-center">
                         <BookCover
                           title={book.title}
                           author={book.author}
@@ -298,7 +298,7 @@ export function ReturnBookPage() {
                 </StateMessage>
               )}
 
-              <label className="mt-4 flex gap-3 rounded-[0.7rem] border border-[var(--color-border)] bg-[#fbf4ea] px-4 py-3 text-sm leading-6 text-[var(--color-muted)]">
+              <label className="mt-4 flex gap-3 rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-panel-tint)] px-4 py-3 text-sm leading-6 text-[var(--color-muted)]">
                 <input
                   type="checkbox"
                   className="mt-1 h-4 w-4 shrink-0 accent-[var(--color-accent)]"

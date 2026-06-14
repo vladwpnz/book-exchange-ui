@@ -28,7 +28,7 @@ export function AppLayout() {
 
       <div className="mx-auto grid max-w-7xl items-start gap-5 px-4 py-4 sm:px-6 lg:grid-cols-[248px_minmax(0,1fr)] lg:px-8 lg:py-6">
         <aside className="reveal-blur lg:sticky lg:top-24">
-          <div className="hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[#f4eadc]/78 p-3 shadow-[var(--shadow-restraint)] lg:block">
+          <div className="hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[var(--color-sidebar)] p-3 shadow-[var(--shadow-restraint)] lg:block">
             <div className="border-b border-[var(--color-border)] px-2 pb-4">
               <p className="text-xs font-bold tracking-[0.18em] text-[var(--color-accent)]">
                 Workspace
@@ -58,7 +58,7 @@ export function AppLayout() {
           </div>
 
           <nav
-            className="scrollbar-thin -mx-4 flex gap-2 overflow-x-auto border-y border-[var(--color-border)] bg-[#fffaf2]/78 px-4 py-2 sm:-mx-6 sm:px-6 lg:hidden"
+            className="scrollbar-thin -mx-4 flex gap-2 overflow-x-auto border-y border-[var(--color-border)] bg-[var(--color-mobile-nav)] px-4 py-2 sm:-mx-6 sm:px-6 lg:hidden"
             aria-label="Application sections"
           >
             {appLinks.map((link) => (

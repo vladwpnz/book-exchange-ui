@@ -16,9 +16,9 @@ export function BrandMark({ size = 'md', label }: BrandMarkProps) {
       aria-hidden={label ? undefined : true}
     >
       <span className="absolute inset-y-2 left-3 w-[3px] rounded-full bg-[var(--color-accent)]" />
-      <span className="absolute left-4 top-2.5 h-7 w-5 -rotate-6 rounded-[3px] border border-[#c8b7a4] bg-[#fffaf2]" />
-      <span className="absolute left-5 top-3.5 h-7 w-5 rotate-6 rounded-[3px] border border-[#c8b7a4] bg-white" />
-      <span className="absolute bottom-2.5 h-px w-7 bg-[#c8b7a4]" />
+      <span className="absolute left-4 top-2.5 h-7 w-5 -rotate-6 rounded-[3px] border border-[var(--brand-page-border)] bg-[var(--brand-page-bg)]" />
+      <span className="absolute left-5 top-3.5 h-7 w-5 rotate-6 rounded-[3px] border border-[var(--brand-page-border)] bg-[var(--brand-page-bg-strong)]" />
+      <span className="absolute bottom-2.5 h-px w-7 bg-[var(--brand-page-border)]" />
     </span>
   )
 
