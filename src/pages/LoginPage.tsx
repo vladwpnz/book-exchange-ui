@@ -1,7 +1,11 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../auth/useAuth'
+import {
+  shouldSkipAuthLayoutTransition,
+  useAuthExitTransition,
+} from '../auth/useAuthExitTransition'
 import { AuthShell } from '../components/AuthShell'
 import { StateMessage } from '../components/StateMessage'
 
@@ -17,26 +21,86 @@ function getSuccessMessage(state: unknown) {
     : ''
 }
 
+function isRegisterAuthEntry(state: unknown) {
+  if (!state || typeof state !== 'object') {
+    return false
+  }
+
+  const locationState = state as Record<string, unknown>
+
+  return locationState.authEntry === 'from-register'
+}
+
 export function LoginPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { clearAuthError, error, isAuthenticated, isLoading, login } = useAuth()
+  const { isExiting, startExitTransition } = useAuthExitTransition()
   const successMessage = getSuccessMessage(location.state)
+  const [usesRegisterEntry] = useState(() => isRegisterAuthEntry(location.state))
+  const [shouldAnimateRegisterEntry] = useState(
+    () => usesRegisterEntry && !shouldSkipAuthLayoutTransition(),
+  )
+  const [hasStartedRegisterEntry, setHasStartedRegisterEntry] = useState(
+    () => !shouldAnimateRegisterEntry,
+  )
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoginPending, setIsLoginPending] = useState(false)
+  const isSubmitLockedRef = useRef(false)
+  const isSubmitting = isLoading || isLoginPending || isExiting
+
+  useEffect(() => {
+    if (!usesRegisterEntry) {
+      return
+    }
+
+    const nextState = successMessage ? { successMessage } : null
+
+    if (!shouldAnimateRegisterEntry) {
+      navigate(location.pathname, { replace: true, state: nextState })
+      return
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      setHasStartedRegisterEntry(true)
+      navigate(location.pathname, { replace: true, state: nextState })
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+    }
+  }, [
+    location.pathname,
+    navigate,
+    shouldAnimateRegisterEntry,
+    successMessage,
+    usesRegisterEntry,
+  ])
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
+    if (isSubmitting || isSubmitLockedRef.current) {
+      return
+    }
+
+    isSubmitLockedRef.current = true
+    setIsLoginPending(true)
+
     try {
       await login(email, password)
-      navigate('/app/my-books')
+      startExitTransition(() => {
+        navigate('/app/my-books')
+      })
     } catch {
+      isSubmitLockedRef.current = false
+      setIsLoginPending(false)
       return
     }
   }
 
-  if (isAuthenticated) {
+  if (isAuthenticated && !isSubmitting) {
     return <Navigate to="/app/my-books" replace />
   }
 
@@ -44,6 +108,10 @@ export function LoginPage() {
     <AuthShell
       title="Login"
       description="Use your email and password to continue to your exchange workspace."
+      formSide={usesRegisterEntry ? 'right' : 'left'}
+      isExiting={isExiting}
+      isEnteringFromRegister={shouldAnimateRegisterEntry}
+      hasStartedRegisterEntry={hasStartedRegisterEntry}
     >
       {successMessage ? (
         <StateMessage className="mt-5" tone="success">
@@ -51,7 +119,7 @@ export function LoginPage() {
         </StateMessage>
       ) : null}
 
-      <form className="mt-6" onSubmit={handleSubmit} aria-busy={isLoading}>
+      <form className="mt-6" onSubmit={handleSubmit} aria-busy={isSubmitting}>
         <label
           className="block text-sm font-bold text-[var(--color-ink-soft)]"
           htmlFor="email"
@@ -106,18 +174,18 @@ export function LoginPage() {
           </StateMessage>
         ) : null}
 
-        {isLoading ? (
+        {isSubmitting ? (
           <span className="sr-only" role="status" aria-live="polite">
-            Signing in.
+            Signing in...
           </span>
         ) : null}
 
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isSubmitting}
           className="primary-action mt-6 w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isLoading ? 'Signing in...' : 'Continue'}
+          {isSubmitting ? 'Signing in...' : 'Continue'}
         </button>
       </form>
 

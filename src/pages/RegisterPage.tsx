@@ -1,24 +1,33 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type FormEvent } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 
 import { registerUser } from '../api/registerApi'
 import { useAuth } from '../auth/useAuth'
+import { useAuthExitTransition } from '../auth/useAuthExitTransition'
 import { AuthShell } from '../components/AuthShell'
 import { StateMessage } from '../components/StateMessage'
 
 export function RegisterPage() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
+  const { isExiting, startExitTransition } = useAuthExitTransition()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const isSubmitLockedRef = useRef(false)
+  const isSubmitting = isLoading || isExiting
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
+    if (isSubmitting || isSubmitLockedRef.current) {
+      return
+    }
+
+    isSubmitLockedRef.current = true
     setIsLoading(true)
     setError('')
     setSuccessMessage('')
@@ -28,10 +37,13 @@ export function RegisterPage() {
       const message = 'Account created. You can now sign in.'
 
       setSuccessMessage(message)
-      window.setTimeout(() => {
-        navigate('/login', { state: { successMessage: message } })
-      }, 900)
+      startExitTransition(() => {
+        navigate('/login', {
+          state: { successMessage: message, authEntry: 'from-register' },
+        })
+      })
     } catch (registerError) {
+      isSubmitLockedRef.current = false
       setError(
         registerError instanceof Error
           ? registerError.message
@@ -50,8 +62,9 @@ export function RegisterPage() {
     <AuthShell
       title="Create account"
       description="Create your reader account to start cataloging and exchanging books."
+      isExiting={isExiting}
     >
-      <form className="mt-6" onSubmit={handleSubmit} aria-busy={isLoading}>
+      <form className="mt-6" onSubmit={handleSubmit} aria-busy={isSubmitting}>
         <label
           className="block text-sm font-bold text-[var(--color-ink-soft)]"
           htmlFor="name"
@@ -134,18 +147,18 @@ export function RegisterPage() {
           </StateMessage>
         ) : null}
 
-        {isLoading ? (
+        {isSubmitting ? (
           <span className="sr-only" role="status" aria-live="polite">
-            Creating account.
+            Creating account...
           </span>
         ) : null}
 
         <button
           type="submit"
-          disabled={isLoading || successMessage.length > 0}
+          disabled={isSubmitting || successMessage.length > 0}
           className="primary-action mt-6 w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isLoading ? 'Creating account...' : 'Create account'}
+          {isSubmitting ? 'Creating account...' : 'Create account'}
         </button>
       </form>
 
