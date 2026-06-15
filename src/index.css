@@ -595,18 +595,18 @@ button:disabled,
 
 .theme-toggle {
   display: inline-flex;
-  min-height: 2.35rem;
+  width: 2.5rem;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  min-height: 2.5rem;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface-strong);
-  padding: 0.55rem 0.7rem;
+  padding: 0;
   color: var(--color-ink);
-  font-size: 0.875rem;
-  font-weight: 750;
-  line-height: 1.2;
+  cursor: pointer;
   box-shadow: var(--shadow-restraint);
   transition:
     border-color 180ms ease,
@@ -626,26 +626,24 @@ button:disabled,
 }
 
 .theme-toggle__icon {
-  position: relative;
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  overflow: hidden;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    currentColor 0 50%,
-    transparent 50% 100%
-  );
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
 }
 
-.theme-toggle__icon::after {
-  content: '';
-  position: absolute;
-  inset: 0.2rem;
-  border-radius: 999px;
-  background: var(--color-surface-strong);
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 0;
+}
+
+::view-transition-new(root) {
+  z-index: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {

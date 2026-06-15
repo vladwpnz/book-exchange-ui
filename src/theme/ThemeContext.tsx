@@ -54,13 +54,18 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme)
 
   const setTheme = useCallback((nextTheme: Theme) => {
+    applyTheme(nextTheme)
     setThemeState(nextTheme)
   }, [])
 
   const toggleTheme = useCallback(() => {
-    setThemeState((currentTheme) =>
-      currentTheme === 'dark' ? 'light' : 'dark',
-    )
+    setThemeState((currentTheme) => {
+      const nextTheme = currentTheme === 'dark' ? 'light' : 'dark'
+
+      applyTheme(nextTheme)
+
+      return nextTheme
+    })
   }, [])
 
   useEffect(() => {
