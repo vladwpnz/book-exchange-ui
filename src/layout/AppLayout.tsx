@@ -1,6 +1,7 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 import { Navbar } from '../components/Navbar'
+import { AppRouteTransition } from './AppRouteTransition'
 
 const appLinks = [
   { to: '/app/my-books', label: 'My books', hint: 'Owned shelf' },
@@ -71,8 +72,8 @@ export function AppLayout() {
           </nav>
         </aside>
 
-        <main className="min-w-0 reveal-blur">
-          <Outlet />
+        <main className="min-w-0">
+          <AppRouteTransition />
         </main>
       </div>
     </div>

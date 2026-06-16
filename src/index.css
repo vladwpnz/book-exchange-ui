@@ -321,6 +321,83 @@ button:disabled,
   animation: reveal-blur 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.app-route-transition {
+  min-width: 0;
+}
+
+.app-route-transition--animating {
+  overflow-x: clip;
+}
+
+.app-route-transition__page {
+  min-width: 0;
+}
+
+.app-route-transition__page--entering {
+  animation: app-route-enter 750ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
+}
+
+.app-route-transition__page--entering:has(.page-hero) {
+  animation: none;
+  will-change: auto;
+}
+
+.app-route-transition__page--entering .page-hero ~ * {
+  animation: app-route-enter 750ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: opacity, transform;
+}
+
+.app-route-transition--animating
+  .app-route-transition__page--entering
+  .reveal-blur {
+  animation: none;
+}
+
+@keyframes app-route-enter {
+  from {
+    opacity: 0.16;
+    transform: translateX(-1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@supports not (overflow: clip) {
+  .app-route-transition--animating {
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 1023px) {
+  .app-route-transition--animating {
+    overflow-x: visible;
+  }
+
+  .app-route-transition__page--entering,
+  .app-route-transition__page--entering .page-hero ~ * {
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-route-transition--animating {
+    overflow-x: visible;
+  }
+
+  .app-route-transition__page--entering,
+  .app-route-transition__page--entering .page-hero ~ * {
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+}
+
 .premium-panel,
 .paper-panel,
 .form-panel,
@@ -394,6 +471,50 @@ button:disabled,
     var(--color-blue)
   );
   opacity: 0.74;
+}
+
+.app-route-transition__page--entering .app-page-header.motion-line::after {
+  transform-origin: left center;
+  animation: app-page-header-line 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.app-route-transition__page--entering .app-page-header__eyebrow,
+.app-route-transition__page--entering .app-page-header__title,
+.app-route-transition__page--entering .app-page-header__description {
+  animation: app-page-header-fade 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.app-route-transition__page--entering .app-page-header__title {
+  animation-delay: 80ms;
+}
+
+.app-route-transition__page--entering .app-page-header__description {
+  animation-delay: 130ms;
+}
+
+.app-route-transition__page--entering .app-page-header__aside {
+  animation: app-page-header-fade 650ms cubic-bezier(0.22, 1, 0.36, 1) 150ms both;
+}
+@keyframes app-page-header-fade {
+  from {
+    opacity: 0.16;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes app-page-header-line {
+  from {
+    opacity: 0.32;
+    transform: scaleX(0);
+  }
+
+  to {
+    opacity: 0.74;
+    transform: scaleX(1);
+  }
 }
 
 .page-hero {
