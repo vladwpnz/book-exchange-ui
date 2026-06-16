@@ -1,32 +1,102 @@
+import {
+  Suspense,
+  lazy,
+  type ComponentType,
+  type ReactElement,
+} from 'react'
 import { Navigate, createBrowserRouter } from 'react-router-dom'
 
 import { ProtectedRoute } from '../auth/ProtectedRoute'
+import { RouteLoadingFallback } from '../components/RouteLoadingFallback'
 import { AppLayout } from '../layout/AppLayout'
-import { AddBookPage } from '../pages/AddBookPage'
-import { AdminPanelPage } from '../pages/AdminPanelPage'
-import { GiveBookPage } from '../pages/GiveBookPage'
-import { HeldBooksPage } from '../pages/HeldBooksPage'
-import { LandingPage } from '../pages/LandingPage'
-import { LoginPage } from '../pages/LoginPage'
-import { MyBooksPage } from '../pages/MyBooksPage'
-import { ProfilePage } from '../pages/ProfilePage'
-import { RegisterPage } from '../pages/RegisterPage'
-import { ReturnBookPage } from '../pages/ReturnBookPage'
-import { SettingsPage } from '../pages/SettingsPage'
-import { ShareBookPage } from '../pages/ShareBookPage'
+
+function lazyPage<TExportName extends string>(
+  loadPage: () => Promise<Record<TExportName, ComponentType>>,
+  exportName: TExportName,
+) {
+  return lazy(async () => {
+    const pageModule = await loadPage()
+
+    return { default: pageModule[exportName] }
+  })
+}
+
+const LandingPage = lazyPage(
+  () => import('../pages/LandingPage'),
+  'LandingPage',
+)
+const LoginPage = lazyPage(() => import('../pages/LoginPage'), 'LoginPage')
+const RegisterPage = lazyPage(
+  () => import('../pages/RegisterPage'),
+  'RegisterPage',
+)
+const MyBooksPage = lazyPage(
+  () => import('../pages/MyBooksPage'),
+  'MyBooksPage',
+)
+const ProfilePage = lazyPage(
+  () => import('../pages/ProfilePage'),
+  'ProfilePage',
+)
+const SettingsPage = lazyPage(
+  () => import('../pages/SettingsPage'),
+  'SettingsPage',
+)
+const HeldBooksPage = lazyPage(
+  () => import('../pages/HeldBooksPage'),
+  'HeldBooksPage',
+)
+const AddBookPage = lazyPage(
+  () => import('../pages/AddBookPage'),
+  'AddBookPage',
+)
+const ShareBookPage = lazyPage(
+  () => import('../pages/ShareBookPage'),
+  'ShareBookPage',
+)
+const GiveBookPage = lazyPage(
+  () => import('../pages/GiveBookPage'),
+  'GiveBookPage',
+)
+const ReturnBookPage = lazyPage(
+  () => import('../pages/ReturnBookPage'),
+  'ReturnBookPage',
+)
+const AdminPanelPage = lazyPage(
+  () => import('../pages/AdminPanelPage'),
+  'AdminPanelPage',
+)
+
+function withPageSuspense(element: ReactElement, label: string) {
+  return (
+    <Suspense
+      fallback={<RouteLoadingFallback fullPage label={`Loading ${label}`} />}
+    >
+      {element}
+    </Suspense>
+  )
+}
+
+function withAppSuspense(element: ReactElement, label: string) {
+  return (
+    <Suspense fallback={<RouteLoadingFallback label={`Loading ${label}`} />}>
+      {element}
+    </Suspense>
+  )
+}
 
 export const router = createBrowserRouter([
   {
     path: '/',
-    element: <LandingPage />,
+    element: withPageSuspense(<LandingPage />, 'landing page'),
   },
   {
     path: '/login',
-    element: <LoginPage />,
+    element: withPageSuspense(<LoginPage />, 'login page'),
   },
   {
     path: '/register',
-    element: <RegisterPage />,
+    element: withPageSuspense(<RegisterPage />, 'register page'),
   },
   {
     element: <ProtectedRoute />,
@@ -41,43 +111,43 @@ export const router = createBrowserRouter([
           },
           {
             path: 'my-books',
-            element: <MyBooksPage />,
+            element: withAppSuspense(<MyBooksPage />, 'my books'),
           },
           {
             path: 'profile',
-            element: <ProfilePage />,
+            element: withAppSuspense(<ProfilePage />, 'profile'),
           },
           {
             path: 'settings',
-            element: <SettingsPage />,
+            element: withAppSuspense(<SettingsPage />, 'settings'),
           },
           {
             path: 'held-books',
-            element: <HeldBooksPage />,
+            element: withAppSuspense(<HeldBooksPage />, 'held books'),
           },
           {
             path: 'add-book',
-            element: <AddBookPage />,
+            element: withAppSuspense(<AddBookPage />, 'add book'),
           },
           {
             path: 'add',
-            element: <AddBookPage />,
+            element: withAppSuspense(<AddBookPage />, 'add book'),
           },
           {
             path: 'share-book',
-            element: <ShareBookPage />,
+            element: withAppSuspense(<ShareBookPage />, 'share book'),
           },
           {
             path: 'give-book',
-            element: <GiveBookPage />,
+            element: withAppSuspense(<GiveBookPage />, 'give book'),
           },
           {
             path: 'return-book',
-            element: <ReturnBookPage />,
+            element: withAppSuspense(<ReturnBookPage />, 'return book'),
           },
           {
             path: 'admin',
-            element: <AdminPanelPage />,
+            element: withAppSuspense(<AdminPanelPage />, 'admin'),
           },
         ],
       },

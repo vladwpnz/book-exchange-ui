@@ -6,7 +6,7 @@ import {
   isBackendConnectionError,
   isInvalidCredentialsError,
 } from '../api/client'
-import { isOwnedBooksPayload } from '../api/booksApi'
+import { isOwnedBooksPayload } from '../api/bookPayload'
 import i18n from '../i18n/i18n'
 import type { AuthCredentials, AuthError } from '../types/auth'
 import { AuthContext } from './authContextValue'
