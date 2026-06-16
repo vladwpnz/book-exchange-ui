@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 type StateTone = 'success' | 'warning' | 'error' | 'info'
 
@@ -29,13 +30,6 @@ const markerClasses = {
   info: 'bg-[var(--color-blue)]',
 } satisfies Record<StateTone, string>
 
-const toneLabels = {
-  success: 'Success',
-  warning: 'Warning',
-  error: 'Error',
-  info: 'Notice',
-} satisfies Record<StateTone, string>
-
 export function StateMessage({
   children,
   title,
@@ -48,6 +42,7 @@ export function StateMessage({
   const resolvedRole = role ?? (tone === 'error' ? 'alert' : 'status')
   const resolvedLive =
     live ?? (resolvedRole === 'alert' ? 'assertive' : 'polite')
+  const { t } = useTranslation()
 
   return (
     <div
@@ -63,7 +58,7 @@ export function StateMessage({
           />
           <div className="min-w-0">
             <p className="text-xs font-bold tracking-[0.14em] opacity-80">
-              {toneLabels[tone]}
+              {t(`components.stateMessage.labels.${tone}`)}
             </p>
             {title ? <p className="mt-0.5 font-bold">{title}</p> : null}
             <div className={title ? 'mt-1 opacity-[0.88]' : 'mt-1 opacity-[0.88]'}>

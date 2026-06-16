@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { BrandMark } from './BrandMark'
@@ -23,6 +24,7 @@ export function AuthShell({
   isEnteringFromRegister = false,
   hasStartedRegisterEntry = true,
 }: AuthShellProps) {
+  const { t } = useTranslation()
   const shellClassName = [
     'auth-shell min-h-screen text-[var(--color-ink)]',
     `auth-shell--form-${formSide}`,
@@ -41,9 +43,9 @@ export function AuthShell({
             <Link
               className="secondary-action mb-4 min-h-0 px-3 py-2 text-sm"
               to="/"
-              aria-label="Back to Book Exchange home"
+              aria-label={t('authShell.backHomeLabel')}
             >
-              Back to home
+              {t('common.actions.backToHome')}
             </Link>
 
             <div className="auth-shell__form-panel form-panel motion-line reveal-blur p-6 sm:p-8">
@@ -51,10 +53,10 @@ export function AuthShell({
                 <BrandMark size="lg" />
                 <div>
                   <p className="text-sm font-bold text-[var(--color-ink)]">
-                    Book Exchange
+                    {t('common.appName')}
                   </p>
                   <p className="text-xs font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                    Reader access
+                    {t('authShell.readerAccess')}
                   </p>
                 </div>
               </div>
@@ -76,27 +78,27 @@ export function AuthShell({
           <div className="auth-shell__editorial-inner flex h-full flex-col justify-between">
             <div>
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                Exchange desk
+                {t('authShell.exchangeDesk')}
               </p>
               <h2 className="mt-4 max-w-md font-[var(--font-display)] text-5xl font-semibold leading-tight text-[var(--color-ink)]">
-                Sign in to manage books, holds, and handoffs.
+                {t('authShell.editorialTitle')}
               </h2>
             </div>
 
             <div className="auth-shell__editorial-visual-group">
               <div className="auth-shell__book-stack flex items-end justify-center gap-4">
                 <BookCover
-                  title="Owned Shelf"
-                  author="Book Exchange"
-                  genre="Catalog"
+                  title={t('authShell.covers.ownedShelf')}
+                  author={t('common.appName')}
+                  genre={t('authShell.covers.catalog')}
                   tone="emerald"
                   size="hero"
                   className="rotate-[-6deg]"
                 />
                 <BookCover
-                  title="Shared Copy"
-                  author="Reader"
-                  genre="Exchange"
+                  title={t('authShell.covers.sharedCopy')}
+                  author={t('authShell.covers.reader')}
+                  genre={t('authShell.covers.exchange')}
                   tone="amber"
                   size="lg"
                   className="translate-y-6 rotate-[5deg]"
@@ -104,8 +106,7 @@ export function AuthShell({
               </div>
 
               <p className="auth-shell__editorial-footer max-w-md text-sm leading-6 text-[var(--color-muted)]">
-                Sign in once to keep your shelves, holds, and exchanges
-                connected to your reader account.
+                {t('authShell.editorialFooter')}
               </p>
             </div>
           </div>

@@ -51,7 +51,7 @@ function getCoverInitials(title: string, author: string) {
 export function BookCover({
   title,
   author,
-  genre = 'Book',
+  genre = '',
   tone = 'paper',
   size = 'md',
   className = '',

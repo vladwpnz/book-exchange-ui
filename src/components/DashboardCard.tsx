@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import type { AccentTone } from '../types/book'
 
@@ -24,6 +25,8 @@ export function DashboardCard({
   href,
   accent = 'emerald',
 }: DashboardCardProps) {
+  const { t } = useTranslation()
+
   return (
     <Link
       to={href}
@@ -46,7 +49,7 @@ export function DashboardCard({
       </span>
 
       <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[var(--color-accent)] transition duration-200 group-hover:gap-3">
-        Open workflow
+        {t('components.dashboardCard.openWorkflow')}
         <span aria-hidden="true">-&gt;</span>
       </span>
     </Link>

@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { getHeldBooks, returnBook } from '../api/booksApi'
@@ -17,28 +18,12 @@ type ReturnedBookSummary = {
   author: string
 }
 
-const returnSteps = [
-  {
-    title: 'Choose from held books',
-    description: 'Select one borrowed book from your current held shelf.',
-  },
-  {
-    title: 'Review the copy',
-    description: 'Check the title and author before closing the hold.',
-  },
-  {
-    title: 'Confirm return',
-    description: 'Confirm the book is back with its owner.',
-  },
-]
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error
-    ? error.message
-    : 'Unable to return this book. Please try again.'
+function getErrorMessage(error: unknown, fallbackMessage: string) {
+  return error instanceof Error ? error.message : fallbackMessage
 }
 
 export function ReturnBookPage() {
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const [heldBooks, setHeldBooks] = useState<Book[]>([])
   const [booksState, setBooksState] = useState<BooksState>('loading')
@@ -55,6 +40,20 @@ export function ReturnBookPage() {
   const selectedBook =
     heldBooks.find((book) => book.id === selectedBookId) ?? null
   const currentStep = selectedBook ? (isConfirmed ? 3 : 2) : 1
+  const returnSteps = [
+    {
+      title: t('returnBook.steps.choose.title'),
+      description: t('returnBook.steps.choose.description'),
+    },
+    {
+      title: t('returnBook.steps.review.title'),
+      description: t('returnBook.steps.review.description'),
+    },
+    {
+      title: t('returnBook.steps.confirm.title'),
+      description: t('returnBook.steps.confirm.description'),
+    },
+  ]
 
   useEffect(() => {
     let isActive = true
@@ -81,14 +80,14 @@ export function ReturnBookPage() {
           return
         }
 
-        const message = getErrorMessage(error)
+        const message = getErrorMessage(error, t('heldBooks.error.fallback'))
 
         setHeldBooks([])
         setLoadErrorMessage(message)
         setBooksState('error')
         showToast({
           tone: 'error',
-          title: 'Could not load held books',
+          title: t('returnBook.toasts.loadError'),
           message,
         })
       }
@@ -99,7 +98,7 @@ export function ReturnBookPage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey, showToast])
+  }, [reloadKey, showToast, t])
 
   function handleSelectBook(bookId: string) {
     setSelectedBookId(bookId)
@@ -115,28 +114,28 @@ export function ReturnBookPage() {
     event.preventDefault()
 
     if (!selectedBook) {
-      const message = 'Choose a borrowed book to return.'
+      const message = t('returnBook.errors.choose')
 
       setReturnedBook(null)
       setErrorMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'warning',
-        title: 'Choose a book',
+        title: t('returnBook.toasts.chooseBook'),
         message,
       })
       return
     }
 
     if (!isConfirmed) {
-      const message = 'Confirm that the book is back with its owner.'
+      const message = t('returnBook.errors.confirm')
 
       setReturnedBook(null)
       setErrorMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'warning',
-        title: 'Confirm return',
+        title: t('returnBook.toasts.confirmReturn'),
         message,
       })
       return
@@ -165,18 +164,21 @@ export function ReturnBookPage() {
       setSubmitState('success')
       showToast({
         tone: 'success',
-        title: 'Book returned',
-        message: `${selectedBook.title} by ${selectedBook.author} was returned to its owner.`,
+        title: t('returnBook.toasts.returned'),
+        message: t('returnBook.messages.returnedToOwner', {
+          author: selectedBook.author,
+          title: selectedBook.title,
+        }),
       })
     } catch (error) {
-      const message = getErrorMessage(error)
+      const message = getErrorMessage(error, t('returnBook.errors.fallback'))
 
       setReturnedBook(null)
       setErrorMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'error',
-        title: 'Could not return book',
+        title: t('returnBook.toasts.returnError'),
         message,
       })
     }
@@ -185,12 +187,12 @@ export function ReturnBookPage() {
   return (
     <section className="space-y-5">
       <PageHeader
-        eyebrow="Return workflow"
-        title="Return book"
-        description="Close an active hold when a borrowed copy goes back to its owner."
+        eyebrow={t('returnBook.header.eyebrow')}
+        title={t('returnBook.header.title')}
+        description={t('returnBook.header.description')}
         action={
           <Link className="secondary-action" to="/app/held-books">
-            Open held books
+            {t('common.actions.openHeldBooks')}
           </Link>
         }
       />
@@ -203,20 +205,19 @@ export function ReturnBookPage() {
         >
           <div className="max-w-2xl">
             <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-blue)]">
-              Close a hold
+              {t('returnBook.form.eyebrow')}
             </p>
             <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-              Choose a borrowed book
+              {t('returnBook.form.title')}
             </h2>
             <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-              Select a borrowed book from your held shelf, review the details,
-              and confirm the return.
+              {t('returnBook.form.description')}
             </p>
           </div>
 
           {booksState === 'loading' && (
             <div className="mt-6">
-              <BookListSkeleton count={2} label="Loading borrowed books" />
+              <BookListSkeleton count={2} label={t('returnBook.form.loading')} />
             </div>
           )}
 
@@ -224,14 +225,14 @@ export function ReturnBookPage() {
             <StateMessage
               className="mt-5"
               tone="error"
-              title="Could not load held books"
+              title={t('returnBook.toasts.loadError')}
               action={
                 <button
                   className="secondary-action min-h-0 px-3 py-2 text-sm"
                   type="button"
                   onClick={() => setReloadKey((key) => key + 1)}
                 >
-                  Try again
+                  {t('common.actions.tryAgain')}
                 </button>
               }
             >
@@ -240,8 +241,12 @@ export function ReturnBookPage() {
           )}
 
           {booksState === 'empty' && (
-            <StateMessage className="mt-5" tone="info" title="No borrowed books">
-              Your held shelf is clear. There is nothing to return right now.
+            <StateMessage
+              className="mt-5"
+              tone="info"
+              title={t('returnBook.form.noBooksTitle')}
+            >
+              {t('returnBook.form.noBooksDescription')}
             </StateMessage>
           )}
 
@@ -249,7 +254,7 @@ export function ReturnBookPage() {
             <>
               <fieldset className="mt-6">
                 <legend className="text-sm font-bold text-[var(--color-ink-soft)]">
-                  Choose a borrowed book
+                  {t('returnBook.form.chooseLegend')}
                 </legend>
 
                 <div className="mt-3 grid gap-3">
@@ -282,7 +287,9 @@ export function ReturnBookPage() {
                             {book.author}
                           </span>
                           <span className="mt-2 block text-sm leading-6 text-[var(--color-muted)]">
-                            Owner: {book.owner}
+                            {t('returnBook.form.ownerLine', {
+                              owner: book.owner,
+                            })}
                           </span>
                         </span>
                       </span>
@@ -292,9 +299,15 @@ export function ReturnBookPage() {
               </fieldset>
 
               {selectedBook && (
-                <StateMessage className="mt-5" tone="info" title="Selected return">
-                  {selectedBook.title} by {selectedBook.author} will be returned
-                  to its owner.
+                <StateMessage
+                  className="mt-5"
+                  tone="info"
+                  title={t('returnBook.form.selectedTitle')}
+                >
+                  {t('returnBook.messages.selected', {
+                    author: selectedBook.author,
+                    title: selectedBook.title,
+                  })}
                 </StateMessage>
               )}
 
@@ -306,16 +319,17 @@ export function ReturnBookPage() {
                   disabled={!selectedBook || isSubmitting}
                   onChange={(event) => setIsConfirmed(event.target.checked)}
                 />
-                <span>
-                  I confirm this book is back with its owner and this hold can
-                  be closed.
-                </span>
+                <span>{t('returnBook.form.confirmLabel')}</span>
               </label>
             </>
           )}
 
           {submitState === 'error' && errorMessage && (
-            <StateMessage className="mt-5" tone="error" title="Could not return book">
+            <StateMessage
+              className="mt-5"
+              tone="error"
+              title={t('returnBook.toasts.returnError')}
+            >
               <span id="return-error">{errorMessage}</span>
             </StateMessage>
           )}
@@ -325,19 +339,21 @@ export function ReturnBookPage() {
             className="primary-action mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             disabled={booksState !== 'success' || isSubmitting}
           >
-            {isSubmitting ? 'Returning...' : 'Confirm return'}
+            {isSubmitting
+              ? t('returnBook.form.submitting')
+              : t('common.actions.confirmReturn')}
           </button>
         </form>
 
         <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="return-status-heading">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-blue)]">
-            Hold closure
+            {t('returnBook.aside.eyebrow')}
           </p>
           <h2
             id="return-status-heading"
             className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]"
           >
-            Return sequence
+            {t('returnBook.aside.title')}
           </h2>
           <div className="mt-4">
             <WorkflowSteps steps={returnSteps} currentStep={currentStep} />
@@ -345,7 +361,10 @@ export function ReturnBookPage() {
 
           {returnedBook && (
             <StateMessage className="mt-5" tone="success">
-              Last returned: {returnedBook.title} by {returnedBook.author}.
+              {t('returnBook.messages.lastReturned', {
+                author: returnedBook.author,
+                title: returnedBook.title,
+              })}
             </StateMessage>
           )}
         </aside>

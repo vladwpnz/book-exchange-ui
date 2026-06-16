@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { shareBook } from '../api/booksApi'
@@ -13,28 +14,12 @@ type SharedBookSummary = {
   username: string
 }
 
-const shareSteps = [
-  {
-    title: 'Name the owned copy',
-    description: 'Use the title exactly as it appears on your shelf.',
-  },
-  {
-    title: 'Choose the reader',
-    description: 'Enter the recipient email so the exchange can create the hold.',
-  },
-  {
-    title: 'Keep it collaborative',
-    description: 'The book remains part of the exchange while it is shared.',
-  },
-]
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error
-    ? error.message
-    : 'Unable to share this book. Please try again.'
+function getErrorMessage(error: unknown, fallbackMessage: string) {
+  return error instanceof Error ? error.message : fallbackMessage
 }
 
 export function ShareBookPage() {
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const [title, setTitle] = useState('')
   const [username, setUsername] = useState('')
@@ -43,6 +28,20 @@ export function ShareBookPage() {
   const [sharedBook, setSharedBook] = useState<SharedBookSummary | null>(null)
 
   const isSubmitting = submitState === 'submitting'
+  const shareSteps = [
+    {
+      title: t('shareBook.steps.name.title'),
+      description: t('shareBook.steps.name.description'),
+    },
+    {
+      title: t('shareBook.steps.reader.title'),
+      description: t('shareBook.steps.reader.description'),
+    },
+    {
+      title: t('shareBook.steps.collaborative.title'),
+      description: t('shareBook.steps.collaborative.description'),
+    },
+  ]
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -51,14 +50,14 @@ export function ShareBookPage() {
     const trimmedUsername = username.trim()
 
     if (!trimmedTitle || !trimmedUsername) {
-      const message = 'Title and target user email are required.'
+      const message = t('shareBook.errors.required')
 
       setSharedBook(null)
       setErrorMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'warning',
-        title: 'Share details needed',
+        title: t('shareBook.toasts.detailsNeeded'),
         message,
       })
       return
@@ -82,18 +81,21 @@ export function ShareBookPage() {
       setSubmitState('success')
       showToast({
         tone: 'success',
-        title: 'Book shared',
-        message: `${trimmedTitle} was shared with ${trimmedUsername}.`,
+        title: t('shareBook.toasts.shared'),
+        message: t('shareBook.messages.sharedWith', {
+          title: trimmedTitle,
+          username: trimmedUsername,
+        }),
       })
     } catch (error) {
-      const message = getErrorMessage(error)
+      const message = getErrorMessage(error, t('shareBook.errors.fallback'))
 
       setSharedBook(null)
       setErrorMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'error',
-        title: 'Could not share book',
+        title: t('shareBook.toasts.shareError'),
         message,
       })
     }
@@ -102,12 +104,12 @@ export function ShareBookPage() {
   return (
     <section className="space-y-5">
       <PageHeader
-        eyebrow="Share workflow"
-        title="Share book"
-        description="Create a collaborative handoff by pairing one owned title with another reader account."
+        eyebrow={t('shareBook.header.eyebrow')}
+        title={t('shareBook.header.title')}
+        description={t('shareBook.header.description')}
         action={
           <Link className="secondary-action" to="/app/my-books">
-            Check owned shelf
+            {t('common.actions.checkOwnedShelf')}
           </Link>
         }
       />
@@ -121,19 +123,18 @@ export function ShareBookPage() {
           <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_14rem] md:items-start">
             <div>
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                Collaborative exchange
+                {t('shareBook.form.eyebrow')}
               </p>
               <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-                Send a readable copy
+                {t('shareBook.form.title')}
               </h2>
               <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-                Sharing is a temporary exchange state, not a final transfer of
-                ownership.
+                {t('shareBook.form.description')}
               </p>
             </div>
 
             <div className="rounded-[0.7rem] border border-[var(--color-status-info-border)] bg-[var(--color-status-info-bg)] p-4 text-sm leading-6 text-[var(--color-status-info-text)]">
-              The recipient email connects this action to a real user account.
+              {t('shareBook.form.note')}
             </div>
           </div>
 
@@ -142,13 +143,13 @@ export function ShareBookPage() {
               className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="share-title"
             >
-              Book title
+              {t('shareBook.form.bookTitle')}
               <input
                 id="share-title"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 className="field-input mt-2"
-                placeholder="Effective Java"
+                placeholder={t('common.placeholders.effectiveJava')}
                 disabled={isSubmitting}
                 aria-invalid={submitState === 'error' && Boolean(errorMessage)}
                 aria-describedby={
@@ -163,7 +164,7 @@ export function ShareBookPage() {
               className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="share-reader"
             >
-              Target user email
+              {t('shareBook.form.targetEmail')}
               <input
                 id="share-reader"
                 type="email"
@@ -186,19 +187,26 @@ export function ShareBookPage() {
             <StateMessage
               className="mt-5"
               tone="success"
-              title="Book shared successfully"
+              title={t('shareBook.form.successTitle')}
               action={
                 <Link className="secondary-action" to="/app/my-books">
-                  View my books
+                  {t('common.actions.viewMyBooks')}
                 </Link>
               }
             >
-              {sharedBook.title} was shared with {sharedBook.username}.
+              {t('shareBook.messages.sharedWith', {
+                title: sharedBook.title,
+                username: sharedBook.username,
+              })}
             </StateMessage>
           )}
 
           {submitState === 'error' && errorMessage && (
-            <StateMessage className="mt-5" tone="error" title="Could not share book">
+            <StateMessage
+              className="mt-5"
+              tone="error"
+              title={t('shareBook.toasts.shareError')}
+            >
               <span id="share-error">{errorMessage}</span>
             </StateMessage>
           )}
@@ -208,19 +216,21 @@ export function ShareBookPage() {
             className="primary-action mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Sharing...' : 'Share book'}
+            {isSubmitting
+              ? t('shareBook.form.submitting')
+              : t('common.actions.shareBook')}
           </button>
         </form>
 
         <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="share-status-heading">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-blue)]">
-            Workflow
+            {t('shareBook.aside.eyebrow')}
           </p>
           <h2
             id="share-status-heading"
             className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]"
           >
-            How sharing works
+            {t('shareBook.aside.title')}
           </h2>
           <div className="mt-4">
             <WorkflowSteps steps={shareSteps} currentStep={2} />
@@ -228,7 +238,10 @@ export function ShareBookPage() {
 
           {sharedBook && (
             <StateMessage className="mt-5" tone="success">
-              Last shared: {sharedBook.title} to {sharedBook.username}.
+              {t('shareBook.messages.lastShared', {
+                title: sharedBook.title,
+                username: sharedBook.username,
+              })}
             </StateMessage>
           )}
         </aside>

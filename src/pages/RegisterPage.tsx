@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 
 import { registerUser } from '../api/registerApi'
@@ -9,6 +10,7 @@ import { StateMessage } from '../components/StateMessage'
 
 export function RegisterPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { isAuthenticated } = useAuth()
   const { isExiting, startExitTransition } = useAuthExitTransition()
   const [name, setName] = useState('')
@@ -34,12 +36,15 @@ export function RegisterPage() {
 
     try {
       await registerUser({ name, email, password })
-      const message = 'Account created. You can now sign in.'
+      const message = t('register.success')
 
       setSuccessMessage(message)
       startExitTransition(() => {
         navigate('/login', {
-          state: { successMessage: message, authEntry: 'from-register' },
+          state: {
+            successMessageKey: 'register.success',
+            authEntry: 'from-register',
+          },
         })
       })
     } catch (registerError) {
@@ -47,7 +52,7 @@ export function RegisterPage() {
       setError(
         registerError instanceof Error
           ? registerError.message
-          : 'Unable to create the account. Please try again.',
+          : t('register.fallbackError'),
       )
     } finally {
       setIsLoading(false)
@@ -60,8 +65,8 @@ export function RegisterPage() {
 
   return (
     <AuthShell
-      title="Create account"
-      description="Create your reader account to start cataloging and exchanging books."
+      title={t('register.title')}
+      description={t('register.description')}
       isExiting={isExiting}
     >
       <form className="mt-6" onSubmit={handleSubmit} aria-busy={isSubmitting}>
@@ -69,7 +74,7 @@ export function RegisterPage() {
           className="block text-sm font-bold text-[var(--color-ink-soft)]"
           htmlFor="name"
         >
-          Name
+          {t('register.name')}
         </label>
         <input
           id="name"
@@ -79,7 +84,7 @@ export function RegisterPage() {
             setError('')
             setName(event.target.value)
           }}
-          placeholder="Reader name"
+          placeholder={t('common.placeholders.readerName')}
           required
           autoComplete="name"
           aria-invalid={Boolean(error)}
@@ -91,7 +96,7 @@ export function RegisterPage() {
           className="mt-4 block text-sm font-bold text-[var(--color-ink-soft)]"
           htmlFor="email"
         >
-          Email
+          {t('register.email')}
         </label>
         <input
           id="email"
@@ -113,7 +118,7 @@ export function RegisterPage() {
           className="mt-4 block text-sm font-bold text-[var(--color-ink-soft)]"
           htmlFor="password"
         >
-          Password
+          {t('register.password')}
         </label>
         <input
           id="password"
@@ -123,7 +128,7 @@ export function RegisterPage() {
             setError('')
             setPassword(event.target.value)
           }}
-          placeholder="Password"
+          placeholder={t('common.placeholders.password')}
           required
           autoComplete="new-password"
           aria-invalid={Boolean(error)}
@@ -135,7 +140,7 @@ export function RegisterPage() {
           <StateMessage
             className="mt-5"
             tone="error"
-            title="Could not create account"
+            title={t('register.errorTitle')}
           >
             <span id="register-error">{error}</span>
           </StateMessage>
@@ -149,7 +154,7 @@ export function RegisterPage() {
 
         {isSubmitting ? (
           <span className="sr-only" role="status" aria-live="polite">
-            Creating account...
+            {t('register.creating')}
           </span>
         ) : null}
 
@@ -158,17 +163,17 @@ export function RegisterPage() {
           disabled={isSubmitting || successMessage.length > 0}
           className="primary-action mt-6 w-full disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSubmitting ? 'Creating account...' : 'Create account'}
+          {isSubmitting ? t('register.creating') : t('register.title')}
         </button>
       </form>
 
       <p className="mt-5 text-center text-sm text-[var(--color-muted)]">
-        Already registered?{' '}
+        {t('register.alreadyRegistered')}{' '}
         <Link
           className="font-bold text-[var(--color-accent)] transition duration-200 hover:text-[var(--color-accent-strong)]"
           to="/login"
         >
-          Login
+          {t('common.actions.login')}
         </Link>
       </p>
     </AuthShell>

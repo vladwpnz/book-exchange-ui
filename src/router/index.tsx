@@ -12,6 +12,7 @@ import { MyBooksPage } from '../pages/MyBooksPage'
 import { ProfilePage } from '../pages/ProfilePage'
 import { RegisterPage } from '../pages/RegisterPage'
 import { ReturnBookPage } from '../pages/ReturnBookPage'
+import { SettingsPage } from '../pages/SettingsPage'
 import { ShareBookPage } from '../pages/ShareBookPage'
 
 export const router = createBrowserRouter([
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
           {
             path: 'profile',
             element: <ProfilePage />,
+          },
+          {
+            path: 'settings',
+            element: <SettingsPage />,
           },
           {
             path: 'held-books',

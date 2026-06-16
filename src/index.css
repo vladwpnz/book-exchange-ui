@@ -938,6 +938,11 @@ button:disabled,
   box-shadow: var(--shadow-lift);
 }
 
+.language-selector[data-menu-placement='top-end'] .language-selector__menu {
+  top: auto;
+  bottom: calc(100% + 0.55rem);
+}
+
 .language-selector__option {
   display: grid;
   width: 100%;

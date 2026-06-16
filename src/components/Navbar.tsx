@@ -183,7 +183,7 @@ function ThemeToggle() {
 export function Navbar({ appMode = false }: NavbarProps) {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { currentUserEmail, isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, logout } = useAuth()
 
   const handleLogout = () => {
     logout()
@@ -192,7 +192,7 @@ export function Navbar({ appMode = false }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-nav)] backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:flex-nowrap lg:px-8">
         <Link
           to="/"
           className="rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
@@ -207,41 +207,15 @@ export function Navbar({ appMode = false }: NavbarProps) {
           />
         </Link>
 
-        <div className="flex min-w-0 items-center justify-end gap-2">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2 lg:flex-none">
           {appMode ? (
-            <>
-              <NavLink to="/app/admin" className={navLinkClass}>
-                {t('navbar.admin')}
-              </NavLink>
-
-              {isAuthenticated ? (
-                <>
-                  <NavLink
-                    to="/app/profile"
-                    className={({ isActive }) =>
-                      [
-                        'hidden max-w-48 rounded-md border px-3 py-2 text-left text-sm font-bold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)] sm:block',
-                        isActive
-                          ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent-strong)]'
-                          : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] hover:border-[var(--color-border-strong)]',
-                      ].join(' ')
-                    }
-                  >
-                    <span className="block leading-4">{t('navbar.account')}</span>
-                    <span className="block truncate text-xs font-semibold text-[var(--color-muted)]">
-                      {currentUserEmail}
-                    </span>
-                  </NavLink>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="secondary-action min-h-0 px-3 py-2 text-sm"
-                  >
-                    {t('navbar.logout')}
-                  </button>
-                </>
-              ) : null}
-            </>
+            isAuthenticated ? (
+              <div className="flex flex-wrap items-center justify-end gap-2 lg:hidden">
+                <NavLink to="/app/settings" className={navLinkClass}>
+                  {t('navbar.account')}
+                </NavLink>
+              </div>
+            ) : null
           ) : (
             <>
               <NavLink to="/" className={navLinkClass}>
@@ -273,7 +247,7 @@ export function Navbar({ appMode = false }: NavbarProps) {
               )}
             </>
           )}
-          <LanguageSelector />
+          {!appMode ? <LanguageSelector /> : null}
           <ThemeToggle />
         </div>
       </nav>

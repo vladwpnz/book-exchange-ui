@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import { repositoryLinks } from '../api/links'
 import { featuredBooks } from '../api/mockLibrary'
@@ -9,41 +10,35 @@ import { Navbar } from '../components/Navbar'
 
 const workflow = [
   {
-    title: 'Find or add a title',
-    description:
-      'Start with the catalog search, then add a missing book manually only when needed.',
+    key: 'add',
     href: '/app/add-book',
   },
   {
-    title: 'Share with a reader',
-    description:
-      'Send a book to another account while keeping the hold visible in the exchange.',
+    key: 'share',
     href: '/app/share-book',
   },
   {
-    title: 'Transfer ownership',
-    description:
-      'Give a book when the copy should permanently move to another reader.',
+    key: 'give',
     href: '/app/give-book',
   },
   {
-    title: 'Close the hold',
-    description:
-      'Return borrowed books and keep the owned and held shelves clean.',
+    key: 'return',
     href: '/app/return-book',
   },
-]
-
-const benefits = [
-  'Book-first catalog cards with title, author, owner, status, and notes.',
-  'Separate flows for sharing, giving, returning, and admin recovery.',
-  'A compact app shell that works across phone, tablet, and desktop layouts.',
-]
+] as const
 
 export function LandingPage() {
+  const { t } = useTranslation()
   const { isAuthenticated } = useAuth()
   const primaryHref = isAuthenticated ? '/app/my-books' : '/register'
-  const primaryLabel = isAuthenticated ? 'Open my shelf' : 'Create account'
+  const primaryLabel = isAuthenticated
+    ? t('landing.hero.openShelf')
+    : t('common.actions.createAccount')
+  const localizedFeaturedBooks = featuredBooks.map((book) => ({
+    ...book,
+    genre: t(`landing.featuredBooks.${book.id}.genre`),
+    note: t(`landing.featuredBooks.${book.id}.note`),
+  }))
 
   return (
     <div className="min-h-screen text-[var(--color-ink)]">
@@ -54,17 +49,15 @@ export function LandingPage() {
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 md:py-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.75fr)] lg:items-center lg:px-8">
             <div className="max-w-3xl">
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                A reader-to-reader exchange service
+                {t('landing.hero.eyebrow')}
               </p>
 
               <h1 className="mt-4 max-w-4xl font-[var(--font-display)] text-5xl font-semibold leading-[0.98] text-[var(--color-ink)] sm:text-6xl lg:text-7xl">
-                Book Exchange
+                {t('landing.hero.title')}
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-muted)]">
-                Keep your owned shelf, borrowed books, collaborative shares,
-                transfers, returns, and admin recovery in one calm publishing
-                workspace.
+                {t('landing.hero.description')}
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
@@ -74,20 +67,29 @@ export function LandingPage() {
 
                 {!isAuthenticated ? (
                   <Link to="/login" className="secondary-action">
-                    Login
+                    {t('common.actions.login')}
                   </Link>
                 ) : (
                   <Link to="/app/add-book" className="secondary-action">
-                    Add a book
+                    {t('landing.hero.addBook')}
                   </Link>
                 )}
               </div>
 
               <dl className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-3">
                 {[
-                  ['Catalog first', 'Search before manual entry'],
-                  ['Clear flows', 'Share, give, return'],
-                  ['Admin ready', 'Force-return visibility'],
+                  [
+                    t('landing.hero.stats.catalog.label'),
+                    t('landing.hero.stats.catalog.value'),
+                  ],
+                  [
+                    t('landing.hero.stats.flows.label'),
+                    t('landing.hero.stats.flows.value'),
+                  ],
+                  [
+                    t('landing.hero.stats.admin.label'),
+                    t('landing.hero.stats.admin.value'),
+                  ],
                 ].map(([label, value]) => (
                   <div
                     key={label}
@@ -106,25 +108,25 @@ export function LandingPage() {
 
             <aside
               className="relative min-h-[25rem] overflow-hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[var(--color-paper)] p-4 shadow-[var(--shadow-restraint)] sm:p-5"
-              aria-label="Book Exchange catalog preview"
+              aria-label={t('landing.preview.ariaLabel')}
             >
               <div className="brand-ribbon absolute inset-x-0 top-0 h-1" />
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                    Live shelf shape
+                    {t('landing.preview.eyebrow')}
                   </p>
                   <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-                    Books stay central
+                    {t('landing.preview.title')}
                   </h2>
                 </div>
                 <span className="rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-success-text)]">
-                  Product preview
+                  {t('landing.preview.badge')}
                 </span>
               </div>
 
               <div className="mt-8 flex items-end justify-center gap-3 sm:gap-4">
-                {featuredBooks.map((book, index) => (
+                {localizedFeaturedBooks.map((book, index) => (
                   <BookCover
                     key={book.id}
                     title={book.title}
@@ -141,14 +143,14 @@ export function LandingPage() {
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="text-sm font-bold text-[var(--color-ink)]">
-                      Share request
+                      {t('landing.preview.requestTitle')}
                     </p>
                     <p className="mt-1 text-sm text-[var(--color-muted)]">
-                      Maps of Quiet Cities is held until Sunday.
+                      {t('landing.preview.requestDescription')}
                     </p>
                   </div>
                   <Link to="/app/share-book" className="secondary-action min-h-0 px-3 py-2 text-sm">
-                    Open share
+                    {t('common.actions.openShare')}
                   </Link>
                 </div>
               </div>
@@ -160,22 +162,20 @@ export function LandingPage() {
           <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
             <div>
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                Product workflow
+                {t('landing.workflow.eyebrow')}
               </p>
               <h2 className="mt-3 font-[var(--font-display)] text-4xl font-semibold leading-tight text-[var(--color-ink)]">
-                A simple circulation desk for everyday exchanges.
+                {t('landing.workflow.title')}
               </h2>
               <p className="mt-4 text-base leading-7 text-[var(--color-muted)]">
-                Each area focuses on one familiar exchange task. The interface
-                separates collaboration from final transfer so readers understand
-                what will happen before they submit.
+                {t('landing.workflow.description')}
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               {workflow.map((item) => (
                 <Link
-                  key={item.href}
+                  key={item.key}
                   to={item.href}
                   className="group rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-card-hover)] hover:shadow-[var(--shadow-lift)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
                 >
@@ -186,13 +186,13 @@ export function LandingPage() {
                     <span className="h-2.5 w-2.5 rounded-full bg-current" />
                   </span>
                   <h3 className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
-                    {item.title}
+                    {t(`landing.workflow.items.${item.key}.title`)}
                   </h3>
                   <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-                    {item.description}
+                    {t(`landing.workflow.items.${item.key}.description`)}
                   </p>
                   <span className="mt-4 inline-flex text-sm font-bold text-[var(--color-accent)] transition duration-200 group-hover:translate-x-1">
-                    Open workflow -&gt;
+                    {t('common.actions.openWorkflow')} -&gt;
                   </span>
                 </Link>
               ))}
@@ -204,39 +204,28 @@ export function LandingPage() {
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
             <div>
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                Catalog presentation
+                {t('landing.catalog.eyebrow')}
               </p>
               <h2 className="mt-3 font-[var(--font-display)] text-4xl font-semibold text-[var(--color-ink)]">
-                Every book gets a real hierarchy.
+                {t('landing.catalog.title')}
               </h2>
-              <ul className="mt-5 grid gap-3">
-                {benefits.map((benefit) => (
-                  <li
-                    key={benefit}
-                    className="flex gap-3 text-sm leading-6 text-[var(--color-muted)]"
-                  >
-                    <span
-                      className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[var(--color-forest)]"
-                      aria-hidden="true"
-                    />
-                    <span>{benefit}</span>
-                  </li>
-                ))}
-              </ul>
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
+                {t('landing.catalog.description')}
+              </p>
             </div>
 
             <div className="grid gap-3">
-              {featuredBooks.map((book) => (
+              {localizedFeaturedBooks.map((book) => (
                 <BookCard
                   key={book.id}
                   book={book}
-                  contextLabel="Featured catalog"
+                  contextLabel={t('landing.catalog.contextLabel')}
                   actions={
                     <Link
                       to="/app/my-books"
                       className="secondary-action min-h-0 px-3 py-2 text-sm"
                     >
-                      View in app
+                      {t('common.actions.viewInApp')}
                     </Link>
                   }
                 />
@@ -249,10 +238,10 @@ export function LandingPage() {
           <div className="flex flex-col gap-4 border-t border-[var(--color-border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
-                Book Exchange
+                {t('common.appName')}
               </p>
               <p className="mt-1 text-sm text-[var(--color-muted)]">
-                A premium, editorial workspace for reader-to-reader exchanges.
+                {t('landing.footer.description')}
               </p>
             </div>
             <div className="flex flex-wrap gap-3 text-sm font-bold text-[var(--color-muted)]">
@@ -262,7 +251,7 @@ export function LandingPage() {
                 rel="noreferrer"
                 className="transition duration-200 hover:text-[var(--color-accent)]"
               >
-                Service repo
+                {t('landing.footer.serviceRepo')}
               </a>
               <a
                 href={repositoryLinks.apiTests}
@@ -270,7 +259,7 @@ export function LandingPage() {
                 rel="noreferrer"
                 className="transition duration-200 hover:text-[var(--color-accent)]"
               >
-                Quality checks
+                {t('landing.footer.qualityChecks')}
               </a>
             </div>
           </div>

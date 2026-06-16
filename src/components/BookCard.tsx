@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import type { Book } from '../types/book'
 import { BookCover } from './BookCover'
@@ -8,13 +9,6 @@ type BookCardProps = {
   actions?: ReactNode
   contextLabel?: string
 }
-
-const statusLabels = {
-  available: 'Available',
-  held: 'Held',
-  shared: 'Shared',
-  pending: 'Pending',
-} satisfies Record<Book['status'], string>
 
 const statusClasses = {
   available:
@@ -27,6 +21,8 @@ const statusClasses = {
 } satisfies Record<Book['status'], string>
 
 export function BookCard({ book, actions, contextLabel }: BookCardProps) {
+  const { t } = useTranslation()
+
   return (
     <article className="group overflow-hidden rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] text-left shadow-[var(--shadow-restraint)] transition duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-card-hover)] hover:shadow-[var(--shadow-lift)]">
       <div className="grid gap-4 p-3 sm:grid-cols-[5rem_1fr] sm:p-4">
@@ -58,7 +54,7 @@ export function BookCard({ book, actions, contextLabel }: BookCardProps) {
             <span
               className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-bold ${statusClasses[book.status]}`}
             >
-              {statusLabels[book.status]}
+              {t(`common.status.${book.status}`)}
             </span>
           </div>
 
@@ -68,13 +64,17 @@ export function BookCard({ book, actions, contextLabel }: BookCardProps) {
 
           <dl className="mt-4 grid gap-2 text-sm text-[var(--color-muted)] sm:grid-cols-2">
             <div className="min-w-0">
-              <dt className="font-bold text-[var(--color-ink-soft)]">Owner</dt>
+              <dt className="font-bold text-[var(--color-ink-soft)]">
+                {t('components.bookCard.context.owner')}
+              </dt>
               <dd className="truncate" title={book.owner}>
                 {book.owner}
               </dd>
             </div>
             <div className="min-w-0">
-              <dt className="font-bold text-[var(--color-ink-soft)]">Genre</dt>
+              <dt className="font-bold text-[var(--color-ink-soft)]">
+                {t('components.bookCard.context.genre')}
+              </dt>
               <dd className="truncate" title={book.genre}>
                 {book.genre}
               </dd>

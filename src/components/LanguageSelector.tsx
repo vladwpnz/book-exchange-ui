@@ -15,6 +15,11 @@ import {
   type SupportedLanguage,
 } from '../i18n/languages'
 
+type LanguageSelectorProps = {
+  className?: string
+  menuPlacement?: 'bottom-end' | 'top-end'
+}
+
 function GlobeIcon() {
   return (
     <svg
@@ -62,7 +67,10 @@ function getCurrentLanguage(language: string | undefined) {
   return isSupportedLanguage(language) ? language : defaultLanguage
 }
 
-export function LanguageSelector() {
+export function LanguageSelector({
+  className,
+  menuPlacement = 'bottom-end',
+}: LanguageSelectorProps) {
   const { i18n, t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const menuId = useId()
@@ -181,7 +189,11 @@ export function LanguageSelector() {
   }
 
   return (
-    <div className="language-selector" ref={selectorRef}>
+    <div
+      className={['language-selector', className].filter(Boolean).join(' ')}
+      ref={selectorRef}
+      data-menu-placement={menuPlacement}
+    >
       <button
         ref={triggerRef}
         type="button"
