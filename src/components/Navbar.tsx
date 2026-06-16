@@ -1,11 +1,13 @@
 import { useRef, type MouseEvent } from 'react'
 import { flushSync } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 import { useAuth } from '../auth/useAuth'
 import { useTheme } from '../theme/useTheme'
 import type { Theme } from '../theme/themeContextValue'
 import { BrandMark } from './BrandMark'
+import { LanguageSelector } from './LanguageSelector'
 
 type NavbarProps = {
   appMode?: boolean
@@ -117,11 +119,14 @@ function MoonIcon() {
 }
 
 function ThemeToggle() {
+  const { t } = useTranslation()
   const { setTheme, theme } = useTheme()
   const isThemeTransitioningRef = useRef(false)
   const isDark = theme === 'dark'
   const nextTheme: Theme = isDark ? 'light' : 'dark'
-  const themeSwitchLabel = `Switch to ${nextTheme} theme`
+  const themeSwitchLabel = t('navbar.themeSwitchLabel', {
+    theme: t(`navbar.themeNames.${nextTheme}`),
+  })
 
   const handleThemeToggle = (event: MouseEvent<HTMLButtonElement>) => {
     if (isThemeTransitioningRef.current) {
@@ -177,7 +182,8 @@ function ThemeToggle() {
 
 export function Navbar({ appMode = false }: NavbarProps) {
   const navigate = useNavigate()
-  const { currentUserEmail, isAuthenticated, logout } = useAuth()
+  const { t } = useTranslation()
+  const { isAuthenticated, logout } = useAuth()
 
   const handleLogout = () => {
     logout()
@@ -186,81 +192,62 @@ export function Navbar({ appMode = false }: NavbarProps) {
 
   return (
     <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-nav)] backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+      <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:flex-nowrap lg:px-8">
         <Link
           to="/"
           className="rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
-          aria-label="Book Exchange home"
+          aria-label={t('navbar.bookExchangeHome')}
         >
-          <BrandMark label={appMode ? 'Exchange workspace' : 'Reader network'} />
+          <BrandMark
+            label={
+              appMode
+                ? t('navbar.exchangeWorkspace')
+                : t('navbar.readerNetwork')
+            }
+          />
         </Link>
 
-        <div className="flex min-w-0 items-center justify-end gap-2">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2 lg:flex-none">
           {appMode ? (
-            <>
-              <NavLink to="/app/admin" className={navLinkClass}>
-                Admin
-              </NavLink>
-
-              {isAuthenticated ? (
-                <>
-                  <NavLink
-                    to="/app/profile"
-                    className={({ isActive }) =>
-                      [
-                        'hidden max-w-48 rounded-md border px-3 py-2 text-left text-sm font-bold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)] sm:block',
-                        isActive
-                          ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)] text-[var(--color-accent-strong)]'
-                          : 'border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-ink)] hover:border-[var(--color-border-strong)]',
-                      ].join(' ')
-                    }
-                  >
-                    <span className="block leading-4">Account</span>
-                    <span className="block truncate text-xs font-semibold text-[var(--color-muted)]">
-                      {currentUserEmail}
-                    </span>
-                  </NavLink>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="secondary-action min-h-0 px-3 py-2 text-sm"
-                  >
-                    Logout
-                  </button>
-                </>
-              ) : null}
-            </>
+            isAuthenticated ? (
+              <div className="flex flex-wrap items-center justify-end gap-2 lg:hidden">
+                <NavLink to="/app/settings" className={navLinkClass}>
+                  {t('navbar.account')}
+                </NavLink>
+              </div>
+            ) : null
           ) : (
             <>
               <NavLink to="/" className={navLinkClass}>
-                Home
+                {t('navbar.home')}
               </NavLink>
 
               {isAuthenticated ? (
                 <>
                   <NavLink to="/app/my-books" className={navLinkClass}>
-                    Open app
+                    {t('navbar.openApp')}
                   </NavLink>
                   <button
                     type="button"
                     onClick={handleLogout}
                     className="secondary-action min-h-0 px-3 py-2 text-sm"
                   >
-                    Logout
+                    {t('navbar.logout')}
                   </button>
                 </>
               ) : (
                 <>
                   <NavLink to="/login" className={navLinkClass}>
-                    Login
+                    {t('navbar.login')}
                   </NavLink>
                   <NavLink to="/register" className="primary-action min-h-0 px-3 py-2 text-sm">
-                    Register
+                    {t('navbar.register')}
                   </NavLink>
                 </>
               )}
             </>
           )}
+          {!appMode ? <LanguageSelector /> : null}
           <ThemeToggle />
         </div>
       </nav>

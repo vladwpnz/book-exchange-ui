@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+import i18n from '../i18n/i18n'
 import { apiClient, isBackendConnectionError } from './client'
 
 export type RegisterUserInput = {
@@ -8,14 +9,17 @@ export type RegisterUserInput = {
   password: string
 }
 
-const registerSuccessMessage =
-  'Successfully registered, your email is your username'
+function getRegisterSuccessMessage() {
+  return i18n.t('api.register.success')
+}
 
-const genericRegisterError =
-  'Unable to create the account. Please check your details and try again.'
+function getGenericRegisterError() {
+  return i18n.t('api.register.generic')
+}
 
-const backendUnavailableError =
-  'The book service is unavailable right now. Please try again shortly.'
+function getBackendUnavailableError() {
+  return i18n.t('api.register.backendUnavailable')
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -51,17 +55,17 @@ function getTextErrorMessage(data: unknown) {
 
 function getRegisterErrorMessage(error: unknown) {
   if (isBackendConnectionError(error)) {
-    return backendUnavailableError
+    return getBackendUnavailableError()
   }
 
   if (!axios.isAxiosError(error)) {
-    return error instanceof Error ? error.message : genericRegisterError
+    return error instanceof Error ? error.message : getGenericRegisterError()
   }
 
   return (
     getTextErrorMessage(error.response?.data) ??
     getJsonErrorMessage(error.response?.data) ??
-    genericRegisterError
+    getGenericRegisterError()
   )
 }
 
@@ -75,12 +79,12 @@ export async function registerUser(input: RegisterUserInput) {
     })
 
     if (response.status !== 201) {
-      throw new Error(genericRegisterError)
+      throw new Error(getGenericRegisterError())
     }
 
     return typeof response.data === 'string' && response.data.trim().length > 0
       ? response.data.trim()
-      : registerSuccessMessage
+      : getRegisterSuccessMessage()
   } catch (error) {
     throw new Error(getRegisterErrorMessage(error), { cause: error })
   }

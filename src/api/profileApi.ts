@@ -1,4 +1,5 @@
 import { loadCredentials } from '../auth/authStorage'
+import i18n from '../i18n/i18n'
 import { apiClient, createBasicAuthHeaders } from './client'
 
 export type UserProfile = {
@@ -21,7 +22,7 @@ function getRequiredText(value: unknown, fieldName: string) {
     return value.trim()
   }
 
-  throw new Error(`Could not read profile ${fieldName}. Please try again.`)
+  throw new Error(i18n.t('api.profile.readField', { field: fieldName }))
 }
 
 function getAvatarUrl(value: unknown) {
@@ -35,12 +36,12 @@ function getAvatarUrl(value: unknown) {
     return trimmedValue.length > 0 ? trimmedValue : null
   }
 
-  throw new Error('Could not read your profile avatar. Please try again.')
+  throw new Error(i18n.t('api.profile.avatar'))
 }
 
 function toUserProfile(data: unknown): UserProfile {
   if (!isRecord(data)) {
-    throw new Error('Could not load profile details. Please try again.')
+    throw new Error(i18n.t('api.profile.details'))
   }
 
   return {
@@ -55,7 +56,7 @@ function getSavedCredentials() {
   const credentials = loadCredentials()
 
   if (!credentials) {
-    throw new Error('Saved sign-in details are missing. Please sign in again.')
+    throw new Error(i18n.t('api.profile.missingCredentials'))
   }
 
   return credentials
@@ -76,7 +77,7 @@ export async function updateProfile(input: UpdateProfileInput) {
   const name = input.name.trim()
 
   if (!name) {
-    throw new Error('Profile name is required.')
+    throw new Error(i18n.t('api.profile.requiredName'))
   }
 
   const response = await apiClient.patch<unknown>(

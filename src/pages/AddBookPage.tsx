@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { markAchievementShownOnce } from '../achievements'
@@ -25,10 +26,8 @@ type CreatedBookSummary = {
 const CATALOG_VISIBLE_STEP = 6
 const DESCRIPTION_MAX_LENGTH = 150
 
-function getErrorMessage(error: unknown) {
-  return error instanceof Error
-    ? error.message
-    : 'Unable to add this book. Please try again.'
+function getErrorMessage(error: unknown, fallbackMessage: string) {
+  return error instanceof Error ? error.message : fallbackMessage
 }
 
 function getShortDescription(description: string) {
@@ -42,6 +41,7 @@ function getCatalogTone(index: number) {
 }
 
 export function AddBookPage() {
+  const { t } = useTranslation()
   const { currentUserEmail } = useAuth()
   const { showToast } = useToast()
   const [title, setTitle] = useState('')
@@ -81,8 +81,8 @@ export function AddBookPage() {
 
     showToast({
       tone: 'success',
-      title: 'Achievement unlocked',
-      message: 'First book added',
+      title: t('addBook.toasts.achievement.title'),
+      message: t('addBook.toasts.achievement.message'),
     })
   }
 
@@ -118,14 +118,14 @@ export function AddBookPage() {
           return
         }
 
-        const message = getErrorMessage(error)
+        const message = getErrorMessage(error, t('addBook.errors.fallback'))
 
         setCatalogBooks([])
         setCatalogErrorMessage(message)
         setCatalogSearchState('error')
         showToast({
           tone: 'error',
-          title: 'Could not search catalog',
+          title: t('addBook.toasts.searchError'),
           message,
         })
       }
@@ -135,7 +135,7 @@ export function AddBookPage() {
       isCurrentSearch = false
       window.clearTimeout(searchTimeoutId)
     }
-  }, [catalogQuery, showToast])
+  }, [catalogQuery, showToast, t])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -144,14 +144,14 @@ export function AddBookPage() {
     const trimmedAuthor = author.trim()
 
     if (!trimmedTitle || !trimmedAuthor) {
-      const message = 'Title and author are required.'
+      const message = t('addBook.errors.required')
 
       setCreatedBook(null)
       setErrorMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'warning',
-        title: 'Add title and author',
+        title: t('addBook.toasts.detailsNeeded'),
         message,
       })
       return
@@ -175,19 +175,22 @@ export function AddBookPage() {
       setSubmitState('success')
       showToast({
         tone: 'success',
-        title: 'Book added',
-        message: `${trimmedTitle} by ${trimmedAuthor} is now on your owned shelf.`,
+        title: t('addBook.toasts.added'),
+        message: t('addBook.messages.addedToShelf', {
+          author: trimmedAuthor,
+          title: trimmedTitle,
+        }),
       })
       showFirstBookAchievementIfNeeded()
     } catch (error) {
-      const message = getErrorMessage(error)
+      const message = getErrorMessage(error, t('addBook.errors.fallback'))
 
       setCreatedBook(null)
       setErrorMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'error',
-        title: 'Could not add book',
+        title: t('addBook.toasts.addError'),
         message,
       })
     }
@@ -228,12 +231,15 @@ export function AddBookPage() {
       setCatalogAddedBook(addedBook)
       showToast({
         tone: 'success',
-        title: 'Book added',
-        message: `${addedBook.title} by ${addedBook.author} is now on your owned shelf.`,
+        title: t('addBook.toasts.added'),
+        message: t('addBook.messages.addedToShelf', {
+          author: addedBook.author,
+          title: addedBook.title,
+        }),
       })
       showFirstBookAchievementIfNeeded()
     } catch (error) {
-      const message = getErrorMessage(error)
+      const message = getErrorMessage(error, t('addBook.errors.fallback'))
 
       if (isDuplicateCatalogBookError(error)) {
         markCatalogBookAsOwned(book.catalogBookId)
@@ -242,7 +248,7 @@ export function AddBookPage() {
       setCatalogAddErrorMessage(message)
       showToast({
         tone: 'error',
-        title: 'Could not add catalog book',
+        title: t('addBook.toasts.catalogAddError'),
         message,
       })
     } finally {
@@ -257,12 +263,12 @@ export function AddBookPage() {
   return (
     <section className="space-y-5">
       <PageHeader
-        eyebrow="Catalog entry"
-        title="Add book"
-        description="Search the shared catalog first. Manual entry stays available when a title is missing from the index."
+        eyebrow={t('addBook.header.eyebrow')}
+        title={t('addBook.header.title')}
+        description={t('addBook.header.description')}
         action={
           <Link className="secondary-action" to="/app/my-books">
-            View my books
+            {t('common.actions.viewMyBooks')}
           </Link>
         }
       />
@@ -275,27 +281,25 @@ export function AddBookPage() {
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
           <div className="min-w-0">
             <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-              Primary path
+              {t('addBook.catalog.eyebrow')}
             </p>
             <h2
               id="catalog-heading"
               className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]"
             >
-              Search the exchange catalog
+              {t('addBook.catalog.title')}
             </h2>
             <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-              Results update after a short pause while you type. Add from here
-              to preserve catalog metadata and keep shelves consistent.
+              {t('addBook.catalog.description')}
             </p>
           </div>
 
           <aside className="rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-panel-tint)] p-4">
             <p className="text-sm font-bold text-[var(--color-ink)]">
-              Catalog behavior
+              {t('addBook.catalog.behaviorTitle')}
             </p>
             <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-              Search waits briefly while you type. Use Show more to browse the
-              rest of the catalog.
+              {t('addBook.catalog.behaviorDescription')}
             </p>
           </aside>
         </div>
@@ -304,7 +308,7 @@ export function AddBookPage() {
           className="mt-6 block text-sm font-bold text-[var(--color-ink-soft)]"
           htmlFor="catalog-search"
         >
-          Search by title or author
+          {t('addBook.catalog.searchLabel')}
         </label>
         <div className="mt-2 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
           <input
@@ -312,30 +316,34 @@ export function AddBookPage() {
             value={catalogQuery}
             onChange={(event) => handleCatalogQueryChange(event.target.value)}
             className="field-input"
-            placeholder="Search by title or author"
+            placeholder={t('addBook.catalog.searchLabel')}
             aria-describedby="catalog-search-help"
           />
           <span className="secondary-action pointer-events-none min-h-0 text-sm">
-            {isFilteredCatalogSearch ? 'Filtered' : 'Browse all'}
+            {isFilteredCatalogSearch
+              ? t('common.actions.filtered')
+              : t('common.actions.browseAll')}
           </span>
         </div>
         <p id="catalog-search-help" className="mt-2 text-xs text-[var(--color-muted)]">
-          Type at least two characters to filter the catalog.
+          {t('addBook.catalog.help')}
         </p>
 
         {catalogAddedBook && (
           <StateMessage
             className="mt-4"
             tone="success"
-            title="Catalog book added"
+            title={t('addBook.catalog.addedTitle')}
             action={
               <Link className="secondary-action" to="/app/my-books">
-                View my books
+                {t('common.actions.viewMyBooks')}
               </Link>
             }
           >
-            {catalogAddedBook.title} by {catalogAddedBook.author} is on your
-            owned shelf.
+            {t('addBook.messages.catalogAddedToShelf', {
+              author: catalogAddedBook.author,
+              title: catalogAddedBook.title,
+            })}
           </StateMessage>
         )}
 
@@ -343,7 +351,7 @@ export function AddBookPage() {
           <StateMessage
             className="mt-4"
             tone="error"
-            title="Could not add catalog book"
+            title={t('addBook.toasts.catalogAddError')}
           >
             {catalogAddErrorMessage}
           </StateMessage>
@@ -351,7 +359,7 @@ export function AddBookPage() {
 
         {catalogSearchState === 'loading' && (
           <div className="mt-5 grid gap-3" role="status" aria-live="polite">
-            <span className="sr-only">Loading catalog books.</span>
+            <span className="sr-only">{t('addBook.catalog.loading')}</span>
             {Array.from({ length: 3 }, (_, index) => (
               <div
                 key={`catalog-loading-${index}`}
@@ -373,9 +381,12 @@ export function AddBookPage() {
         )}
 
         {catalogSearchState === 'empty' && (
-          <StateMessage className="mt-4" tone="info" title="No catalog matches">
-            No catalog books matched this search. Manual adding is available
-            below as a secondary fallback.
+          <StateMessage
+            className="mt-4"
+            tone="info"
+            title={t('addBook.catalog.noMatchesTitle')}
+          >
+            {t('addBook.catalog.noMatchesDescription')}
           </StateMessage>
         )}
 
@@ -383,7 +394,7 @@ export function AddBookPage() {
           <StateMessage
             className="mt-4"
             tone="error"
-            title="Could not search catalog"
+            title={t('addBook.toasts.searchError')}
           >
             {catalogErrorMessage}
           </StateMessage>
@@ -395,11 +406,14 @@ export function AddBookPage() {
               <div>
                 <h3 className="font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
                   {isFilteredCatalogSearch
-                    ? 'Matching catalog books'
-                    : 'Catalog books'}
+                    ? t('addBook.catalog.matchingTitle')
+                    : t('addBook.catalog.resultsTitle')}
                 </h3>
                 <p className="mt-1 text-sm text-[var(--color-muted)]" role="status">
-                  Showing {shownCatalogCount} of {catalogBooks.length}
+                  {t('addBook.catalog.showing', {
+                    shown: shownCatalogCount,
+                    total: catalogBooks.length,
+                  })}
                 </p>
               </div>
             </div>
@@ -449,7 +463,7 @@ export function AddBookPage() {
 
                       {book.isbn && (
                         <p className="mt-2 text-xs font-bold tracking-[0.14em] text-[var(--color-muted)]">
-                          ISBN {book.isbn}
+                          {t('addBook.catalog.isbn', { isbn: book.isbn })}
                         </p>
                       )}
                     </div>
@@ -462,10 +476,10 @@ export function AddBookPage() {
                       aria-busy={isAddingBook}
                     >
                       {isOwnedCatalogBook
-                        ? 'Already in my books'
+                        ? t('addBook.catalog.alreadyOwned')
                         : isAddingBook
-                          ? 'Adding...'
-                          : 'Add to my books'}
+                          ? t('addBook.catalog.adding')
+                          : t('addBook.catalog.addToMine')}
                     </button>
                   </article>
                 )
@@ -478,7 +492,7 @@ export function AddBookPage() {
                 className="secondary-action mt-4 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                 onClick={handleShowMoreCatalogBooks}
               >
-                Show more
+                {t('common.actions.showMore')}
               </button>
             )}
           </div>
@@ -489,17 +503,16 @@ export function AddBookPage() {
         <div className="grid gap-5 lg:grid-cols-[18rem_minmax(0,1fr)]">
           <div>
             <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-muted)]">
-              Secondary fallback
+              {t('addBook.manual.eyebrow')}
             </p>
             <h2
               id="manual-add-heading"
               className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]"
             >
-              Add manually
+              {t('addBook.manual.title')}
             </h2>
             <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-              Can't find your book? Add a real title that is missing from the
-              shared catalog.
+              {t('addBook.manual.description')}
             </p>
           </div>
 
@@ -513,13 +526,13 @@ export function AddBookPage() {
                 className="block text-sm font-bold text-[var(--color-ink-soft)]"
                 htmlFor="title"
               >
-                Title
+                {t('common.bookMeta.title')}
                 <input
                   id="title"
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
                   className="field-input mt-2"
-                  placeholder="Book title"
+                  placeholder={t('common.placeholders.bookTitle')}
                   disabled={isSubmitting}
                   aria-invalid={submitState === 'error' && Boolean(errorMessage)}
                   aria-describedby={
@@ -534,13 +547,13 @@ export function AddBookPage() {
                 className="block text-sm font-bold text-[var(--color-ink-soft)]"
                 htmlFor="author"
               >
-                Author
+                {t('common.bookMeta.author')}
                 <input
                   id="author"
                   value={author}
                   onChange={(event) => setAuthor(event.target.value)}
                   className="field-input mt-2"
-                  placeholder="Author name"
+                  placeholder={t('common.placeholders.authorName')}
                   disabled={isSubmitting}
                   aria-invalid={submitState === 'error' && Boolean(errorMessage)}
                   aria-describedby={
@@ -557,7 +570,9 @@ export function AddBookPage() {
                   className="secondary-action w-full disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? 'Saving...' : 'Add manually'}
+                  {isSubmitting
+                    ? t('common.actions.saving')
+                    : t('common.actions.addManually')}
                 </button>
               </div>
             </form>
@@ -566,15 +581,17 @@ export function AddBookPage() {
               <StateMessage
                 className="mt-4"
                 tone="success"
-                title="Book added successfully"
+                title={t('addBook.manual.successTitle')}
                 action={
                   <Link className="secondary-action" to="/app/my-books">
-                    View my books
+                    {t('common.actions.viewMyBooks')}
                   </Link>
                 }
               >
-                {createdBook.title} by {createdBook.author} is now on your
-                owned shelf.
+                {t('addBook.messages.addedToShelf', {
+                  author: createdBook.author,
+                  title: createdBook.title,
+                })}
               </StateMessage>
             )}
 
@@ -582,7 +599,7 @@ export function AddBookPage() {
               <StateMessage
                 className="mt-4"
                 tone="error"
-                title="Could not add book"
+                title={t('addBook.toasts.addError')}
               >
                 <span id="manual-add-error">{errorMessage}</span>
               </StateMessage>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { getHeldBooks } from '../api/booksApi'
@@ -14,10 +15,11 @@ type BooksState = 'loading' | 'success' | 'error'
 function getErrorMessage(error: unknown) {
   return error instanceof Error
     ? error.message
-    : 'Unable to load held books. Please try again.'
+    : ''
 }
 
 export function HeldBooksPage() {
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const [books, setBooks] = useState<Book[]>([])
   const [booksState, setBooksState] = useState<BooksState>('loading')
@@ -45,14 +47,14 @@ export function HeldBooksPage() {
           return
         }
 
-        const message = getErrorMessage(error)
+        const message = getErrorMessage(error) || t('heldBooks.error.fallback')
 
         setBooks([])
         setErrorMessage(message)
         setBooksState('error')
         showToast({
           tone: 'error',
-          title: 'Could not load held books',
+          title: t('heldBooks.error.toastTitle'),
           message,
         })
       }
@@ -63,7 +65,7 @@ export function HeldBooksPage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey, showToast])
+  }, [reloadKey, showToast, t])
 
   const hasBooks = booksState === 'success' && books.length > 0
   const isEmpty = booksState === 'success' && books.length === 0
@@ -71,12 +73,12 @@ export function HeldBooksPage() {
   return (
     <section className="space-y-5">
       <PageHeader
-        eyebrow="Borrowed shelf"
-        title="Held books"
-        description="Track the books currently in your care and close a hold when a copy goes back to its owner."
+        eyebrow={t('heldBooks.header.eyebrow')}
+        title={t('heldBooks.header.title')}
+        description={t('heldBooks.header.description')}
         action={
           <Link className="primary-action" to="/app/return-book">
-            Return a book
+            {t('common.actions.returnBook')}
           </Link>
         }
         meta={
@@ -85,23 +87,23 @@ export function HeldBooksPage() {
               <span className="font-bold text-[var(--color-ink)]">
                 {books.length}
               </span>{' '}
-              held books
+              {t('heldBooks.header.heldBooksLabel')}
             </div>
           ) : null
         }
       />
 
       {booksState === 'loading' && (
-        <BookListSkeleton label="Loading held books" />
+        <BookListSkeleton label={t('heldBooks.loading')} />
       )}
 
       {booksState === 'error' && (
         <div className="premium-panel border-[var(--color-status-warning-border)] p-6 sm:p-7" role="alert">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
-            Held books unavailable
+            {t('heldBooks.error.eyebrow')}
           </p>
           <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-            Could not load held books
+            {t('heldBooks.error.title')}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
             {errorMessage}
@@ -111,7 +113,7 @@ export function HeldBooksPage() {
             type="button"
             onClick={() => setReloadKey((key) => key + 1)}
           >
-            Try again
+            {t('common.actions.tryAgain')}
           </button>
         </div>
       )}
@@ -119,23 +121,22 @@ export function HeldBooksPage() {
       {isEmpty && (
         <div className="empty-state p-6 sm:p-7" role="status" aria-live="polite">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
-            No active holds
+            {t('heldBooks.empty.eyebrow')}
           </p>
           <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-            Your borrowed shelf is clear
+            {t('heldBooks.empty.title')}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
-            Books shared or given to your account will appear here with their
-            owner and status details.
+            {t('heldBooks.empty.description')}
           </p>
 
           <div className="mt-5 flex flex-wrap gap-3">
             <Link to="/app/my-books" className="primary-action">
-              Open my books
+              {t('common.actions.openMyBooks')}
             </Link>
 
             <Link to="/app/return-book" className="secondary-action">
-              Open return flow
+              {t('common.actions.openReturnFlow')}
             </Link>
           </div>
         </div>
@@ -146,10 +147,10 @@ export function HeldBooksPage() {
           <div className="space-y-3">
             <div>
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                Borrowed catalog
+                {t('heldBooks.catalog.eyebrow')}
               </p>
               <h2 className="mt-1 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-                Active holds
+                {t('heldBooks.catalog.title')}
               </h2>
             </div>
 
@@ -158,13 +159,13 @@ export function HeldBooksPage() {
                 <BookCard
                   key={book.id}
                   book={book}
-                  contextLabel="Held copy"
+                  contextLabel={t('heldBooks.catalog.contextLabel')}
                   actions={
                     <Link
                       to="/app/return-book"
                       className="primary-action min-h-0 px-3 py-2 text-sm"
                     >
-                      Return this title
+                      {t('common.actions.returnThisTitle')}
                     </Link>
                   }
                 />
@@ -174,14 +175,13 @@ export function HeldBooksPage() {
 
           <aside className="status-panel h-fit p-5">
             <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-blue)]">
-              Return rhythm
+              {t('heldBooks.aside.eyebrow')}
             </p>
             <h2 className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
-              Close holds promptly
+              {t('heldBooks.aside.title')}
             </h2>
             <p className="mt-3 text-sm leading-6 text-[var(--color-muted)]">
-              Use the return workflow when the borrowed copy goes back to its
-              owner. The return is checked against your borrowed shelf.
+              {t('heldBooks.aside.description')}
             </p>
           </aside>
         </section>
@@ -189,7 +189,7 @@ export function HeldBooksPage() {
 
       {booksState === 'success' && hasBooks ? (
         <StateMessage tone="success" className="sr-only">
-          Held books loaded.
+          {t('heldBooks.catalog.loaded')}
         </StateMessage>
       ) : null}
     </section>

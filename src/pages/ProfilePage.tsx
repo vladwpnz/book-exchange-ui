@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { getHeldBooks, getOwnedBooks } from '../api/booksApi'
 import {
@@ -58,6 +59,7 @@ function formatStatValue(value: number | null) {
 }
 
 export function ProfilePage() {
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [profileStats, setProfileStats] = useState<ProfileStats>({
@@ -105,7 +107,7 @@ export function ProfilePage() {
 
         const message = getErrorMessage(
           error,
-          'Unable to load your profile. Please try again.',
+          t('profile.errors.loadFallback'),
         )
 
         setProfile(null)
@@ -118,7 +120,7 @@ export function ProfilePage() {
         setProfileState('error')
         showToast({
           tone: 'error',
-          title: 'Could not load profile',
+          title: t('profile.errors.loadTitle'),
           message,
         })
       }
@@ -129,35 +131,36 @@ export function ProfilePage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey, showToast])
+  }, [reloadKey, showToast, t])
 
   const initials = useMemo(
     () => (profile ? getInitials(profile) : ''),
     [profile],
   )
-  const accountStatus = profileState === 'success' ? 'Active' : '-'
+  const accountStatus =
+    profileState === 'success' ? t('common.status.active') : t('common.values.dash')
   const achievements = useMemo<Achievement[]>(
     () => [
       {
         id: 'profile-ready',
-        label: 'Profile ready',
+        label: t('profile.achievements.profileReady'),
         unlocked: profileState === 'success',
       },
       {
         id: 'first-book-added',
         label:
           profileStats.ownedBooks !== null && profileStats.ownedBooks > 0
-            ? 'First book added'
-            : 'Add your first book',
+            ? t('profile.achievements.firstBookAdded')
+            : t('profile.achievements.addFirstBook'),
         unlocked: profileStats.ownedBooks !== null && profileStats.ownedBooks > 0,
       },
       {
         id: 'exchange-ready',
-        label: 'Exchange ready',
+        label: t('profile.achievements.exchangeReady'),
         unlocked: profileState === 'success',
       },
     ],
-    [profileState, profileStats.ownedBooks],
+    [profileState, profileStats.ownedBooks, t],
   )
   const isSubmitting = submitState === 'submitting'
 
@@ -167,13 +170,13 @@ export function ProfilePage() {
     const trimmedName = name.trim()
 
     if (!trimmedName) {
-      const message = 'Name cannot be empty.'
+      const message = t('profile.errors.emptyName')
 
       setStatusMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'warning',
-        title: 'Name required',
+        title: t('profile.errors.nameRequired'),
         message,
       })
       return
@@ -187,24 +190,24 @@ export function ProfilePage() {
 
       setProfile(updatedProfile)
       setName(updatedProfile.name)
-      setStatusMessage('Profile updated successfully.')
+      setStatusMessage(t('profile.details.savedMessage'))
       setSubmitState('success')
       showToast({
         tone: 'success',
-        title: 'Profile saved',
-        message: 'Your reader name was updated.',
+        title: t('profile.toasts.savedTitle'),
+        message: t('profile.toasts.savedMessage'),
       })
     } catch (error) {
       const message = getErrorMessage(
         error,
-        'Unable to update your profile. Please try again.',
+        t('profile.errors.updateFallback'),
       )
 
       setStatusMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'error',
-        title: 'Could not save profile',
+        title: t('profile.errors.saveTitle'),
         message,
       })
     }
@@ -213,9 +216,9 @@ export function ProfilePage() {
   return (
     <section className="space-y-5">
       <PageHeader
-        eyebrow="Account"
-        title="Profile"
-        description="Manage the reader identity used across owned books, held copies, and exchange actions."
+        eyebrow={t('profile.header.eyebrow')}
+        title={t('profile.header.title')}
+        description={t('profile.header.description')}
       />
 
       {profileState === 'loading' && (
@@ -224,7 +227,7 @@ export function ProfilePage() {
           role="status"
           aria-live="polite"
         >
-          <span className="sr-only">Loading profile.</span>
+          <span className="sr-only">{t('profile.loading')}</span>
           <div className="premium-panel p-5 sm:p-6" aria-hidden="true">
             <div className="grid gap-5 sm:grid-cols-[7rem_minmax(0,1fr)]">
               <div className="h-28 w-28 rounded-[0.75rem] border border-[var(--color-border)] bg-[var(--color-skeleton)]" />
@@ -254,10 +257,10 @@ export function ProfilePage() {
       {profileState === 'error' && (
         <div className="premium-panel border-[var(--color-status-warning-border)] p-6 sm:p-7" role="alert">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
-            Profile unavailable
+            {t('profile.errors.unavailable')}
           </p>
           <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-            Could not load profile
+            {t('profile.errors.loadTitle')}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
             {profileError}
@@ -267,7 +270,7 @@ export function ProfilePage() {
             type="button"
             onClick={() => setReloadKey((key) => key + 1)}
           >
-            Try again
+            {t('common.actions.tryAgain')}
           </button>
         </div>
       )}
@@ -280,7 +283,9 @@ export function ProfilePage() {
                 {profile.avatarUrl ? (
                   <img
                     src={profile.avatarUrl}
-                    alt={`${profile.name} avatar`}
+                    alt={t('profile.details.avatarAlt', {
+                      name: profile.name,
+                    })}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -292,7 +297,7 @@ export function ProfilePage() {
 
               <div className="min-w-0">
                 <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                  Signed-in reader
+                  {t('profile.details.signedInReader')}
                 </p>
                 <h2 className="mt-2 break-words font-[var(--font-display)] text-4xl font-semibold leading-tight text-[var(--color-ink)]">
                   {profile.name}
@@ -316,12 +321,28 @@ export function ProfilePage() {
 
             <dl className="grid border-y border-[var(--color-border)] bg-[var(--color-table-head)] sm:grid-cols-4">
               {[
-                ['Owned books', formatStatValue(profileStats.ownedBooks)],
-                ['Held books', formatStatValue(profileStats.heldBooks)],
-                ['Role', profile.authority],
-                ['Status', accountStatus],
-              ].map(([label, value]) => (
-                <div key={label} className="border-[var(--color-border)] bg-[var(--color-table-row)] p-4 sm:border-r sm:last:border-r-0">
+                {
+                  id: 'owned-books',
+                  label: t('profile.details.ownedBooks'),
+                  value: formatStatValue(profileStats.ownedBooks),
+                },
+                {
+                  id: 'held-books',
+                  label: t('profile.details.heldBooks'),
+                  value: formatStatValue(profileStats.heldBooks),
+                },
+                {
+                  id: 'role',
+                  label: t('common.bookMeta.role'),
+                  value: profile.authority,
+                },
+                {
+                  id: 'status',
+                  label: t('common.bookMeta.status'),
+                  value: accountStatus,
+                },
+              ].map(({ id, label, value }) => (
+                <div key={id} className="border-[var(--color-border)] bg-[var(--color-table-row)] p-4 sm:border-r sm:last:border-r-0">
                   <dt className="text-xs font-bold tracking-[0.14em] text-[var(--color-muted)]">
                     {label}
                   </dt>
@@ -334,7 +355,7 @@ export function ProfilePage() {
 
             <div className="p-5 sm:p-6">
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
-                Achievements
+                {t('profile.details.achievements')}
               </p>
               <ul className="mt-4 grid gap-2 sm:grid-cols-3">
                 {achievements.map((achievement) => (
@@ -359,20 +380,20 @@ export function ProfilePage() {
             aria-busy={isSubmitting}
           >
             <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-              Edit identity
+              {t('profile.details.editIdentity')}
             </p>
             <h2 className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
-              Reader name
+              {t('profile.details.readerName')}
             </h2>
             <p className="mt-1 text-sm leading-6 text-[var(--color-muted)]">
-              This name appears across your account surfaces.
+              {t('profile.details.nameAppears')}
             </p>
 
             <label
               className="mt-5 block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="profile-name"
             >
-              Name
+              {t('profile.details.name')}
               <input
                 id="profile-name"
                 value={name}
@@ -384,7 +405,7 @@ export function ProfilePage() {
                   }
                 }}
                 className="field-input mt-2"
-                placeholder="Your name"
+                placeholder={t('common.placeholders.yourName')}
                 disabled={isSubmitting}
                 aria-invalid={submitState === 'error'}
                 aria-describedby={
@@ -398,14 +419,16 @@ export function ProfilePage() {
               className="primary-action mt-4 w-full disabled:cursor-not-allowed disabled:opacity-60"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Saving...' : 'Save profile'}
+              {isSubmitting
+                ? t('profile.details.saving')
+                : t('common.actions.saveProfile')}
             </button>
 
             {submitState === 'success' && statusMessage && (
               <StateMessage
                 className="mt-4"
                 tone="success"
-                title="Profile saved"
+                title={t('profile.toasts.savedTitle')}
               >
                 <span id="profile-save-message">{statusMessage}</span>
               </StateMessage>
@@ -415,7 +438,7 @@ export function ProfilePage() {
               <StateMessage
                 className="mt-4"
                 tone="error"
-                title="Could not save profile"
+                title={t('profile.errors.saveTitle')}
               >
                 <span id="profile-save-message">{statusMessage}</span>
               </StateMessage>

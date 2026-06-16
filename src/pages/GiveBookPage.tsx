@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { giveBook } from '../api/booksApi'
@@ -13,28 +14,12 @@ type GivenBookSummary = {
   username: string
 }
 
-const giveSteps = [
-  {
-    title: 'Verify the title',
-    description: 'Use the exact owned title that should leave your shelf.',
-  },
-  {
-    title: 'Confirm recipient',
-    description: 'The target email receives ownership after the transfer is confirmed.',
-  },
-  {
-    title: 'Submit final transfer',
-    description: 'This is intentionally more serious than a shared hold.',
-  },
-]
-
-function getErrorMessage(error: unknown) {
-  return error instanceof Error
-    ? error.message
-    : 'Unable to give this book. Please try again.'
+function getErrorMessage(error: unknown, fallbackMessage: string) {
+  return error instanceof Error ? error.message : fallbackMessage
 }
 
 export function GiveBookPage() {
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const [title, setTitle] = useState('')
   const [username, setUsername] = useState('')
@@ -43,6 +28,20 @@ export function GiveBookPage() {
   const [givenBook, setGivenBook] = useState<GivenBookSummary | null>(null)
 
   const isSubmitting = submitState === 'submitting'
+  const giveSteps = [
+    {
+      title: t('giveBook.steps.verify.title'),
+      description: t('giveBook.steps.verify.description'),
+    },
+    {
+      title: t('giveBook.steps.recipient.title'),
+      description: t('giveBook.steps.recipient.description'),
+    },
+    {
+      title: t('giveBook.steps.submit.title'),
+      description: t('giveBook.steps.submit.description'),
+    },
+  ]
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -51,14 +50,14 @@ export function GiveBookPage() {
     const trimmedUsername = username.trim()
 
     if (!trimmedTitle || !trimmedUsername) {
-      const message = 'Title and target user email are required.'
+      const message = t('giveBook.errors.required')
 
       setGivenBook(null)
       setErrorMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'warning',
-        title: 'Give details needed',
+        title: t('giveBook.toasts.detailsNeeded'),
         message,
       })
       return
@@ -82,18 +81,21 @@ export function GiveBookPage() {
       setSubmitState('success')
       showToast({
         tone: 'success',
-        title: 'Book given',
-        message: `${trimmedTitle} was given to ${trimmedUsername}.`,
+        title: t('giveBook.toasts.given'),
+        message: t('giveBook.messages.givenTo', {
+          title: trimmedTitle,
+          username: trimmedUsername,
+        }),
       })
     } catch (error) {
-      const message = getErrorMessage(error)
+      const message = getErrorMessage(error, t('giveBook.errors.fallback'))
 
       setGivenBook(null)
       setErrorMessage(message)
       setSubmitState('error')
       showToast({
         tone: 'error',
-        title: 'Could not give book',
+        title: t('giveBook.toasts.giveError'),
         message,
       })
     }
@@ -102,12 +104,12 @@ export function GiveBookPage() {
   return (
     <section className="space-y-5">
       <PageHeader
-        eyebrow="Ownership transfer"
-        title="Give book"
-        description="Move a copy from your owned shelf to another reader as a final transfer."
+        eyebrow={t('giveBook.header.eyebrow')}
+        title={t('giveBook.header.title')}
+        description={t('giveBook.header.description')}
         action={
           <Link className="secondary-action" to="/app/my-books">
-            Check owned shelf
+            {t('common.actions.checkOwnedShelf')}
           </Link>
         }
       />
@@ -120,18 +122,22 @@ export function GiveBookPage() {
         >
           <div>
             <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-danger)]">
-              Final transfer
+              {t('giveBook.form.eyebrow')}
             </p>
             <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-              Confirm ownership move
+              {t('giveBook.form.title')}
             </h2>
             <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-              Giving changes ownership after the transfer is confirmed.
+              {t('giveBook.form.description')}
             </p>
           </div>
 
-          <StateMessage className="mt-5" tone="warning" title="Ownership moves">
-            Check the title and recipient email before submitting this transfer.
+          <StateMessage
+            className="mt-5"
+            tone="warning"
+            title={t('giveBook.form.warningTitle')}
+          >
+            {t('giveBook.form.warning')}
           </StateMessage>
 
           <div className="mt-5 grid gap-5">
@@ -139,13 +145,13 @@ export function GiveBookPage() {
               className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="give-title"
             >
-              Book title
+              {t('giveBook.form.bookTitle')}
               <input
                 id="give-title"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 className="field-input mt-2"
-                placeholder="Give Test Book"
+                placeholder={t('common.placeholders.giveTestBook')}
                 disabled={isSubmitting}
                 aria-invalid={submitState === 'error' && Boolean(errorMessage)}
                 aria-describedby={
@@ -160,7 +166,7 @@ export function GiveBookPage() {
               className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="give-reader"
             >
-              Target user email
+              {t('giveBook.form.targetEmail')}
               <input
                 id="give-reader"
                 type="email"
@@ -183,19 +189,26 @@ export function GiveBookPage() {
             <StateMessage
               className="mt-5"
               tone="success"
-              title="Book given successfully"
+              title={t('giveBook.form.successTitle')}
               action={
                 <Link className="secondary-action" to="/app/my-books">
-                  View my books
+                  {t('common.actions.viewMyBooks')}
                 </Link>
               }
             >
-              {givenBook.title} was given to {givenBook.username}.
+              {t('giveBook.messages.givenTo', {
+                title: givenBook.title,
+                username: givenBook.username,
+              })}
             </StateMessage>
           )}
 
           {submitState === 'error' && errorMessage && (
-            <StateMessage className="mt-5" tone="error" title="Could not give book">
+            <StateMessage
+              className="mt-5"
+              tone="error"
+              title={t('giveBook.toasts.giveError')}
+            >
               <span id="give-error">{errorMessage}</span>
             </StateMessage>
           )}
@@ -205,19 +218,21 @@ export function GiveBookPage() {
             className="danger-action mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             disabled={isSubmitting}
           >
-            {isSubmitting ? 'Giving...' : 'Give book'}
+            {isSubmitting
+              ? t('giveBook.form.submitting')
+              : t('common.actions.giveBook')}
           </button>
         </form>
 
         <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="give-status-heading">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-danger)]">
-            Transfer checks
+            {t('giveBook.aside.eyebrow')}
           </p>
           <h2
             id="give-status-heading"
             className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]"
           >
-            Before you give
+            {t('giveBook.aside.title')}
           </h2>
           <div className="mt-4">
             <WorkflowSteps steps={giveSteps} currentStep={3} />
@@ -225,7 +240,10 @@ export function GiveBookPage() {
 
           {givenBook && (
             <StateMessage className="mt-5" tone="success">
-              Last given: {givenBook.title} to {givenBook.username}.
+              {t('giveBook.messages.lastGiven', {
+                title: givenBook.title,
+                username: givenBook.username,
+              })}
             </StateMessage>
           )}
         </aside>

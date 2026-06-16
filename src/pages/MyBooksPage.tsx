@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 
 import { getOwnedBooks } from '../api/booksApi'
-import { dashboardActions } from '../api/mockLibrary'
 import { BookCard } from '../components/BookCard'
 import { BookListSkeleton } from '../components/BookListSkeleton'
 import { DashboardCard } from '../components/DashboardCard'
@@ -16,10 +16,11 @@ type BooksState = 'loading' | 'success' | 'error'
 function getErrorMessage(error: unknown) {
   return error instanceof Error
     ? error.message
-    : 'Unable to load your books. Please try again.'
+    : ''
 }
 
 export function MyBooksPage() {
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const [books, setBooks] = useState<Book[]>([])
   const [booksState, setBooksState] = useState<BooksState>('loading')
@@ -47,14 +48,14 @@ export function MyBooksPage() {
           return
         }
 
-        const message = getErrorMessage(error)
+        const message = getErrorMessage(error) || t('myBooks.error.fallback')
 
         setBooks([])
         setErrorMessage(message)
         setBooksState('error')
         showToast({
           tone: 'error',
-          title: 'Could not load your books',
+          title: t('myBooks.error.toastTitle'),
           message,
         })
       }
@@ -65,22 +66,48 @@ export function MyBooksPage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey, showToast])
+  }, [reloadKey, showToast, t])
 
   const hasBooks = booksState === 'success' && books.length > 0
   const isEmpty = booksState === 'success' && books.length === 0
   const availableCount = books.filter((book) => book.status === 'available').length
   const activeCount = books.filter((book) => book.status !== 'available').length
+  const dashboardActions = [
+    {
+      title: t('dashboard.cards.add.title'),
+      description: t('dashboard.cards.add.description'),
+      href: '/app/add-book',
+      accent: 'emerald' as const,
+    },
+    {
+      title: t('dashboard.cards.share.title'),
+      description: t('dashboard.cards.share.description'),
+      href: '/app/share-book',
+      accent: 'amber' as const,
+    },
+    {
+      title: t('dashboard.cards.give.title'),
+      description: t('dashboard.cards.give.description'),
+      href: '/app/give-book',
+      accent: 'paper' as const,
+    },
+    {
+      title: t('dashboard.cards.return.title'),
+      description: t('dashboard.cards.return.description'),
+      href: '/app/return-book',
+      accent: 'emerald' as const,
+    },
+  ]
 
   return (
     <section className="space-y-5">
       <PageHeader
-        eyebrow="My library desk"
-        title="My books"
-        description="Your owned shelf is the working center for sharing, giving, and catalog upkeep."
+        eyebrow={t('myBooks.header.eyebrow')}
+        title={t('myBooks.header.title')}
+        description={t('myBooks.header.description')}
         action={
           <Link className="primary-action" to="/app/add-book">
-            Add book
+            {t('common.actions.addBook')}
           </Link>
         }
         meta={
@@ -89,7 +116,7 @@ export function MyBooksPage() {
               <span className="font-bold text-[var(--color-ink)]">
                 {books.length}
               </span>{' '}
-              owned books
+              {t('myBooks.header.ownedBooksLabel')}
             </div>
           ) : null
         }
@@ -98,9 +125,9 @@ export function MyBooksPage() {
       {booksState === 'success' ? (
         <dl className="grid gap-3 sm:grid-cols-3">
           {[
-            ['Total shelf', books.length],
-            ['Available', availableCount],
-            ['In motion', activeCount],
+            [t('myBooks.metrics.total'), books.length],
+            [t('myBooks.metrics.available'), availableCount],
+            [t('myBooks.metrics.inMotion'), activeCount],
           ].map(([label, value]) => (
             <div
               key={label}
@@ -117,23 +144,23 @@ export function MyBooksPage() {
         </dl>
       ) : null}
 
-      <nav className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Book workflows">
+      <nav className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label={t('dashboard.actionsLabel')}>
         {dashboardActions.map((action) => (
           <DashboardCard key={action.href} {...action} />
         ))}
       </nav>
 
       {booksState === 'loading' && (
-        <BookListSkeleton label="Loading owned books" />
+        <BookListSkeleton label={t('myBooks.loading')} />
       )}
 
       {booksState === 'error' && (
         <div className="premium-panel border-[var(--color-status-warning-border)] p-6 sm:p-7" role="alert">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
-            Books unavailable
+            {t('myBooks.error.eyebrow')}
           </p>
           <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-            Could not load books
+            {t('myBooks.error.title')}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
             {errorMessage}
@@ -143,7 +170,7 @@ export function MyBooksPage() {
             type="button"
             onClick={() => setReloadKey((key) => key + 1)}
           >
-            Try again
+            {t('common.actions.tryAgain')}
           </button>
         </div>
       )}
@@ -151,23 +178,22 @@ export function MyBooksPage() {
       {isEmpty && (
         <div className="empty-state p-6 sm:p-7" role="status" aria-live="polite">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
-            Empty shelf
+            {t('myBooks.empty.eyebrow')}
           </p>
           <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-            Add your first exchange copy
+            {t('myBooks.empty.title')}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
-            Start with catalog search so your book enters the exchange with the
-            richest available details.
+            {t('myBooks.empty.description')}
           </p>
 
           <div className="mt-5 flex flex-wrap gap-3">
             <Link to="/app/add-book" className="primary-action">
-              Search catalog
+              {t('common.actions.searchCatalog')}
             </Link>
 
             <Link to="/app/share-book" className="secondary-action">
-              Preview share flow
+              {t('common.actions.previewShareFlow')}
             </Link>
           </div>
         </div>
@@ -178,10 +204,10 @@ export function MyBooksPage() {
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                Owned catalog
+                {t('myBooks.catalog.eyebrow')}
               </p>
               <h2 className="mt-1 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-                Current shelf
+                {t('myBooks.catalog.title')}
               </h2>
             </div>
           </div>
@@ -191,20 +217,20 @@ export function MyBooksPage() {
               <BookCard
                 key={book.id}
                 book={book}
-                contextLabel="Owned copy"
+                contextLabel={t('myBooks.catalog.contextLabel')}
                 actions={
                   <>
                     <Link
                       to="/app/share-book"
                       className="secondary-action min-h-0 px-3 py-2 text-sm"
                     >
-                      Share
+                      {t('common.actions.share')}
                     </Link>
                     <Link
                       to="/app/give-book"
                       className="danger-action min-h-0 px-3 py-2 text-sm"
                     >
-                      Give
+                      {t('common.actions.give')}
                     </Link>
                   </>
                 }
@@ -216,7 +242,7 @@ export function MyBooksPage() {
 
       {booksState === 'success' && hasBooks ? (
         <StateMessage tone="success" className="sr-only">
-          Owned books loaded.
+          {t('myBooks.catalog.loaded')}
         </StateMessage>
       ) : null}
     </section>

@@ -5,6 +5,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   ToastContext,
@@ -48,6 +49,8 @@ function ToastItem({
   toast: Toast
   onClose: (id: string) => void
 }) {
+  const { t } = useTranslation()
+
   useEffect(() => {
     const timeoutId = window.setTimeout(
       () => onClose(toast.id),
@@ -85,7 +88,7 @@ function ToastItem({
           type="button"
           className="ml-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-current/20 bg-[var(--color-surface-strong)] text-sm font-bold text-current transition duration-200 hover:bg-[var(--color-card-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
           onClick={() => onClose(toast.id)}
-          aria-label="Close notification"
+          aria-label={t('common.actions.closeNotification')}
         >
           x
         </button>

@@ -7,6 +7,7 @@ import {
   isInvalidCredentialsError,
 } from '../api/client'
 import { isOwnedBooksPayload } from '../api/booksApi'
+import i18n from '../i18n/i18n'
 import type { AuthCredentials, AuthError } from '../types/auth'
 import { AuthContext } from './authContextValue'
 import {
@@ -15,19 +16,25 @@ import {
   saveCredentials,
 } from './authStorage'
 
-const invalidCredentialsError: AuthError = {
-  code: 'invalid_credentials',
-  message: 'Email or password is incorrect. Please try again.',
+function getInvalidCredentialsError(): AuthError {
+  return {
+    code: 'invalid_credentials',
+    message: i18n.t('api.auth.invalidCredentials'),
+  }
 }
 
-const backendUnavailableError: AuthError = {
-  code: 'backend_unavailable',
-  message: 'The book service is unavailable right now. Please try again shortly.',
+function getBackendUnavailableError(): AuthError {
+  return {
+    code: 'backend_unavailable',
+    message: i18n.t('api.auth.backendUnavailable'),
+  }
 }
 
-const unknownAuthError: AuthError = {
-  code: 'unknown',
-  message: 'Unable to sign in. Please try again.',
+function getUnknownAuthError(): AuthError {
+  return {
+    code: 'unknown',
+    message: i18n.t('api.auth.unknown'),
+  }
 }
 
 function isAuthError(error: unknown): error is AuthError {
@@ -51,14 +58,14 @@ function getAuthError(error: unknown) {
   }
 
   if (isInvalidCredentialsError(error)) {
-    return invalidCredentialsError
+    return getInvalidCredentialsError()
   }
 
   if (isBackendConnectionError(error)) {
-    return backendUnavailableError
+    return getBackendUnavailableError()
   }
 
-  return unknownAuthError
+  return getUnknownAuthError()
 }
 
 type AuthProviderProps = {
@@ -85,7 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       })
 
       if (!isOwnedBooksPayload(response.data)) {
-        throw invalidCredentialsError
+        throw getInvalidCredentialsError()
       }
 
       saveCredentials(nextCredentials.email, nextCredentials.password)

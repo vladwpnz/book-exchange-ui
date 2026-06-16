@@ -1,4 +1,5 @@
 import { loadCredentials } from '../auth/authStorage'
+import i18n from '../i18n/i18n'
 import type { AccentTone, Book, BookStatus } from '../types/book'
 import { apiClient, createBasicAuthHeaders } from './client'
 
@@ -86,7 +87,7 @@ function getRequiredCreateBookText(value: unknown) {
     return value.trim()
   }
 
-  throw new Error('We could not read the added book. Please try again.')
+  throw new Error(i18n.t('api.books.addedBookUnread'))
 }
 
 function getOptionalCreateBookText(value: unknown) {
@@ -147,11 +148,13 @@ function assertBookActionAccepted(
   actionName: string,
 ) {
   if (responseUrl && isUnexpectedResponseUrl(responseUrl, expectedUrl)) {
-    throw new Error(`Please sign in again to continue ${actionName.toLowerCase()}.`)
+    throw new Error(
+      i18n.t('api.books.signInAgainAction', { action: actionName }),
+    )
   }
 
   if (isHtmlResponse(data, contentType)) {
-    throw new Error(`${actionName} could not be completed. Please try again.`)
+    throw new Error(i18n.t('api.books.actionIncomplete', { action: actionName }))
   }
 }
 
@@ -201,18 +204,18 @@ function getBooksData(data: unknown, responseName: string) {
     }
   }
 
-  throw new Error(`Could not load ${responseName.toLowerCase()}. Please try again.`)
+  throw new Error(i18n.t('api.books.loadResponse', { name: responseName }))
 }
 
 function getAdminBooksData(data: unknown) {
   if (!isRecord(data) || !Array.isArray(data.books)) {
-    throw new Error('Could not load admin books. Please try again.')
+    throw new Error(i18n.t('api.books.loadAdminBooks'))
   }
 
   return data.books.map((bookDto, index) => {
     if (!isRecord(bookDto)) {
       throw new Error(
-        `Could not read admin book ${index + 1}. Please refresh and try again.`,
+        i18n.t('api.books.readAdminBook', { index: index + 1 }),
       )
     }
 
@@ -227,7 +230,7 @@ type BookMappingOptions = {
 
 export function isOwnedBooksPayload(data: unknown) {
   try {
-    getBooksData(data, 'Owned books')
+    getBooksData(data, i18n.t('myBooks.header.title'))
 
     return true
   } catch {
@@ -237,7 +240,7 @@ export function isOwnedBooksPayload(data: unknown) {
 
 function toCreatedBook(data: unknown): CreatedBook {
   if (!isRecord(data)) {
-    throw new Error('We could not read the added book. Please try again.')
+    throw new Error(i18n.t('api.books.addedBookUnread'))
   }
 
   const createdBook: CreatedBook = {
@@ -281,15 +284,18 @@ function toBook(
       index,
       options.fallbackIdPrefix,
     ),
-    title: getText(book.title ?? dto.title, 'Untitled book'),
-    author: getText(book.author ?? dto.author, 'Unknown author'),
+    title: getText(book.title ?? dto.title, i18n.t('api.books.untitled')),
+    author: getText(
+      book.author ?? dto.author,
+      i18n.t('api.books.unknownAuthor'),
+    ),
     owner: getText(person.email ?? dto.ownerEmail ?? dto.owner, currentUserEmail),
-    genre: getText(book.genre ?? dto.genre, 'General'),
+    genre: getText(book.genre ?? dto.genre, i18n.t('api.books.general')),
     status: getBookStatus(dto.status, options.fallbackStatus),
     tone: getBookTone(index),
     note: getText(
       book.description ?? dto.description,
-      'No description provided yet',
+      i18n.t('api.books.noDescription'),
     ),
   }
 }
@@ -304,9 +310,10 @@ function getRequiredAdminBookText(
   }
 
   throw new Error(
-    `Could not read ${fieldName} for admin book ${
-      index + 1
-    }. Please refresh and try again.`,
+    i18n.t('api.books.readAdminField', {
+      field: fieldName,
+      index: index + 1,
+    }),
   )
 }
 
@@ -324,9 +331,10 @@ function getRequiredAdminBookId(
   }
 
   throw new Error(
-    `Could not read ${fieldName} for admin book ${
-      index + 1
-    }. Please refresh and try again.`,
+    i18n.t('api.books.readAdminField', {
+      field: fieldName,
+      index: index + 1,
+    }),
   )
 }
 
@@ -378,13 +386,11 @@ function toAdminRequestError(error: unknown, fallbackMessage: string) {
   const status = getErrorStatus(error)
 
   if (status === 401) {
-    return new Error('Please sign in again to continue.')
+    return new Error(i18n.t('api.books.signInAgain'))
   }
 
   if (status === 403) {
-    return new Error(
-      'Admin access is required for this action. Sign in with an administrator account.',
-    )
+    return new Error(i18n.t('api.books.adminRequired'))
   }
 
   return new Error(
@@ -402,7 +408,7 @@ function getForceReturnId(id: string | number) {
     return id.trim()
   }
 
-  throw new Error('Choose a book before forcing a return.')
+  throw new Error(i18n.t('api.books.chooseForceReturn'))
 }
 
 function assertForceReturnAccepted(data: unknown) {
@@ -411,13 +417,13 @@ function assertForceReturnAccepted(data: unknown) {
   }
 
   if (typeof data !== 'string') {
-    throw new Error('Force return could not be confirmed. Please refresh and try again.')
+    throw new Error(i18n.t('api.books.forceReturnConfirm'))
   }
 
   const message = data.trim()
 
   if (message.length > 0 && message !== 'The book was returned') {
-    throw new Error('Force return could not be confirmed. Please refresh and try again.')
+    throw new Error(i18n.t('api.books.forceReturnConfirm'))
   }
 }
 
@@ -425,14 +431,14 @@ export async function getOwnedBooks() {
   const credentials = loadCredentials()
 
   if (!credentials) {
-    throw new Error('Saved sign-in details are missing. Please sign in again.')
+    throw new Error(i18n.t('api.books.missingCredentials'))
   }
 
   const response = await apiClient.get<unknown>('/owned', {
     headers: createBasicAuthHeaders(credentials),
   })
 
-  const ownedBooksData = getBooksData(response.data, 'Owned books')
+  const ownedBooksData = getBooksData(response.data, i18n.t('myBooks.header.title'))
 
   return ownedBooksData
     .filter(isRecord)
@@ -448,14 +454,14 @@ export async function getHeldBooks() {
   const credentials = loadCredentials()
 
   if (!credentials) {
-    throw new Error('Saved sign-in details are missing. Please sign in again.')
+    throw new Error(i18n.t('api.books.missingCredentials'))
   }
 
   const response = await apiClient.get<unknown>('/held', {
     headers: createBasicAuthHeaders(credentials),
   })
 
-  const heldBooksData = getBooksData(response.data, 'Held books')
+  const heldBooksData = getBooksData(response.data, i18n.t('heldBooks.header.title'))
 
   return heldBooksData
     .filter(isRecord)
@@ -471,7 +477,7 @@ export async function getAdminBooks() {
   const credentials = loadCredentials()
 
   if (!credentials) {
-    throw new Error('Saved sign-in details are missing. Please sign in again.')
+    throw new Error(i18n.t('api.books.missingCredentials'))
   }
 
   const expectedUrl = apiClient.getUri({ url: '/items' })
@@ -486,7 +492,7 @@ export async function getAdminBooks() {
       response.headers['content-type'],
       getResponseUrl(response.request),
       expectedUrl,
-      'Admin books',
+      i18n.t('admin.header.title'),
     )
 
     return getAdminBooksData(response.data).map(toAdminBook)
@@ -495,7 +501,7 @@ export async function getAdminBooks() {
       throw error
     }
 
-    throw toAdminRequestError(error, 'Unable to load admin books.')
+    throw toAdminRequestError(error, i18n.t('admin.errors.loadFallback'))
   }
 }
 
@@ -503,7 +509,7 @@ export async function createBook(book: CreateBookInput) {
   const credentials = loadCredentials()
 
   if (!credentials) {
-    throw new Error('Saved sign-in details are missing. Please sign in again.')
+    throw new Error(i18n.t('api.books.missingCredentials'))
   }
 
   const response = await apiClient.post<unknown>('/book/add', book, {
@@ -517,7 +523,7 @@ export async function shareBook(book: ShareBookInput) {
   const credentials = loadCredentials()
 
   if (!credentials) {
-    throw new Error('Saved sign-in details are missing. Please sign in again.')
+    throw new Error(i18n.t('api.books.missingCredentials'))
   }
 
   const expectedUrl = apiClient.getUri({ url: '/book/share' })
@@ -530,7 +536,7 @@ export async function shareBook(book: ShareBookInput) {
     response.headers['content-type'],
     getResponseUrl(response.request),
     expectedUrl,
-    'Share book',
+    i18n.t('common.actions.shareBook'),
   )
 }
 
@@ -538,7 +544,7 @@ export async function giveBook(book: GiveBookInput) {
   const credentials = loadCredentials()
 
   if (!credentials) {
-    throw new Error('Saved sign-in details are missing. Please sign in again.')
+    throw new Error(i18n.t('api.books.missingCredentials'))
   }
 
   const expectedUrl = apiClient.getUri({ url: '/book/give' })
@@ -551,7 +557,7 @@ export async function giveBook(book: GiveBookInput) {
     response.headers['content-type'],
     getResponseUrl(response.request),
     expectedUrl,
-    'Give book',
+    i18n.t('common.actions.giveBook'),
   )
 }
 
@@ -559,7 +565,7 @@ export async function forceReturnBook(id: string | number) {
   const credentials = loadCredentials()
 
   if (!credentials) {
-    throw new Error('Saved sign-in details are missing. Please sign in again.')
+    throw new Error(i18n.t('api.books.missingCredentials'))
   }
 
   const bookId = getForceReturnId(id)
@@ -583,7 +589,7 @@ export async function forceReturnBook(id: string | number) {
       response.headers['content-type'],
       getResponseUrl(response.request),
       expectedUrl,
-      'Force return',
+      i18n.t('admin.table.forceReturn'),
     )
     assertForceReturnAccepted(response.data)
   } catch (error) {
@@ -591,7 +597,7 @@ export async function forceReturnBook(id: string | number) {
       throw error
     }
 
-    throw toAdminRequestError(error, 'Unable to force return this book.')
+    throw toAdminRequestError(error, i18n.t('admin.errors.forceFallback'))
   }
 }
 
@@ -599,7 +605,7 @@ export async function returnBook(book: ReturnBookInput) {
   const credentials = loadCredentials()
 
   if (!credentials) {
-    throw new Error('Saved sign-in details are missing. Please sign in again.')
+    throw new Error(i18n.t('api.books.missingCredentials'))
   }
 
   const expectedUrl = apiClient.getUri({ url: '/book/return' })
@@ -612,6 +618,6 @@ export async function returnBook(book: ReturnBookInput) {
     response.headers['content-type'],
     getResponseUrl(response.request),
     expectedUrl,
-    'Return book',
+    i18n.t('common.actions.returnBook'),
   )
 }

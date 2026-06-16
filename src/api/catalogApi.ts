@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import { loadCredentials } from '../auth/authStorage'
+import i18n from '../i18n/i18n'
 import { apiClient, createBasicAuthHeaders } from './client'
 
 export type CatalogBookDto = {
@@ -78,7 +79,7 @@ function toCatalogRequestError(error: unknown, fallbackMessage: string) {
   const status = error.response?.status
   const message =
     status === 409
-      ? 'You have already added this catalog book'
+      ? i18n.t('api.catalog.duplicate')
       : getResponseErrorMessage(error.response?.data) ?? error.message
 
   return new CatalogRequestError(message || fallbackMessage, status)
@@ -102,7 +103,10 @@ function getRequiredText(
   }
 
   throw new Error(
-    `Could not read ${fieldName} for ${responseName.toLowerCase()}. Please try again.`,
+    i18n.t('api.catalog.readField', {
+      field: fieldName,
+      name: responseName,
+    }),
   )
 }
 
@@ -114,15 +118,13 @@ function getOptionalText(value: unknown) {
 
 function getCatalogBooksData(data: unknown) {
   if (!isRecord(data) || !Array.isArray(data.books)) {
-    throw new Error('Could not load catalog books. Please try again.')
+    throw new Error(i18n.t('api.catalog.load'))
   }
 
   return data.books.map((bookDto, index) => {
     if (!isRecord(bookDto)) {
       throw new Error(
-        `Could not read catalog book ${
-          index + 1
-        }. Please refresh and try again.`,
+        i18n.t('api.catalog.readBook', { index: index + 1 }),
       )
     }
 
@@ -135,12 +137,21 @@ function toCatalogBook(dto: CatalogBookDto): CatalogBook {
     catalogBookId: getRequiredText(
       dto.catalogBookId,
       'catalogBookId',
-      'Catalog books',
+      i18n.t('addBook.catalog.resultsTitle'),
     ),
-    title: getRequiredText(dto.title, 'title', 'Catalog books'),
-    author: getRequiredText(dto.author, 'author', 'Catalog books'),
-    genre: getOptionalText(dto.genre) ?? 'General',
-    description: getOptionalText(dto.description) ?? 'No description provided.',
+    title: getRequiredText(
+      dto.title,
+      'title',
+      i18n.t('addBook.catalog.resultsTitle'),
+    ),
+    author: getRequiredText(
+      dto.author,
+      'author',
+      i18n.t('addBook.catalog.resultsTitle'),
+    ),
+    genre: getOptionalText(dto.genre) ?? i18n.t('api.catalog.general'),
+    description:
+      getOptionalText(dto.description) ?? i18n.t('api.catalog.noDescription'),
     coverUrl: getOptionalText(dto.coverUrl),
     isbn: getOptionalText(dto.isbn),
   }
@@ -148,14 +159,22 @@ function toCatalogBook(dto: CatalogBookDto): CatalogBook {
 
 function toCreatedCatalogBook(data: unknown): CreatedCatalogBook {
   if (!isRecord(data)) {
-    throw new Error('We could not read the added catalog book. Please try again.')
+    throw new Error(i18n.t('api.catalog.readAdded'))
   }
 
   const book = isRecord(data.book) ? data.book : data
 
   return {
-    title: getRequiredText(book.title, 'title', 'Add catalog book'),
-    author: getRequiredText(book.author, 'author', 'Add catalog book'),
+    title: getRequiredText(
+      book.title,
+      'title',
+      i18n.t('addBook.catalog.addedTitle'),
+    ),
+    author: getRequiredText(
+      book.author,
+      'author',
+      i18n.t('addBook.catalog.addedTitle'),
+    ),
   }
 }
 
@@ -168,14 +187,14 @@ function getCatalogBookId(catalogBookId: string | number) {
     return catalogBookId.trim()
   }
 
-  throw new Error('Catalog book id is required.')
+  throw new Error(i18n.t('api.catalog.idRequired'))
 }
 
 function getCredentials() {
   const credentials = loadCredentials()
 
   if (!credentials) {
-    throw new Error('Saved sign-in details are missing. Please sign in again.')
+    throw new Error(i18n.t('api.books.missingCredentials'))
   }
 
   return credentials
@@ -195,7 +214,7 @@ export async function searchCatalogBooks(query: string): Promise<CatalogBook[]> 
   } catch (error) {
     throw toCatalogRequestError(
       error,
-      'Could not load catalog books. Please try again.',
+      i18n.t('api.catalog.load'),
     )
   }
 }
@@ -220,7 +239,7 @@ export async function addBookFromCatalog(
   } catch (error) {
     throw toCatalogRequestError(
       error,
-      'Unable to add this catalog book. Please try again.',
+      i18n.t('api.catalog.addFallback'),
     )
   }
 }

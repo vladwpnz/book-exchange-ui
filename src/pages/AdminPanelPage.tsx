@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   forceReturnBook,
@@ -19,10 +20,6 @@ function isBookWithOwner(book: AdminBook) {
   return book.ownerId === book.holderId
 }
 
-function getStatusLabel(book: AdminBook) {
-  return isBookWithOwner(book) ? 'With owner' : 'Borrowed'
-}
-
 function getStatusClassName(book: AdminBook) {
   return isBookWithOwner(book)
     ? 'border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] text-[var(--color-status-success-text)]'
@@ -30,6 +27,7 @@ function getStatusClassName(book: AdminBook) {
 }
 
 export function AdminPanelPage() {
+  const { t } = useTranslation()
   const { showToast } = useToast()
   const [books, setBooks] = useState<AdminBook[]>([])
   const [booksState, setBooksState] = useState<BooksState>('loading')
@@ -64,7 +62,7 @@ export function AdminPanelPage() {
 
         const message = getErrorMessage(
           error,
-          'Unable to load admin books. Please try again.',
+          t('admin.errors.loadFallback'),
         )
 
         setBooks([])
@@ -72,7 +70,7 @@ export function AdminPanelPage() {
         setBooksState('error')
         showToast({
           tone: 'error',
-          title: 'Could not load admin books',
+          title: t('admin.errors.loadTitle'),
           message,
         })
       }
@@ -83,14 +81,16 @@ export function AdminPanelPage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey, showToast])
+  }, [reloadKey, showToast, t])
 
   async function handleForceReturn(book: AdminBook) {
     if (isBookWithOwner(book)) {
       showToast({
         tone: 'info',
-        title: 'No action needed',
-        message: `${book.title} is already with its owner.`,
+        title: t('admin.toasts.noActionTitle'),
+        message: t('admin.messages.alreadyWithOwner', {
+          title: book.title,
+        }),
       })
       return
     }
@@ -103,25 +103,27 @@ export function AdminPanelPage() {
 
     try {
       await forceReturnBook(book.id)
-      const message = `${book.title} was returned to its owner.`
+      const message = t('admin.messages.returnedToOwner', {
+        title: book.title,
+      })
 
       setSuccessMessage(message)
       showToast({
         tone: 'success',
-        title: 'Force return complete',
+        title: t('admin.toasts.forceCompleteTitle'),
         message,
       })
       setReloadKey((key) => key + 1)
     } catch (error) {
       const message = getErrorMessage(
         error,
-        'Unable to force return this book. Please try again.',
+        t('admin.errors.forceFallback'),
       )
 
       setActionErrorMessage(message)
       showToast({
         tone: 'error',
-        title: 'Could not force return book',
+        title: t('admin.errors.actionTitle'),
         message,
       })
     } finally {
@@ -136,23 +138,38 @@ export function AdminPanelPage() {
   const hasBooks = booksState === 'success' && books.length > 0
   const isEmpty = booksState === 'success' && books.length === 0
   const metrics = [
-    { label: 'Total books', value: books.length, status: 'Inventory ready' },
-    { label: 'Borrowed', value: borrowedBooks, status: 'On loan' },
-    { label: 'With owner', value: ownedHeldBooks, status: 'At home' },
+    {
+      id: 'total',
+      label: t('admin.metrics.totalBooks'),
+      value: books.length,
+      status: t('admin.metrics.inventoryReady'),
+    },
+    {
+      id: 'borrowed',
+      label: t('admin.metrics.borrowed'),
+      value: borrowedBooks,
+      status: t('admin.metrics.onLoan'),
+    },
+    {
+      id: 'with-owner',
+      label: t('admin.metrics.withOwner'),
+      value: ownedHeldBooks,
+      status: t('admin.metrics.atHome'),
+    },
   ]
 
   return (
     <section className="space-y-5">
       <PageHeader
-        eyebrow="Admin operations"
-        title="Admin panel"
-        description="Monitor inventory and force borrowed copies back to their owners when an operational recovery is needed."
+        eyebrow={t('admin.header.eyebrow')}
+        title={t('admin.header.title')}
+        description={t('admin.header.description')}
       />
 
       {booksState === 'success' && (
         <div className="grid gap-3 md:grid-cols-3">
           {metrics.map((metric) => (
-            <article key={metric.label} className="premium-card p-5">
+            <article key={metric.id} className="premium-card p-5">
               <div className="relative z-10">
                 <p className="text-sm font-bold text-[var(--color-muted)]">
                   {metric.label}
@@ -170,20 +187,23 @@ export function AdminPanelPage() {
       )}
 
       {successMessage && (
-        <StateMessage tone="success" title="Force return complete">
+        <StateMessage
+          tone="success"
+          title={t('admin.toasts.forceCompleteTitle')}
+        >
           {successMessage}
         </StateMessage>
       )}
 
       {actionErrorMessage && (
-        <StateMessage tone="error" title="Could not force return book">
+        <StateMessage tone="error" title={t('admin.errors.actionTitle')}>
           {actionErrorMessage}
         </StateMessage>
       )}
 
       {booksState === 'loading' && (
         <div className="premium-panel p-6" role="status" aria-live="polite">
-          <span className="sr-only">Loading admin books.</span>
+          <span className="sr-only">{t('admin.loading')}</span>
           <div className="h-3 w-40 rounded-full bg-[var(--color-skeleton-warm)]" />
           <div className="mt-5 grid gap-3" aria-hidden="true">
             <div className="h-4 rounded-full bg-[var(--color-skeleton)]" />
@@ -196,10 +216,10 @@ export function AdminPanelPage() {
       {booksState === 'error' && (
         <div className="premium-panel border-[var(--color-status-warning-border)] p-6 sm:p-7" role="alert">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
-            Admin books unavailable
+            {t('admin.unavailable')}
           </p>
           <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-            Could not load admin books
+            {t('admin.errors.loadTitle')}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
             {loadErrorMessage}
@@ -213,7 +233,7 @@ export function AdminPanelPage() {
               setReloadKey((key) => key + 1)
             }}
           >
-            Try again
+            {t('common.actions.tryAgain')}
           </button>
         </div>
       )}
@@ -221,13 +241,13 @@ export function AdminPanelPage() {
       {isEmpty && (
         <div className="empty-state p-6 sm:p-7" role="status" aria-live="polite">
           <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
-            Empty catalog
+            {t('admin.empty.eyebrow')}
           </p>
           <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-            No books found
+            {t('admin.empty.title')}
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
-            Books will appear here once the exchange catalog has items.
+            {t('admin.empty.description')}
           </p>
         </div>
       )}
@@ -237,21 +257,21 @@ export function AdminPanelPage() {
           <div className="flex flex-col gap-3 border-b border-[var(--color-border)] bg-[var(--color-paper)] px-4 py-4 sm:flex-row sm:items-end sm:justify-between sm:px-5">
             <div>
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                Inventory
+                {t('admin.table.eyebrow')}
               </p>
               <h2
                 id="admin-books-heading"
                 className="mt-1 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]"
               >
-                Book operations table
+                {t('admin.table.title')}
               </h2>
             </div>
             <div className="flex flex-wrap gap-2 text-xs font-bold">
               <span className="rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-[var(--color-status-success-text)]">
-                With owner
+                {t('admin.status.withOwner')}
               </span>
               <span className="rounded-full border border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] px-3 py-1 text-[var(--color-status-warning-text)]">
-                Borrowed
+                {t('admin.status.borrowed')}
               </span>
             </div>
           </div>
@@ -259,28 +279,27 @@ export function AdminPanelPage() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[860px] border-collapse text-left text-[var(--color-muted)]">
               <caption className="sr-only">
-                Admin book inventory with owner, holder, status, and force
-                return actions.
+                {t('admin.table.caption')}
               </caption>
               <thead className="border-b border-[var(--color-border)] bg-[var(--color-table-head)] text-[var(--color-ink)]">
                 <tr>
                   <th scope="col" className="px-5 py-4 text-sm font-bold">
-                    Book
+                    {t('common.bookMeta.book')}
                   </th>
                   <th scope="col" className="px-5 py-4 text-sm font-bold">
-                    ID
+                    {t('common.bookMeta.id')}
                   </th>
                   <th scope="col" className="px-5 py-4 text-sm font-bold">
-                    Owner ID
+                    {t('common.bookMeta.ownerId')}
                   </th>
                   <th scope="col" className="px-5 py-4 text-sm font-bold">
-                    Holder ID
+                    {t('common.bookMeta.holderId')}
                   </th>
                   <th scope="col" className="px-5 py-4 text-sm font-bold">
-                    Status
+                    {t('common.bookMeta.status')}
                   </th>
                   <th scope="col" className="px-5 py-4 text-sm font-bold">
-                    Action
+                    {t('common.bookMeta.action')}
                   </th>
                 </tr>
               </thead>
@@ -316,13 +335,15 @@ export function AdminPanelPage() {
                             book,
                           )}`}
                         >
-                          {getStatusLabel(book)}
+                          {isBookWithOwner(book)
+                            ? t('admin.status.withOwner')
+                            : t('admin.status.borrowed')}
                         </span>
                       </td>
                       <td className="px-5 py-4 text-sm">
                         {isBookWithOwner(book) ? (
                           <span className="inline-flex rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-success-text)]">
-                            No action needed
+                            {t('admin.table.noAction')}
                           </span>
                         ) : (
                           <button
@@ -330,10 +351,14 @@ export function AdminPanelPage() {
                             type="button"
                             disabled={isReturning}
                             onClick={() => void handleForceReturn(book)}
-                            aria-label={`Force return ${book.title}`}
+                            aria-label={t('admin.messages.forceReturnLabel', {
+                              title: book.title,
+                            })}
                             aria-busy={isReturning}
                           >
-                            {isReturning ? 'Returning...' : 'Force return'}
+                            {isReturning
+                              ? t('admin.table.returning')
+                              : t('admin.table.forceReturn')}
                           </button>
                         )}
                       </td>

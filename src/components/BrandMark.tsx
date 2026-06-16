@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 type BrandMarkProps = {
   size?: 'sm' | 'md' | 'lg'
   label?: string
@@ -10,6 +12,7 @@ const sizeClasses = {
 } as const
 
 export function BrandMark({ size = 'md', label }: BrandMarkProps) {
+  const { t } = useTranslation()
   const mark = (
     <span
       className={`relative grid shrink-0 place-items-center overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-restraint)] ${sizeClasses[size]}`}
@@ -31,7 +34,7 @@ export function BrandMark({ size = 'md', label }: BrandMarkProps) {
       {mark}
       <span className="min-w-0">
         <span className="block text-base font-bold text-[var(--color-ink)]">
-          Book Exchange
+          {t('common.appName')}
         </span>
         <span className="hidden text-xs font-semibold text-[var(--color-muted)] sm:block">
           {label}
