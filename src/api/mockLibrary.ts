@@ -82,21 +82,27 @@ export const heldBooks: Book[] = [
 export const dashboardActions: DashboardAction[] = [
   {
     title: 'Add a book',
-    description: 'Prepare a listing with title, author, genre, and availability.',
+    description: 'Search the catalog first or add a missing title manually.',
     href: '/app/add-book',
     accent: 'emerald',
   },
   {
     title: 'Share a book',
-    description: 'Create a placeholder exchange request for an available book.',
+    description: 'Send an owned book to another reader by email.',
     href: '/app/share-book',
     accent: 'amber',
   },
   {
-    title: 'Return a book',
-    description: 'Mock the return flow before backend integration is connected.',
-    href: '/app/return-book',
+    title: 'Give a book',
+    description: 'Move ownership when a copy should permanently transfer.',
+    href: '/app/give-book',
     accent: 'paper',
+  },
+  {
+    title: 'Return a book',
+    description: 'Close an active hold and return a borrowed book to its owner.',
+    href: '/app/return-book',
+    accent: 'emerald',
   },
 ]
 

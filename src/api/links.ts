@@ -4,4 +4,4 @@ export const repositoryLinks = {
 } as const
 
 export const integrationNotice =
-  'Backend integration is prepared as a UI placeholder only. Real calls are intentionally out of scope for this step.'
+  'Book Exchange is ready to connect readers, shelves, and exchange actions.'

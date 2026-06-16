@@ -2,12 +2,31 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
 import { giveBook } from '../api/booksApi'
+import { PageHeader } from '../components/PageHeader'
+import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
+import { WorkflowSteps } from '../components/WorkflowSteps'
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 type GivenBookSummary = {
   title: string
   username: string
 }
+
+const giveSteps = [
+  {
+    title: 'Verify the title',
+    description: 'Use the exact owned title that should leave your shelf.',
+  },
+  {
+    title: 'Confirm recipient',
+    description: 'The target email receives ownership after the transfer is confirmed.',
+  },
+  {
+    title: 'Submit final transfer',
+    description: 'This is intentionally more serious than a shared hold.',
+  },
+]
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error
@@ -16,6 +35,7 @@ function getErrorMessage(error: unknown) {
 }
 
 export function GiveBookPage() {
+  const { showToast } = useToast()
   const [title, setTitle] = useState('')
   const [username, setUsername] = useState('')
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
@@ -31,9 +51,16 @@ export function GiveBookPage() {
     const trimmedUsername = username.trim()
 
     if (!trimmedTitle || !trimmedUsername) {
+      const message = 'Title and target user email are required.'
+
       setGivenBook(null)
-      setErrorMessage('Title and target user email are required.')
+      setErrorMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'warning',
+        title: 'Give details needed',
+        message,
+      })
       return
     }
 
@@ -53,34 +80,63 @@ export function GiveBookPage() {
       setTitle('')
       setUsername('')
       setSubmitState('success')
+      showToast({
+        tone: 'success',
+        title: 'Book given',
+        message: `${trimmedTitle} was given to ${trimmedUsername}.`,
+      })
     } catch (error) {
+      const message = getErrorMessage(error)
+
       setGivenBook(null)
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'error',
+        title: 'Could not give book',
+        message,
+      })
     }
   }
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <div className="space-y-6">
-        <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
-          <div className="relative z-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
-              Ownership transfer
+    <section className="space-y-5">
+      <PageHeader
+        eyebrow="Ownership transfer"
+        title="Give book"
+        description="Move a copy from your owned shelf to another reader as a final transfer."
+        action={
+          <Link className="secondary-action" to="/app/my-books">
+            Check owned shelf
+          </Link>
+        }
+      />
+
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
+        <form
+          className="form-panel p-5 sm:p-6"
+          onSubmit={handleSubmit}
+          aria-busy={isSubmitting}
+        >
+          <div>
+            <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-danger)]">
+              Final transfer
             </p>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
-              Give book
-            </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-              Transfer ownership of a book you own to another reader by email.
+            <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
+              Confirm ownership move
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+              Giving changes ownership after the transfer is confirmed.
             </p>
           </div>
-        </div>
 
-        <form className="form-panel p-6 sm:p-7" onSubmit={handleSubmit}>
-          <div className="grid gap-5">
+          <StateMessage className="mt-5" tone="warning" title="Ownership moves">
+            Check the title and recipient email before submitting this transfer.
+          </StateMessage>
+
+          <div className="mt-5 grid gap-5">
             <label
-              className="block text-sm font-semibold text-slate-200"
+              className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="give-title"
             >
               Book title
@@ -91,11 +147,17 @@ export function GiveBookPage() {
                 className="field-input mt-2"
                 placeholder="Give Test Book"
                 disabled={isSubmitting}
+                aria-invalid={submitState === 'error' && Boolean(errorMessage)}
+                aria-describedby={
+                  submitState === 'error' && errorMessage
+                    ? 'give-error'
+                    : undefined
+                }
               />
             </label>
 
             <label
-              className="block text-sm font-semibold text-slate-200"
+              className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="give-reader"
             >
               Target user email
@@ -107,59 +169,67 @@ export function GiveBookPage() {
                 className="field-input mt-2"
                 placeholder="reader@example.com"
                 disabled={isSubmitting}
+                aria-invalid={submitState === 'error' && Boolean(errorMessage)}
+                aria-describedby={
+                  submitState === 'error' && errorMessage
+                    ? 'give-error'
+                    : undefined
+                }
               />
             </label>
           </div>
 
           {submitState === 'success' && givenBook && (
-            <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-4 py-4 text-sm leading-6 text-emerald-50">
-              <p className="font-semibold">Book given successfully.</p>
-              <p className="mt-1 text-emerald-100/80">
-                {givenBook.title} was given to {givenBook.username}.
-              </p>
-              <Link className="secondary-action mt-4 inline-flex" to="/app/my-books">
-                View my books
-              </Link>
-            </div>
+            <StateMessage
+              className="mt-5"
+              tone="success"
+              title="Book given successfully"
+              action={
+                <Link className="secondary-action" to="/app/my-books">
+                  View my books
+                </Link>
+              }
+            >
+              {givenBook.title} was given to {givenBook.username}.
+            </StateMessage>
           )}
 
           {submitState === 'error' && errorMessage && (
-            <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] px-4 py-4 text-sm leading-6 text-amber-50">
-              <p className="font-semibold">Could not give book</p>
-              <p className="mt-1 text-amber-100/80">{errorMessage}</p>
-            </div>
+            <StateMessage className="mt-5" tone="error" title="Could not give book">
+              <span id="give-error">{errorMessage}</span>
+            </StateMessage>
           )}
 
           <button
             type="submit"
-            className="primary-action mt-6 disabled:cursor-not-allowed disabled:opacity-60"
+            className="danger-action mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Giving...' : 'Give book'}
           </button>
         </form>
-      </div>
 
-      <aside className="status-panel h-fit p-6 sm:p-7">
-        <div className="relative z-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
-            Backend action
+        <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="give-status-heading">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-danger)]">
+            Transfer checks
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
-            Transfer status
+          <h2
+            id="give-status-heading"
+            className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]"
+          >
+            Before you give
           </h2>
-          <p className="mt-3 text-sm leading-6 text-slate-400">
-            Give requests are sent to the backend using your current signed-in
-            session.
-          </p>
+          <div className="mt-4">
+            <WorkflowSteps steps={giveSteps} currentStep={3} />
+          </div>
 
           {givenBook && (
-            <p className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-4 py-3 text-sm leading-6 text-emerald-50">
+            <StateMessage className="mt-5" tone="success">
               Last given: {givenBook.title} to {givenBook.username}.
-            </p>
+            </StateMessage>
           )}
-        </div>
-      </aside>
+        </aside>
+      </div>
     </section>
   )
 }

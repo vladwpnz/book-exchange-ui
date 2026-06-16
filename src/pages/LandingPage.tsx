@@ -4,153 +4,277 @@ import { repositoryLinks } from '../api/links'
 import { featuredBooks } from '../api/mockLibrary'
 import { useAuth } from '../auth/useAuth'
 import { BookCard } from '../components/BookCard'
+import { BookCover } from '../components/BookCover'
 import { Navbar } from '../components/Navbar'
 
-const features = [
+const workflow = [
   {
-    title: 'Connected exchange flows',
+    title: 'Find or add a title',
     description:
-      'Manage owned books, held books, sharing, giving, returns, and admin recovery from one connected interface.',
+      'Start with the catalog search, then add a missing book manually only when needed.',
+    href: '/app/add-book',
   },
   {
-    title: 'Backend-backed actions',
+    title: 'Share with a reader',
     description:
-      'Core screens call the Spring Boot API with Basic Auth and reflect real backend responses.',
+      'Send a book to another account while keeping the hold visible in the exchange.',
+    href: '/app/share-book',
   },
   {
-    title: 'Portfolio-grade interface',
+    title: 'Transfer ownership',
     description:
-      'The UI highlights routing, reusable components, API integration, form states, and visual polish.',
+      'Give a book when the copy should permanently move to another reader.',
+    href: '/app/give-book',
+  },
+  {
+    title: 'Close the hold',
+    description:
+      'Return borrowed books and keep the owned and held shelves clean.',
+    href: '/app/return-book',
   },
 ]
 
-const techStack = ['React', 'TypeScript', 'Vite', 'Tailwind CSS', 'Spring Boot']
+const benefits = [
+  'Book-first catalog cards with title, author, owner, status, and notes.',
+  'Separate flows for sharing, giving, returning, and admin recovery.',
+  'A compact app shell that works across phone, tablet, and desktop layouts.',
+]
 
 export function LandingPage() {
   const { isAuthenticated } = useAuth()
+  const primaryHref = isAuthenticated ? '/app/my-books' : '/register'
+  const primaryLabel = isAuthenticated ? 'Open my shelf' : 'Create account'
 
   return (
-    <div className="min-h-screen text-slate-100">
+    <div className="min-h-screen text-[var(--color-ink)]">
       <Navbar />
 
       <main>
-        <section className="relative overflow-hidden border-b border-white/10">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_20%,rgba(34,211,238,0.14),transparent_30rem),radial-gradient(circle_at_78%_4%,rgba(52,211,153,0.10),transparent_28rem)]" />
-
-          <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-6 lg:grid-cols-[1fr_520px] lg:px-8 lg:py-20">
-            <div className="flex flex-col justify-center">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-200">
-                Book exchange network
+        <section className="relative overflow-hidden border-b border-[var(--color-border)]">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 md:py-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.75fr)] lg:items-center lg:px-8">
+            <div className="max-w-3xl">
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                A reader-to-reader exchange service
               </p>
 
-              <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-tight tracking-tight text-slate-50 sm:text-6xl">
-                A modern dashboard for sharing books.
+              <h1 className="mt-4 max-w-4xl font-[var(--font-display)] text-5xl font-semibold leading-[0.98] text-[var(--color-ink)] sm:text-6xl lg:text-7xl">
+                Book Exchange
               </h1>
 
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-400">
-                A polished React application for managing owned books, borrowed
-                books, exchanges, transfers, returns, and admin recovery through
-                a connected Spring Boot backend.
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-muted)]">
+                Keep your owned shelf, borrowed books, collaborative shares,
+                transfers, returns, and admin recovery in one calm publishing
+                workspace.
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link to="/app/my-books" className="primary-action">
-                  Open dashboard
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link to={primaryHref} className="primary-action">
+                  {primaryLabel}
                 </Link>
 
-                {!isAuthenticated && (
-                  <>
-                    <Link to="/login" className="secondary-action">
-                      Login
-                    </Link>
-
-                    <Link to="/register" className="secondary-action">
-                      Register
-                    </Link>
-                  </>
+                {!isAuthenticated ? (
+                  <Link to="/login" className="secondary-action">
+                    Login
+                  </Link>
+                ) : (
+                  <Link to="/app/add-book" className="secondary-action">
+                    Add a book
+                  </Link>
                 )}
-
-                <a
-                  href={repositoryLinks.backend}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="secondary-action"
-                >
-                  View backend
-                </a>
-
-                <a
-                  href={repositoryLinks.apiTests}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="secondary-action"
-                >
-                  View API tests
-                </a>
               </div>
+
+              <dl className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-3">
+                {[
+                  ['Catalog first', 'Search before manual entry'],
+                  ['Clear flows', 'Share, give, return'],
+                  ['Admin ready', 'Force-return visibility'],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="border-l border-[var(--color-border-strong)] pl-4"
+                  >
+                    <dt className="text-sm font-bold text-[var(--color-ink)]">
+                      {label}
+                    </dt>
+                    <dd className="mt-1 text-sm leading-5 text-[var(--color-muted)]">
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </div>
 
-            <div className="premium-panel reveal-blur rounded-2xl p-4">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <aside
+              className="relative min-h-[25rem] overflow-hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[var(--color-paper)] p-4 shadow-[var(--shadow-restraint)] sm:p-5"
+              aria-label="Book Exchange catalog preview"
+            >
+              <div className="brand-ribbon absolute inset-x-0 top-0 h-1" />
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
-                    Dashboard preview
+                  <p className="text-xs font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                    Live shelf shape
                   </p>
-                  <h2 className="mt-2 text-2xl font-semibold text-slate-50">
-                    Exchange desk
+                  <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
+                    Books stay central
                   </h2>
                 </div>
-
-                <span className="rounded-full border border-cyan-300/20 bg-cyan-300/[0.08] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100">
-                  Preview
+                <span className="rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-success-text)]">
+                  Product preview
                 </span>
               </div>
 
-              <div className="mt-4 grid gap-4">
-                {featuredBooks.map((book) => (
-                  <BookCard key={book.id} book={book} />
+              <div className="mt-8 flex items-end justify-center gap-3 sm:gap-4">
+                {featuredBooks.map((book, index) => (
+                  <BookCover
+                    key={book.id}
+                    title={book.title}
+                    author={book.author}
+                    genre={book.genre}
+                    tone={book.tone}
+                    size={index === 1 ? 'hero' : 'lg'}
+                    className={index === 0 ? 'rotate-[-5deg]' : index === 2 ? 'rotate-[5deg]' : ''}
+                  />
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8">
-          <div className="grid gap-4 md:grid-cols-3">
-            {features.map((feature) => (
-              <article key={feature.title} className="premium-card rounded-2xl p-6">
-                <div className="relative z-10">
-                  <div className="mb-5 h-1.5 w-16 rounded-full bg-linear-to-r from-cyan-300 to-emerald-300" />
-                  <h2 className="text-xl font-semibold text-slate-50">
-                    {feature.title}
-                  </h2>
-                  <p className="mt-3 text-sm leading-6 text-slate-400">
-                    {feature.description}
-                  </p>
+              <div className="mt-8 rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-bold text-[var(--color-ink)]">
+                      Share request
+                    </p>
+                    <p className="mt-1 text-sm text-[var(--color-muted)]">
+                      Maps of Quiet Cities is held until Sunday.
+                    </p>
+                  </div>
+                  <Link to="/app/share-book" className="secondary-action min-h-0 px-3 py-2 text-sm">
+                    Open share
+                  </Link>
                 </div>
-              </article>
-            ))}
+              </div>
+            </aside>
           </div>
         </section>
 
-        <section className="border-t border-white/10">
-          <div className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
-              Tech stack
-            </p>
+        <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+            <div>
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                Product workflow
+              </p>
+              <h2 className="mt-3 font-[var(--font-display)] text-4xl font-semibold leading-tight text-[var(--color-ink)]">
+                A simple circulation desk for everyday exchanges.
+              </h2>
+              <p className="mt-4 text-base leading-7 text-[var(--color-muted)]">
+                Each area focuses on one familiar exchange task. The interface
+                separates collaboration from final transfer so readers understand
+                what will happen before they submit.
+              </p>
+            </div>
 
-            <div className="mt-5 flex flex-wrap gap-3">
-              {techStack.map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-slate-200"
+            <div className="grid gap-3 sm:grid-cols-2">
+              {workflow.map((item) => (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="group rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-card-hover)] hover:shadow-[var(--shadow-lift)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-accent)]"
                 >
-                  {item}
-                </span>
+                  <span
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] text-[var(--color-status-success-text)]"
+                    aria-hidden="true"
+                  >
+                    <span className="h-2.5 w-2.5 rounded-full bg-current" />
+                  </span>
+                  <h3 className="mt-3 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+                    {item.description}
+                  </p>
+                  <span className="mt-4 inline-flex text-sm font-bold text-[var(--color-accent)] transition duration-200 group-hover:translate-x-1">
+                    Open workflow -&gt;
+                  </span>
+                </Link>
               ))}
             </div>
           </div>
         </section>
+
+        <section className="border-y border-[var(--color-border)] bg-[var(--color-band)]">
+          <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
+            <div>
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                Catalog presentation
+              </p>
+              <h2 className="mt-3 font-[var(--font-display)] text-4xl font-semibold text-[var(--color-ink)]">
+                Every book gets a real hierarchy.
+              </h2>
+              <ul className="mt-5 grid gap-3">
+                {benefits.map((benefit) => (
+                  <li
+                    key={benefit}
+                    className="flex gap-3 text-sm leading-6 text-[var(--color-muted)]"
+                  >
+                    <span
+                      className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[var(--color-forest)]"
+                      aria-hidden="true"
+                    />
+                    <span>{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="grid gap-3">
+              {featuredBooks.map((book) => (
+                <BookCard
+                  key={book.id}
+                  book={book}
+                  contextLabel="Featured catalog"
+                  actions={
+                    <Link
+                      to="/app/my-books"
+                      className="secondary-action min-h-0 px-3 py-2 text-sm"
+                    >
+                      View in app
+                    </Link>
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <footer className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 border-t border-[var(--color-border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
+                Book Exchange
+              </p>
+              <p className="mt-1 text-sm text-[var(--color-muted)]">
+                A premium, editorial workspace for reader-to-reader exchanges.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3 text-sm font-bold text-[var(--color-muted)]">
+              <a
+                href={repositoryLinks.backend}
+                target="_blank"
+                rel="noreferrer"
+                className="transition duration-200 hover:text-[var(--color-accent)]"
+              >
+                Service repo
+              </a>
+              <a
+                href={repositoryLinks.apiTests}
+                target="_blank"
+                rel="noreferrer"
+                className="transition duration-200 hover:text-[var(--color-accent)]"
+              >
+                Quality checks
+              </a>
+            </div>
+          </div>
+        </footer>
       </main>
     </div>
   )

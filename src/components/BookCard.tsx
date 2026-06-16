@@ -1,14 +1,13 @@
+import type { ReactNode } from 'react'
+
 import type { Book } from '../types/book'
+import { BookCover } from './BookCover'
 
 type BookCardProps = {
   book: Book
+  actions?: ReactNode
+  contextLabel?: string
 }
-
-const coverClasses = {
-  emerald: 'from-emerald-300/80 via-emerald-500/55 to-cyan-950',
-  amber: 'from-amber-200/80 via-amber-500/50 to-slate-950',
-  paper: 'from-slate-200/70 via-slate-500/35 to-slate-950',
-} satisfies Record<Book['tone'], string>
 
 const statusLabels = {
   available: 'Available',
@@ -18,55 +17,77 @@ const statusLabels = {
 } satisfies Record<Book['status'], string>
 
 const statusClasses = {
-  available: 'border-emerald-300/25 bg-emerald-300/[0.08] text-emerald-100',
-  held: 'border-cyan-300/25 bg-cyan-300/[0.08] text-cyan-100',
-  shared: 'border-violet-300/25 bg-violet-300/[0.08] text-violet-100',
-  pending: 'border-amber-300/25 bg-amber-300/[0.08] text-amber-100',
+  available:
+    'border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] text-[var(--color-status-success-text)]',
+  held: 'border-[var(--color-status-info-border)] bg-[var(--color-status-info-bg)] text-[var(--color-status-info-text)]',
+  shared:
+    'border-[var(--color-status-accent-border)] bg-[var(--color-status-accent-bg)] text-[var(--color-status-accent-text)]',
+  pending:
+    'border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning-text)]',
 } satisfies Record<Book['status'], string>
 
-export function BookCard({ book }: BookCardProps) {
+export function BookCard({ book, actions, contextLabel }: BookCardProps) {
   return (
-    <article className="group rounded-xl border border-white/10 bg-white/[0.035] p-3 text-left shadow-[0_14px_38px_rgba(0,0,0,0.16)] transition duration-200 hover:border-cyan-200/25 hover:bg-white/[0.055] hover:shadow-[0_18px_46px_rgba(0,0,0,0.22)] sm:p-4">
-      <div className="grid grid-cols-[3.75rem_1fr] gap-3 sm:grid-cols-[4.5rem_1fr] sm:gap-4">
-        <div
-          className={`relative h-24 w-15 shrink-0 overflow-hidden rounded-lg bg-linear-to-br sm:h-28 sm:w-18 ${coverClasses[book.tone]} shadow-[0_12px_28px_rgba(0,0,0,0.24)]`}
-        >
-          <div className="absolute inset-y-0 left-3 w-px bg-white/35" />
-          <div className="absolute inset-x-3 top-4 h-px bg-white/18" />
-          <div className="absolute inset-x-3 top-7 h-px bg-white/12" />
-          <div className="absolute bottom-3 left-3 right-3 h-1.5 rounded-full bg-white/30" />
-        </div>
+    <article className="group overflow-hidden rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] text-left shadow-[var(--shadow-restraint)] transition duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-card-hover)] hover:shadow-[var(--shadow-lift)]">
+      <div className="grid gap-4 p-3 sm:grid-cols-[5rem_1fr] sm:p-4">
+        <BookCover
+          title={book.title}
+          author={book.author}
+          genre={book.genre}
+          tone={book.tone}
+          size="md"
+          className="mx-auto sm:mx-0"
+        />
 
         <div className="min-w-0">
           <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
-                {book.genre}
-              </p>
-              <h3 className="mt-1 text-base font-semibold leading-6 text-slate-50 sm:text-lg">
+              {contextLabel ? (
+                <p className="text-xs font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                  {contextLabel}
+                </p>
+              ) : null}
+              <h3 className="font-[var(--font-display)] text-2xl font-semibold leading-7 text-[var(--color-ink)] sm:text-3xl sm:leading-8">
                 {book.title}
               </h3>
+              <p className="mt-1 text-sm font-semibold text-[var(--color-blue)]">
+                {book.author}
+              </p>
             </div>
 
             <span
-              className={`shrink-0 rounded-full border px-2.5 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.12em] ${statusClasses[book.status]}`}
+              className={`shrink-0 rounded-full border px-2.5 py-1 text-xs font-bold ${statusClasses[book.status]}`}
             >
               {statusLabels[book.status]}
             </span>
           </div>
 
-          <p className="mt-1 text-sm text-slate-400">{book.author}</p>
-
-          <p className="mt-3 text-sm text-slate-500">
-            Owner:{' '}
-            <span className="font-medium text-slate-300">{book.owner}</span>
-          </p>
-
-          <p className="mt-1 text-sm font-medium leading-5 text-slate-300">
+          <p className="mt-3 text-sm leading-6 text-[var(--color-muted)]">
             {book.note}
           </p>
+
+          <dl className="mt-4 grid gap-2 text-sm text-[var(--color-muted)] sm:grid-cols-2">
+            <div className="min-w-0">
+              <dt className="font-bold text-[var(--color-ink-soft)]">Owner</dt>
+              <dd className="truncate" title={book.owner}>
+                {book.owner}
+              </dd>
+            </div>
+            <div className="min-w-0">
+              <dt className="font-bold text-[var(--color-ink-soft)]">Genre</dt>
+              <dd className="truncate" title={book.genre}>
+                {book.genre}
+              </dd>
+            </div>
+          </dl>
         </div>
       </div>
+
+      {actions ? (
+        <div className="flex flex-wrap gap-2 border-t border-[var(--color-border)] bg-[var(--color-panel-tint)] px-3 py-3 sm:px-4">
+          {actions}
+        </div>
+      ) : null}
     </article>
   )
 }

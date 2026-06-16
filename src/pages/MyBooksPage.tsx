@@ -4,12 +4,14 @@ import { Link } from 'react-router-dom'
 import { getOwnedBooks } from '../api/booksApi'
 import { dashboardActions } from '../api/mockLibrary'
 import { BookCard } from '../components/BookCard'
+import { BookListSkeleton } from '../components/BookListSkeleton'
 import { DashboardCard } from '../components/DashboardCard'
+import { PageHeader } from '../components/PageHeader'
+import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
 import type { Book } from '../types/book'
 
 type BooksState = 'loading' | 'success' | 'error'
-
-const loadingCards = ['owned-books-loading-1', 'owned-books-loading-2']
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error
@@ -18,6 +20,7 @@ function getErrorMessage(error: unknown) {
 }
 
 export function MyBooksPage() {
+  const { showToast } = useToast()
   const [books, setBooks] = useState<Book[]>([])
   const [booksState, setBooksState] = useState<BooksState>('loading')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -44,9 +47,16 @@ export function MyBooksPage() {
           return
         }
 
+        const message = getErrorMessage(error)
+
         setBooks([])
-        setErrorMessage(getErrorMessage(error))
+        setErrorMessage(message)
         setBooksState('error')
+        showToast({
+          tone: 'error',
+          title: 'Could not load your books',
+          message,
+        })
       }
     }
 
@@ -55,80 +65,81 @@ export function MyBooksPage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey])
+  }, [reloadKey, showToast])
 
   const hasBooks = booksState === 'success' && books.length > 0
   const isEmpty = booksState === 'success' && books.length === 0
+  const availableCount = books.filter((book) => book.status === 'available').length
+  const activeCount = books.filter((book) => book.status !== 'available').length
 
   return (
     <section className="space-y-5">
-      <div className="page-hero motion-line reveal-blur p-5 sm:p-6">
-        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
-              My library
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-50 sm:text-4xl">
-              My books
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-              Manage owned books, availability, and exchange actions from a
-              cleaner product dashboard.
-            </p>
-          </div>
-
-          {booksState === 'success' && (
-            <div className="rounded-xl border border-white/10 bg-white/[0.035] px-3.5 py-2.5 text-sm text-slate-300">
-              <span className="font-semibold text-slate-50">
+      <PageHeader
+        eyebrow="My library desk"
+        title="My books"
+        description="Your owned shelf is the working center for sharing, giving, and catalog upkeep."
+        action={
+          <Link className="primary-action" to="/app/add-book">
+            Add book
+          </Link>
+        }
+        meta={
+          booksState === 'success' ? (
+            <div className="rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface-strong)] px-4 py-3 text-sm text-[var(--color-muted)] shadow-[var(--shadow-restraint)]">
+              <span className="font-bold text-[var(--color-ink)]">
                 {books.length}
               </span>{' '}
               owned books
             </div>
-          )}
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
-      <nav className="grid gap-3 md:grid-cols-3" aria-label="Book actions">
+      {booksState === 'success' ? (
+        <dl className="grid gap-3 sm:grid-cols-3">
+          {[
+            ['Total shelf', books.length],
+            ['Available', availableCount],
+            ['In motion', activeCount],
+          ].map(([label, value]) => (
+            <div
+              key={label}
+              className="rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-[var(--shadow-restraint)]"
+            >
+              <dt className="text-sm font-bold text-[var(--color-muted)]">
+                {label}
+              </dt>
+              <dd className="mt-2 font-[var(--font-display)] text-4xl font-semibold text-[var(--color-ink)]">
+                {value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
+
+      <nav className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Book workflows">
         {dashboardActions.map((action) => (
           <DashboardCard key={action.href} {...action} />
         ))}
       </nav>
 
       {booksState === 'loading' && (
-        <div className="grid gap-3 xl:grid-cols-2">
-          {loadingCards.map((card) => (
-            <div
-              key={card}
-              className="animate-pulse rounded-xl border border-white/10 bg-white/[0.035] p-3 sm:p-4"
-            >
-              <div className="grid grid-cols-[3.75rem_1fr] gap-3 sm:grid-cols-[4.5rem_1fr] sm:gap-4">
-                <div className="h-24 w-15 rounded-lg bg-white/8 sm:h-28 sm:w-18" />
-                <div className="flex flex-1 flex-col">
-                  <div className="h-3 w-24 rounded-full bg-cyan-300/15" />
-                  <div className="mt-3 h-5 w-3/4 rounded-full bg-white/12" />
-                  <div className="mt-2 h-4 w-40 rounded-full bg-white/8" />
-                  <div className="mt-4 h-4 w-32 rounded-full bg-white/8" />
-                  <div className="mt-2 h-4 w-52 max-w-full rounded-full bg-emerald-300/12" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <BookListSkeleton label="Loading owned books" />
       )}
 
       {booksState === 'error' && (
-        <div className="premium-panel rounded-2xl border border-amber-300/20 p-6 sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
+        <div className="premium-panel border-[var(--color-status-warning-border)] p-6 sm:p-7" role="alert">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
             Books unavailable
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
             Could not load books
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
             {errorMessage}
           </p>
           <button
-            className="mt-5 rounded-xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-2.5 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/16"
+            className="primary-action mt-5"
             type="button"
             onClick={() => setReloadKey((key) => key + 1)}
           >
@@ -138,31 +149,25 @@ export function MyBooksPage() {
       )}
 
       {isEmpty && (
-        <div className="premium-panel rounded-2xl p-6 sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
+        <div className="empty-state p-6 sm:p-7" role="status" aria-live="polite">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
             Empty shelf
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
-            No owned books yet
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
+            Add your first exchange copy
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-            Your owned catalog will appear here once you add your first book to
-            the exchange network.
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
+            Start with catalog search so your book enters the exchange with the
+            richest available details.
           </p>
 
           <div className="mt-5 flex flex-wrap gap-3">
-            <Link
-              to="/app/add-book"
-              className="rounded-xl border border-cyan-300/25 bg-cyan-300/10 px-4 py-2.5 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/16"
-            >
-              Add your first book
+            <Link to="/app/add-book" className="primary-action">
+              Search catalog
             </Link>
 
-            <Link
-              to="/app/share-book"
-              className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-slate-200 transition duration-200 hover:bg-white/[0.07]"
-            >
-              Explore exchange flow
+            <Link to="/app/share-book" className="secondary-action">
+              Preview share flow
             </Link>
           </div>
         </div>
@@ -172,10 +177,10 @@ export function MyBooksPage() {
         <section className="space-y-3">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
                 Owned catalog
               </p>
-              <h2 className="mt-1 text-xl font-semibold text-slate-50">
+              <h2 className="mt-1 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
                 Current shelf
               </h2>
             </div>
@@ -183,11 +188,37 @@ export function MyBooksPage() {
 
           <div className="grid gap-3 xl:grid-cols-2">
             {books.map((book) => (
-              <BookCard key={book.id} book={book} />
+              <BookCard
+                key={book.id}
+                book={book}
+                contextLabel="Owned copy"
+                actions={
+                  <>
+                    <Link
+                      to="/app/share-book"
+                      className="secondary-action min-h-0 px-3 py-2 text-sm"
+                    >
+                      Share
+                    </Link>
+                    <Link
+                      to="/app/give-book"
+                      className="danger-action min-h-0 px-3 py-2 text-sm"
+                    >
+                      Give
+                    </Link>
+                  </>
+                }
+              />
             ))}
           </div>
         </section>
       )}
+
+      {booksState === 'success' && hasBooks ? (
+        <StateMessage tone="success" className="sr-only">
+          Owned books loaded.
+        </StateMessage>
+      ) : null}
     </section>
   )
 }

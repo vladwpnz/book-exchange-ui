@@ -2,12 +2,31 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
 import { shareBook } from '../api/booksApi'
+import { PageHeader } from '../components/PageHeader'
+import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
+import { WorkflowSteps } from '../components/WorkflowSteps'
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 type SharedBookSummary = {
   title: string
   username: string
 }
+
+const shareSteps = [
+  {
+    title: 'Name the owned copy',
+    description: 'Use the title exactly as it appears on your shelf.',
+  },
+  {
+    title: 'Choose the reader',
+    description: 'Enter the recipient email so the exchange can create the hold.',
+  },
+  {
+    title: 'Keep it collaborative',
+    description: 'The book remains part of the exchange while it is shared.',
+  },
+]
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error
@@ -16,6 +35,7 @@ function getErrorMessage(error: unknown) {
 }
 
 export function ShareBookPage() {
+  const { showToast } = useToast()
   const [title, setTitle] = useState('')
   const [username, setUsername] = useState('')
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
@@ -31,9 +51,16 @@ export function ShareBookPage() {
     const trimmedUsername = username.trim()
 
     if (!trimmedTitle || !trimmedUsername) {
+      const message = 'Title and target user email are required.'
+
       setSharedBook(null)
-      setErrorMessage('Title and target user email are required.')
+      setErrorMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'warning',
+        title: 'Share details needed',
+        message,
+      })
       return
     }
 
@@ -53,35 +80,66 @@ export function ShareBookPage() {
       setTitle('')
       setUsername('')
       setSubmitState('success')
+      showToast({
+        tone: 'success',
+        title: 'Book shared',
+        message: `${trimmedTitle} was shared with ${trimmedUsername}.`,
+      })
     } catch (error) {
+      const message = getErrorMessage(error)
+
       setSharedBook(null)
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'error',
+        title: 'Could not share book',
+        message,
+      })
     }
   }
 
   return (
-    <section className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <div className="space-y-6">
-        <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
-          <div className="relative z-10">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
-              Share flow
-            </p>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
-              Share book
-            </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-              Send a book from your owned shelf to another reader by email and
-              keep the exchange action tied to your current session.
-            </p>
-          </div>
-        </div>
+    <section className="space-y-5">
+      <PageHeader
+        eyebrow="Share workflow"
+        title="Share book"
+        description="Create a collaborative handoff by pairing one owned title with another reader account."
+        action={
+          <Link className="secondary-action" to="/app/my-books">
+            Check owned shelf
+          </Link>
+        }
+      />
 
-        <form className="form-panel p-6 sm:p-7" onSubmit={handleSubmit}>
-          <div className="grid gap-5">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
+        <form
+          className="form-panel p-5 sm:p-6"
+          onSubmit={handleSubmit}
+          aria-busy={isSubmitting}
+        >
+          <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_14rem] md:items-start">
+            <div>
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                Collaborative exchange
+              </p>
+              <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
+                Send a readable copy
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+                Sharing is a temporary exchange state, not a final transfer of
+                ownership.
+              </p>
+            </div>
+
+            <div className="rounded-[0.7rem] border border-[var(--color-status-info-border)] bg-[var(--color-status-info-bg)] p-4 text-sm leading-6 text-[var(--color-status-info-text)]">
+              The recipient email connects this action to a real user account.
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-5">
             <label
-              className="block text-sm font-semibold text-slate-200"
+              className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="share-title"
             >
               Book title
@@ -92,11 +150,17 @@ export function ShareBookPage() {
                 className="field-input mt-2"
                 placeholder="Effective Java"
                 disabled={isSubmitting}
+                aria-invalid={submitState === 'error' && Boolean(errorMessage)}
+                aria-describedby={
+                  submitState === 'error' && errorMessage
+                    ? 'share-error'
+                    : undefined
+                }
               />
             </label>
 
             <label
-              className="block text-sm font-semibold text-slate-200"
+              className="block text-sm font-bold text-[var(--color-ink-soft)]"
               htmlFor="share-reader"
             >
               Target user email
@@ -108,59 +172,67 @@ export function ShareBookPage() {
                 className="field-input mt-2"
                 placeholder="reader@example.com"
                 disabled={isSubmitting}
+                aria-invalid={submitState === 'error' && Boolean(errorMessage)}
+                aria-describedby={
+                  submitState === 'error' && errorMessage
+                    ? 'share-error'
+                    : undefined
+                }
               />
             </label>
           </div>
 
           {submitState === 'success' && sharedBook && (
-            <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-4 py-4 text-sm leading-6 text-emerald-50">
-              <p className="font-semibold">Book shared successfully.</p>
-              <p className="mt-1 text-emerald-100/80">
-                {sharedBook.title} was shared with {sharedBook.username}.
-              </p>
-              <Link className="secondary-action mt-4 inline-flex" to="/app/my-books">
-                View my books
-              </Link>
-            </div>
+            <StateMessage
+              className="mt-5"
+              tone="success"
+              title="Book shared successfully"
+              action={
+                <Link className="secondary-action" to="/app/my-books">
+                  View my books
+                </Link>
+              }
+            >
+              {sharedBook.title} was shared with {sharedBook.username}.
+            </StateMessage>
           )}
 
           {submitState === 'error' && errorMessage && (
-            <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] px-4 py-4 text-sm leading-6 text-amber-50">
-              <p className="font-semibold">Could not share book</p>
-              <p className="mt-1 text-amber-100/80">{errorMessage}</p>
-            </div>
+            <StateMessage className="mt-5" tone="error" title="Could not share book">
+              <span id="share-error">{errorMessage}</span>
+            </StateMessage>
           )}
 
           <button
             type="submit"
-            className="primary-action mt-6 disabled:cursor-not-allowed disabled:opacity-60"
+            className="primary-action mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Sharing...' : 'Share book'}
           </button>
         </form>
-      </div>
 
-      <aside className="status-panel h-fit p-6 sm:p-7">
-        <div className="relative z-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
-            Backend action
+        <aside className="status-panel h-fit p-5 sm:p-6" aria-labelledby="share-status-heading">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-blue)]">
+            Workflow
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
-            Exchange status
+          <h2
+            id="share-status-heading"
+            className="mt-2 font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]"
+          >
+            How sharing works
           </h2>
-          <p className="mt-3 text-sm leading-6 text-slate-400">
-            Share requests are sent to the backend using your current signed-in
-            session.
-          </p>
+          <div className="mt-4">
+            <WorkflowSteps steps={shareSteps} currentStep={2} />
+          </div>
 
           {sharedBook && (
-            <p className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-4 py-3 text-sm leading-6 text-emerald-50">
+            <StateMessage className="mt-5" tone="success">
               Last shared: {sharedBook.title} to {sharedBook.username}.
-            </p>
+            </StateMessage>
           )}
-        </div>
-      </aside>
+        </aside>
+      </div>
     </section>
   )
 }

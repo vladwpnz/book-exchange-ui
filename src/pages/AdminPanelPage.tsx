@@ -5,6 +5,9 @@ import {
   getAdminBooks,
   type AdminBook,
 } from '../api/booksApi'
+import { PageHeader } from '../components/PageHeader'
+import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
 
 type BooksState = 'loading' | 'success' | 'error'
 
@@ -22,11 +25,12 @@ function getStatusLabel(book: AdminBook) {
 
 function getStatusClassName(book: AdminBook) {
   return isBookWithOwner(book)
-    ? 'border-emerald-300/20 bg-emerald-300/[0.08] text-emerald-100'
-    : 'border-amber-300/20 bg-amber-300/[0.08] text-amber-100'
+    ? 'border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] text-[var(--color-status-success-text)]'
+    : 'border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] text-[var(--color-status-warning-text)]'
 }
 
 export function AdminPanelPage() {
+  const { showToast } = useToast()
   const [books, setBooks] = useState<AdminBook[]>([])
   const [booksState, setBooksState] = useState<BooksState>('loading')
   const [loadErrorMessage, setLoadErrorMessage] = useState<string | null>(null)
@@ -58,14 +62,19 @@ export function AdminPanelPage() {
           return
         }
 
-        setBooks([])
-        setLoadErrorMessage(
-          getErrorMessage(
-            error,
-            'Unable to load admin books. Please try again.',
-          ),
+        const message = getErrorMessage(
+          error,
+          'Unable to load admin books. Please try again.',
         )
+
+        setBooks([])
+        setLoadErrorMessage(message)
         setBooksState('error')
+        showToast({
+          tone: 'error',
+          title: 'Could not load admin books',
+          message,
+        })
       }
     }
 
@@ -74,9 +83,18 @@ export function AdminPanelPage() {
     return () => {
       isActive = false
     }
-  }, [reloadKey])
+  }, [reloadKey, showToast])
 
   async function handleForceReturn(book: AdminBook) {
+    if (isBookWithOwner(book)) {
+      showToast({
+        tone: 'info',
+        title: 'No action needed',
+        message: `${book.title} is already with its owner.`,
+      })
+      return
+    }
+
     setReturningBookIds((bookIds) =>
       bookIds.includes(book.id) ? bookIds : [...bookIds, book.id],
     )
@@ -85,15 +103,27 @@ export function AdminPanelPage() {
 
     try {
       await forceReturnBook(book.id)
-      setSuccessMessage(`${book.title} was returned to its owner.`)
+      const message = `${book.title} was returned to its owner.`
+
+      setSuccessMessage(message)
+      showToast({
+        tone: 'success',
+        title: 'Force return complete',
+        message,
+      })
       setReloadKey((key) => key + 1)
     } catch (error) {
-      setActionErrorMessage(
-        getErrorMessage(
-          error,
-          'Unable to force return this book. Please try again.',
-        ),
+      const message = getErrorMessage(
+        error,
+        'Unable to force return this book. Please try again.',
       )
+
+      setActionErrorMessage(message)
+      showToast({
+        tone: 'error',
+        title: 'Could not force return book',
+        message,
+      })
     } finally {
       setReturningBookIds((bookIds) =>
         bookIds.filter((bookId) => bookId !== book.id),
@@ -106,38 +136,31 @@ export function AdminPanelPage() {
   const hasBooks = booksState === 'success' && books.length > 0
   const isEmpty = booksState === 'success' && books.length === 0
   const metrics = [
-    { label: 'Total books', value: books.length, status: 'Loaded from backend' },
-    { label: 'Borrowed', value: borrowedBooks, status: 'Holder differs' },
-    { label: 'With owner', value: ownedHeldBooks, status: 'Holder matches' },
+    { label: 'Total books', value: books.length, status: 'Inventory ready' },
+    { label: 'Borrowed', value: borrowedBooks, status: 'On loan' },
+    { label: 'With owner', value: ownedHeldBooks, status: 'At home' },
   ]
 
   return (
-    <section className="space-y-6">
-      <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
-        <div className="relative z-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
-            Admin operations
-          </p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
-            Admin panel
-          </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-            Review all backend books and force borrowed copies back to their
-            owners when an admin action is required.
-          </p>
-        </div>
-      </div>
+    <section className="space-y-5">
+      <PageHeader
+        eyebrow="Admin operations"
+        title="Admin panel"
+        description="Monitor inventory and force borrowed copies back to their owners when an operational recovery is needed."
+      />
 
       {booksState === 'success' && (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           {metrics.map((metric) => (
-            <article key={metric.label} className="premium-card rounded-2xl p-5">
+            <article key={metric.label} className="premium-card p-5">
               <div className="relative z-10">
-                <p className="text-sm text-slate-400">{metric.label}</p>
-                <p className="mt-3 text-4xl font-semibold text-slate-50">
+                <p className="text-sm font-bold text-[var(--color-muted)]">
+                  {metric.label}
+                </p>
+                <p className="mt-3 font-[var(--font-display)] text-4xl font-semibold text-[var(--color-ink)]">
                   {metric.value}
                 </p>
-                <span className="mt-4 inline-flex rounded-full border border-cyan-300/20 bg-cyan-300/[0.08] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-100">
+                <span className="mt-4 inline-flex rounded-full border border-[var(--color-status-info-border)] bg-[var(--color-status-info-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-info-text)]">
                   {metric.status}
                 </span>
               </div>
@@ -147,38 +170,38 @@ export function AdminPanelPage() {
       )}
 
       {successMessage && (
-        <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.08] px-5 py-4 text-sm font-semibold text-emerald-50">
+        <StateMessage tone="success" title="Force return complete">
           {successMessage}
-        </div>
+        </StateMessage>
       )}
 
       {actionErrorMessage && (
-        <div className="rounded-2xl border border-amber-300/20 bg-amber-300/[0.08] px-5 py-4 text-sm leading-6 text-amber-50">
-          <p className="font-semibold">Could not force return book</p>
-          <p className="mt-1 text-amber-100/80">{actionErrorMessage}</p>
-        </div>
+        <StateMessage tone="error" title="Could not force return book">
+          {actionErrorMessage}
+        </StateMessage>
       )}
 
       {booksState === 'loading' && (
-        <div className="premium-panel rounded-2xl p-6">
-          <div className="h-3 w-40 animate-pulse rounded-full bg-cyan-300/20" />
-          <div className="mt-5 grid gap-3">
-            <div className="h-4 animate-pulse rounded-full bg-white/10" />
-            <div className="h-4 w-5/6 animate-pulse rounded-full bg-white/10" />
-            <div className="h-4 w-2/3 animate-pulse rounded-full bg-white/10" />
+        <div className="premium-panel p-6" role="status" aria-live="polite">
+          <span className="sr-only">Loading admin books.</span>
+          <div className="h-3 w-40 rounded-full bg-[var(--color-skeleton-warm)]" />
+          <div className="mt-5 grid gap-3" aria-hidden="true">
+            <div className="h-4 rounded-full bg-[var(--color-skeleton)]" />
+            <div className="h-4 w-5/6 rounded-full bg-[var(--color-skeleton)]" />
+            <div className="h-4 w-2/3 rounded-full bg-[var(--color-skeleton)]" />
           </div>
         </div>
       )}
 
       {booksState === 'error' && (
-        <div className="premium-panel rounded-2xl border border-amber-300/20 p-6 sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
+        <div className="premium-panel border-[var(--color-status-warning-border)] p-6 sm:p-7" role="alert">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-gold)]">
             Admin books unavailable
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
             Could not load admin books
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
             {loadErrorMessage}
           </p>
           <button
@@ -196,83 +219,131 @@ export function AdminPanelPage() {
       )}
 
       {isEmpty && (
-        <div className="empty-state p-6 sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
+        <div className="empty-state p-6 sm:p-7" role="status" aria-live="polite">
+          <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-forest)]">
             Empty catalog
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-slate-50">
+          <h2 className="mt-3 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
             No books found
           </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-400">
-            Books returned from the backend admin endpoint will appear here once
-            the exchange catalog has items.
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-muted)]">
+            Books will appear here once the exchange catalog has items.
           </p>
         </div>
       )}
 
       {hasBooks && (
-        <div className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/50 shadow-[0_24px_90px_rgba(0,0,0,0.32)]">
-          <table className="w-full min-w-[860px] border-collapse text-left text-slate-200">
-            <thead className="border-b border-white/10 bg-white/[0.035] text-slate-100">
-              <tr>
-                <th className="px-5 py-4 text-sm font-semibold">ID</th>
-                <th className="px-5 py-4 text-sm font-semibold">Title</th>
-                <th className="px-5 py-4 text-sm font-semibold">Author</th>
-                <th className="px-5 py-4 text-sm font-semibold">Owner ID</th>
-                <th className="px-5 py-4 text-sm font-semibold">Holder ID</th>
-                <th className="px-5 py-4 text-sm font-semibold">Status</th>
-                <th className="px-5 py-4 text-sm font-semibold">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {books.map((book) => {
-                const isReturning = returningBookIds.includes(book.id)
+        <section className="premium-panel overflow-hidden" aria-labelledby="admin-books-heading">
+          <div className="flex flex-col gap-3 border-b border-[var(--color-border)] bg-[var(--color-paper)] px-4 py-4 sm:flex-row sm:items-end sm:justify-between sm:px-5">
+            <div>
+              <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+                Inventory
+              </p>
+              <h2
+                id="admin-books-heading"
+                className="mt-1 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]"
+              >
+                Book operations table
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs font-bold">
+              <span className="rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-[var(--color-status-success-text)]">
+                With owner
+              </span>
+              <span className="rounded-full border border-[var(--color-status-warning-border)] bg-[var(--color-status-warning-bg)] px-3 py-1 text-[var(--color-status-warning-text)]">
+                Borrowed
+              </span>
+            </div>
+          </div>
 
-                return (
-                  <tr
-                    key={book.id}
-                    className="border-t border-white/8 transition duration-200 hover:bg-white/[0.035]"
-                  >
-                    <td className="px-5 py-4 text-sm font-semibold text-slate-300">
-                      {book.id}
-                    </td>
-                    <td className="px-5 py-4 text-sm font-semibold text-slate-50">
-                      {book.title}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-slate-300">
-                      {book.author}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-slate-400">
-                      {book.ownerId}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-slate-400">
-                      {book.holderId}
-                    </td>
-                    <td className="px-5 py-4 text-sm">
-                      <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] ${getStatusClassName(
-                          book,
-                        )}`}
-                      >
-                        {getStatusLabel(book)}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 text-sm">
-                      <button
-                        className="rounded-xl border border-cyan-300/25 bg-cyan-300/[0.08] px-4 py-2 text-sm font-semibold text-cyan-50 transition duration-200 hover:bg-cyan-300/[0.14] disabled:cursor-not-allowed disabled:border-slate-500/20 disabled:bg-slate-500/10 disabled:text-slate-500"
-                        type="button"
-                        disabled={isReturning}
-                        onClick={() => void handleForceReturn(book)}
-                      >
-                        {isReturning ? 'Returning...' : 'Force return'}
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[860px] border-collapse text-left text-[var(--color-muted)]">
+              <caption className="sr-only">
+                Admin book inventory with owner, holder, status, and force
+                return actions.
+              </caption>
+              <thead className="border-b border-[var(--color-border)] bg-[var(--color-table-head)] text-[var(--color-ink)]">
+                <tr>
+                  <th scope="col" className="px-5 py-4 text-sm font-bold">
+                    Book
+                  </th>
+                  <th scope="col" className="px-5 py-4 text-sm font-bold">
+                    ID
+                  </th>
+                  <th scope="col" className="px-5 py-4 text-sm font-bold">
+                    Owner ID
+                  </th>
+                  <th scope="col" className="px-5 py-4 text-sm font-bold">
+                    Holder ID
+                  </th>
+                  <th scope="col" className="px-5 py-4 text-sm font-bold">
+                    Status
+                  </th>
+                  <th scope="col" className="px-5 py-4 text-sm font-bold">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {books.map((book) => {
+                  const isReturning = returningBookIds.includes(book.id)
+
+                  return (
+                    <tr
+                      key={book.id}
+                      className="border-t border-[var(--color-border)] bg-[var(--color-table-row)] transition duration-200 hover:bg-[var(--color-table-row-hover)]"
+                    >
+                      <th scope="row" className="px-5 py-4 text-left">
+                        <span className="block font-[var(--font-display)] text-xl font-semibold leading-6 text-[var(--color-ink)]">
+                          {book.title}
+                        </span>
+                        <span className="mt-1 block text-sm font-semibold text-[var(--color-blue)]">
+                          {book.author}
+                        </span>
+                      </th>
+                      <td className="px-5 py-4 text-sm font-semibold text-[var(--color-muted)]">
+                        {book.id}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-[var(--color-muted)]">
+                        {book.ownerId}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-[var(--color-muted)]">
+                        {book.holderId}
+                      </td>
+                      <td className="px-5 py-4 text-sm">
+                        <span
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${getStatusClassName(
+                            book,
+                          )}`}
+                        >
+                          {getStatusLabel(book)}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-sm">
+                        {isBookWithOwner(book) ? (
+                          <span className="inline-flex rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-success-text)]">
+                            No action needed
+                          </span>
+                        ) : (
+                          <button
+                            className="secondary-action min-h-0 px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+                            type="button"
+                            disabled={isReturning}
+                            onClick={() => void handleForceReturn(book)}
+                            aria-label={`Force return ${book.title}`}
+                            aria-busy={isReturning}
+                          >
+                            {isReturning ? 'Returning...' : 'Force return'}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
       )}
     </section>
   )

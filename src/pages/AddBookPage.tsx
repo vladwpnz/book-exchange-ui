@@ -1,12 +1,19 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
+import { markAchievementShownOnce } from '../achievements'
 import { createBook } from '../api/booksApi'
 import {
   addBookFromCatalog,
+  isDuplicateCatalogBookError,
   searchCatalogBooks,
   type CatalogBook,
 } from '../api/catalogApi'
+import { useAuth } from '../auth/useAuth'
+import { BookCover } from '../components/BookCover'
+import { PageHeader } from '../components/PageHeader'
+import { StateMessage } from '../components/StateMessage'
+import { useToast } from '../components/toastContext'
 
 type SubmitState = 'idle' | 'submitting' | 'success' | 'error'
 type CatalogSearchState = 'loading' | 'ready' | 'empty' | 'error'
@@ -16,16 +23,12 @@ type CreatedBookSummary = {
 }
 
 const CATALOG_VISIBLE_STEP = 6
-const DESCRIPTION_MAX_LENGTH = 130
+const DESCRIPTION_MAX_LENGTH = 150
 
 function getErrorMessage(error: unknown) {
   return error instanceof Error
     ? error.message
     : 'Unable to add this book. Please try again.'
-}
-
-function getCatalogInitials(book: CatalogBook) {
-  return `${book.title.charAt(0)}${book.author.charAt(0)}`.toUpperCase()
 }
 
 function getShortDescription(description: string) {
@@ -34,7 +37,13 @@ function getShortDescription(description: string) {
     : description
 }
 
+function getCatalogTone(index: number) {
+  return (['emerald', 'amber', 'paper'] as const)[index % 3]
+}
+
 export function AddBookPage() {
+  const { currentUserEmail } = useAuth()
+  const { showToast } = useToast()
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [submitState, setSubmitState] = useState<SubmitState>('idle')
@@ -55,6 +64,7 @@ export function AddBookPage() {
   const [catalogAddedBook, setCatalogAddedBook] =
     useState<CreatedBookSummary | null>(null)
   const [addingCatalogBookIds, setAddingCatalogBookIds] = useState<string[]>([])
+  const [ownedCatalogBookIds, setOwnedCatalogBookIds] = useState<string[]>([])
   const [visibleCatalogCount, setVisibleCatalogCount] =
     useState(CATALOG_VISIBLE_STEP)
 
@@ -63,6 +73,26 @@ export function AddBookPage() {
   const hasMoreCatalogBooks = visibleCatalogCount < catalogBooks.length
   const shownCatalogCount = Math.min(visibleCatalogCount, catalogBooks.length)
   const isFilteredCatalogSearch = catalogQuery.trim().length >= 2
+
+  function showFirstBookAchievementIfNeeded() {
+    if (!markAchievementShownOnce(currentUserEmail, 'first-book-added')) {
+      return
+    }
+
+    showToast({
+      tone: 'success',
+      title: 'Achievement unlocked',
+      message: 'First book added',
+    })
+  }
+
+  function markCatalogBookAsOwned(catalogBookId: string) {
+    setOwnedCatalogBookIds((currentIds) =>
+      currentIds.includes(catalogBookId)
+        ? currentIds
+        : [...currentIds, catalogBookId],
+    )
+  }
 
   useEffect(() => {
     const trimmedQuery = catalogQuery.trim()
@@ -88,9 +118,16 @@ export function AddBookPage() {
           return
         }
 
+        const message = getErrorMessage(error)
+
         setCatalogBooks([])
-        setCatalogErrorMessage(getErrorMessage(error))
+        setCatalogErrorMessage(message)
         setCatalogSearchState('error')
+        showToast({
+          tone: 'error',
+          title: 'Could not search catalog',
+          message,
+        })
       }
     }, 300)
 
@@ -98,7 +135,7 @@ export function AddBookPage() {
       isCurrentSearch = false
       window.clearTimeout(searchTimeoutId)
     }
-  }, [catalogQuery])
+  }, [catalogQuery, showToast])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -107,9 +144,16 @@ export function AddBookPage() {
     const trimmedAuthor = author.trim()
 
     if (!trimmedTitle || !trimmedAuthor) {
+      const message = 'Title and author are required.'
+
       setCreatedBook(null)
-      setErrorMessage('Title and author are required.')
+      setErrorMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'warning',
+        title: 'Add title and author',
+        message,
+      })
       return
     }
 
@@ -129,10 +173,23 @@ export function AddBookPage() {
       setTitle('')
       setAuthor('')
       setSubmitState('success')
+      showToast({
+        tone: 'success',
+        title: 'Book added',
+        message: `${trimmedTitle} by ${trimmedAuthor} is now on your owned shelf.`,
+      })
+      showFirstBookAchievementIfNeeded()
     } catch (error) {
+      const message = getErrorMessage(error)
+
       setCreatedBook(null)
-      setErrorMessage(getErrorMessage(error))
+      setErrorMessage(message)
       setSubmitState('error')
+      showToast({
+        tone: 'error',
+        title: 'Could not add book',
+        message,
+      })
     }
   }
 
@@ -152,6 +209,10 @@ export function AddBookPage() {
   }
 
   async function handleAddCatalogBook(book: CatalogBook) {
+    if (ownedCatalogBookIds.includes(book.catalogBookId)) {
+      return
+    }
+
     setAddingCatalogBookIds((currentIds) =>
       currentIds.includes(book.catalogBookId)
         ? currentIds
@@ -163,9 +224,27 @@ export function AddBookPage() {
     try {
       const addedBook = await addBookFromCatalog(book.catalogBookId)
 
+      markCatalogBookAsOwned(book.catalogBookId)
       setCatalogAddedBook(addedBook)
+      showToast({
+        tone: 'success',
+        title: 'Book added',
+        message: `${addedBook.title} by ${addedBook.author} is now on your owned shelf.`,
+      })
+      showFirstBookAchievementIfNeeded()
     } catch (error) {
-      setCatalogAddErrorMessage(getErrorMessage(error))
+      const message = getErrorMessage(error)
+
+      if (isDuplicateCatalogBookError(error)) {
+        markCatalogBookAsOwned(book.catalogBookId)
+      }
+
+      setCatalogAddErrorMessage(message)
+      showToast({
+        tone: 'error',
+        title: 'Could not add catalog book',
+        message,
+      })
     } finally {
       setAddingCatalogBookIds((currentIds) =>
         currentIds.filter(
@@ -176,163 +255,217 @@ export function AddBookPage() {
   }
 
   return (
-    <section className="space-y-6">
-      <div className="page-hero motion-line reveal-blur p-6 sm:p-8">
-        <div className="relative z-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
-            Catalog entry
-          </p>
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-50 sm:text-5xl">
-            Add book
-          </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-            Add a new title to your owned shelf and make it available for the
-            exchange workflow.
-          </p>
-        </div>
-      </div>
-
-      <section className="form-panel p-6 sm:p-7">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200">
-              Add book
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-50">
-              Choose from catalog first
-            </h2>
-          </div>
-          <Link className="secondary-action inline-flex" to="/app/my-books">
+    <section className="space-y-5">
+      <PageHeader
+        eyebrow="Catalog entry"
+        title="Add book"
+        description="Search the shared catalog first. Manual entry stays available when a title is missing from the index."
+        action={
+          <Link className="secondary-action" to="/app/my-books">
             View my books
           </Link>
+        }
+      />
+
+      <section
+        className="paper-panel p-5 sm:p-6"
+        aria-labelledby="catalog-heading"
+        aria-busy={catalogSearchState === 'loading'}
+      >
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-start">
+          <div className="min-w-0">
+            <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
+              Primary path
+            </p>
+            <h2
+              id="catalog-heading"
+              className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]"
+            >
+              Search the exchange catalog
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+              Results update after a short pause while you type. Add from here
+              to preserve catalog metadata and keep shelves consistent.
+            </p>
+          </div>
+
+          <aside className="rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-panel-tint)] p-4">
+            <p className="text-sm font-bold text-[var(--color-ink)]">
+              Catalog behavior
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+              Search waits briefly while you type. Use Show more to browse the
+              rest of the catalog.
+            </p>
+          </aside>
         </div>
 
         <label
-          className="mt-5 block text-sm font-semibold text-slate-200"
+          className="mt-6 block text-sm font-bold text-[var(--color-ink-soft)]"
           htmlFor="catalog-search"
         >
           Search by title or author
+        </label>
+        <div className="mt-2 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
           <input
             id="catalog-search"
             value={catalogQuery}
             onChange={(event) => handleCatalogQueryChange(event.target.value)}
-            className="field-input mt-2"
+            className="field-input"
             placeholder="Search by title or author"
+            aria-describedby="catalog-search-help"
           />
-        </label>
+          <span className="secondary-action pointer-events-none min-h-0 text-sm">
+            {isFilteredCatalogSearch ? 'Filtered' : 'Browse all'}
+          </span>
+        </div>
+        <p id="catalog-search-help" className="mt-2 text-xs text-[var(--color-muted)]">
+          Type at least two characters to filter the catalog.
+        </p>
 
         {catalogAddedBook && (
-          <div className="mt-4 flex flex-col gap-3 rounded-xl border border-emerald-300/20 bg-emerald-300/8 px-4 py-3 text-sm leading-6 text-emerald-50 sm:flex-row sm:items-center sm:justify-between">
-            <p>
-              <span className="font-semibold">Added.</span>{' '}
-              <span className="text-emerald-100/80">
-                {catalogAddedBook.title} by {catalogAddedBook.author} is on your
-                owned shelf.
-              </span>
-            </p>
-            <Link
-              className="font-semibold text-emerald-100 hover:text-white"
-              to="/app/my-books"
-            >
-              View my books
-            </Link>
-          </div>
+          <StateMessage
+            className="mt-4"
+            tone="success"
+            title="Catalog book added"
+            action={
+              <Link className="secondary-action" to="/app/my-books">
+                View my books
+              </Link>
+            }
+          >
+            {catalogAddedBook.title} by {catalogAddedBook.author} is on your
+            owned shelf.
+          </StateMessage>
         )}
 
         {catalogAddErrorMessage && (
-          <div className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/8 px-4 py-3 text-sm leading-6 text-amber-50">
-            <p className="font-semibold">Could not add catalog book</p>
-            <p className="mt-1 text-amber-100/80">{catalogAddErrorMessage}</p>
-          </div>
+          <StateMessage
+            className="mt-4"
+            tone="error"
+            title="Could not add catalog book"
+          >
+            {catalogAddErrorMessage}
+          </StateMessage>
         )}
 
         {catalogSearchState === 'loading' && (
-          <div className="status-panel mt-4 p-4 text-sm leading-6 text-cyan-100">
-            Loading catalog books...
+          <div className="mt-5 grid gap-3" role="status" aria-live="polite">
+            <span className="sr-only">Loading catalog books.</span>
+            {Array.from({ length: 3 }, (_, index) => (
+              <div
+                key={`catalog-loading-${index}`}
+                className="rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface-strong)] px-4 py-4"
+                aria-hidden="true"
+              >
+                <div className="flex gap-4">
+                  <div className="h-20 w-14 shrink-0 rounded-md border border-[var(--color-border)] bg-[var(--color-skeleton)]" />
+                  <div className="min-w-0 flex-1">
+                    <div className="h-5 w-2/3 rounded-full bg-[var(--color-skeleton-strong)]" />
+                    <div className="mt-3 h-3 w-40 rounded-full bg-[var(--color-skeleton-cool)]" />
+                    <div className="mt-4 h-3 w-full rounded-full bg-[var(--color-skeleton)]" />
+                    <div className="mt-2 h-3 w-4/5 rounded-full bg-[var(--color-skeleton)]" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
         {catalogSearchState === 'empty' && (
-          <div className="status-panel mt-4 p-4 text-sm leading-6 text-slate-300">
-            No catalog books matched this search.
-          </div>
+          <StateMessage className="mt-4" tone="info" title="No catalog matches">
+            No catalog books matched this search. Manual adding is available
+            below as a secondary fallback.
+          </StateMessage>
         )}
 
         {catalogSearchState === 'error' && catalogErrorMessage && (
-          <div className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/8 px-4 py-3 text-sm leading-6 text-amber-50">
-            <p className="font-semibold">Could not search catalog</p>
-            <p className="mt-1 text-amber-100/80">{catalogErrorMessage}</p>
-          </div>
+          <StateMessage
+            className="mt-4"
+            tone="error"
+            title="Could not search catalog"
+          >
+            {catalogErrorMessage}
+          </StateMessage>
         )}
 
         {catalogSearchState === 'ready' && (
-          <div className="mt-5">
+          <div className="mt-6">
             <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h3 className="text-base font-semibold text-slate-50">
+                <h3 className="font-[var(--font-display)] text-2xl font-semibold text-[var(--color-ink)]">
                   {isFilteredCatalogSearch
                     ? 'Matching catalog books'
                     : 'Catalog books'}
                 </h3>
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="mt-1 text-sm text-[var(--color-muted)]" role="status">
                   Showing {shownCatalogCount} of {catalogBooks.length}
                 </p>
               </div>
             </div>
 
-            <div className="mt-3 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/30">
-              {visibleCatalogBooks.map((book) => {
+            <div className="mt-3 grid gap-3">
+              {visibleCatalogBooks.map((book, index) => {
                 const isAddingBook = addingCatalogBookIds.includes(
                   book.catalogBookId,
                 )
+                const isOwnedCatalogBook = ownedCatalogBookIds.includes(
+                  book.catalogBookId,
+                )
+                const isCatalogActionDisabled =
+                  isAddingBook || isOwnedCatalogBook
 
                 return (
                   <article
                     key={book.catalogBookId}
-                    className="flex flex-col gap-3 border-b border-white/10 px-4 py-4 transition hover:bg-white/[0.035] last:border-b-0 sm:flex-row sm:items-center"
+                    className="grid gap-4 rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-4 shadow-[var(--shadow-restraint)] transition duration-200 hover:border-[var(--color-border-strong)] hover:bg-[var(--color-card-hover)] sm:grid-cols-[4.5rem_minmax(0,1fr)_auto] sm:items-center"
                   >
-                    <div className="flex min-w-0 flex-1 gap-3 sm:gap-4">
-                      <div className="flex h-16 w-12 shrink-0 flex-col justify-between rounded-lg border border-cyan-200/20 bg-slate-950/70 p-2">
-                        <span className="h-1 w-5 rounded-full bg-cyan-200/60" />
-                        <span className="text-center text-sm font-bold tracking-wide text-cyan-50">
-                          {getCatalogInitials(book)}
+                    <BookCover
+                      title={book.title}
+                      author={book.author}
+                      genre={book.genre}
+                      tone={getCatalogTone(index)}
+                      size="sm"
+                      className="mx-auto sm:mx-0"
+                    />
+
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="min-w-0 font-[var(--font-display)] text-2xl font-semibold leading-7 text-[var(--color-ink)]">
+                          {book.title}
+                        </h4>
+                        <span className="rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-2.5 py-0.5 text-xs font-bold text-[var(--color-status-success-text)]">
+                          {book.genre}
                         </span>
-                        <span className="h-1 w-7 rounded-full bg-emerald-200/50" />
                       </div>
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h4 className="min-w-0 text-base font-semibold text-slate-50">
-                            {book.title}
-                          </h4>
-                          <span className="rounded-full border border-emerald-200/20 bg-emerald-200/8 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-100">
-                            {book.genre}
-                          </span>
-                        </div>
+                      <p className="mt-1 text-sm font-semibold text-[var(--color-blue)]">
+                        {book.author}
+                      </p>
 
-                        <p className="mt-1 text-sm font-medium text-cyan-100">
-                          {book.author}
+                      <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+                        {getShortDescription(book.description)}
+                      </p>
+
+                      {book.isbn && (
+                        <p className="mt-2 text-xs font-bold tracking-[0.14em] text-[var(--color-muted)]">
+                          ISBN {book.isbn}
                         </p>
-
-                        <p className="mt-1 text-sm leading-6 text-slate-400">
-                          {getShortDescription(book.description)}
-                        </p>
-
-                        {book.isbn && (
-                          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                            ISBN {book.isbn}
-                          </p>
-                        )}
-                      </div>
+                      )}
                     </div>
 
                     <button
                       type="button"
-                      className="secondary-action w-full shrink-0 whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+                      className="primary-action w-full shrink-0 whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
                       onClick={() => void handleAddCatalogBook(book)}
-                      disabled={isAddingBook}
+                      disabled={isCatalogActionDisabled}
+                      aria-busy={isAddingBook}
                     >
-                      {isAddingBook ? 'Adding...' : 'Add to my books'}
+                      {isOwnedCatalogBook
+                        ? 'Already in my books'
+                        : isAddingBook
+                          ? 'Adding...'
+                          : 'Add to my books'}
                     </button>
                   </article>
                 )
@@ -350,82 +483,111 @@ export function AddBookPage() {
             )}
           </div>
         )}
+      </section>
 
-        <div className="mt-7 border-t border-white/10 pt-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-200">
-            Add manually
-          </p>
-          <h3 className="mt-2 text-xl font-semibold text-slate-50">
-            Can't find the book? Add it manually
-          </h3>
-
-          <form
-            className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
-            onSubmit={handleSubmit}
-          >
-            <label
-              className="block text-sm font-semibold text-slate-200"
-              htmlFor="title"
+      <section className="form-panel p-5 sm:p-6" aria-labelledby="manual-add-heading">
+        <div className="grid gap-5 lg:grid-cols-[18rem_minmax(0,1fr)]">
+          <div>
+            <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-muted)]">
+              Secondary fallback
+            </p>
+            <h2
+              id="manual-add-heading"
+              className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]"
             >
-              Title
-              <input
-                id="title"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                className="field-input mt-2"
-                placeholder="Book title"
-                disabled={isSubmitting}
-              />
-            </label>
+              Add manually
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
+              Can't find your book? Add a real title that is missing from the
+              shared catalog.
+            </p>
+          </div>
 
-            <label
-              className="block text-sm font-semibold text-slate-200"
-              htmlFor="author"
+          <div>
+            <form
+              className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]"
+              onSubmit={handleSubmit}
+              aria-busy={isSubmitting}
             >
-              Author
-              <input
-                id="author"
-                value={author}
-                onChange={(event) => setAuthor(event.target.value)}
-                className="field-input mt-2"
-                placeholder="Author name"
-                disabled={isSubmitting}
-              />
-            </label>
-
-            <div className="flex items-end">
-              <button
-                type="submit"
-                className="primary-action w-full disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
-                disabled={isSubmitting}
+              <label
+                className="block text-sm font-bold text-[var(--color-ink-soft)]"
+                htmlFor="title"
               >
-                {isSubmitting ? 'Saving...' : 'Add book'}
-              </button>
-            </div>
-          </form>
+                Title
+                <input
+                  id="title"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  className="field-input mt-2"
+                  placeholder="Book title"
+                  disabled={isSubmitting}
+                  aria-invalid={submitState === 'error' && Boolean(errorMessage)}
+                  aria-describedby={
+                    submitState === 'error' && errorMessage
+                      ? 'manual-add-error'
+                      : undefined
+                  }
+                />
+              </label>
 
-          {submitState === 'success' && createdBook && (
-            <div className="mt-4 rounded-xl border border-emerald-300/20 bg-emerald-300/8 px-4 py-3 text-sm leading-6 text-emerald-50">
-              <p className="font-semibold">Book added successfully.</p>
-              <p className="mt-1 text-emerald-100/80">
+              <label
+                className="block text-sm font-bold text-[var(--color-ink-soft)]"
+                htmlFor="author"
+              >
+                Author
+                <input
+                  id="author"
+                  value={author}
+                  onChange={(event) => setAuthor(event.target.value)}
+                  className="field-input mt-2"
+                  placeholder="Author name"
+                  disabled={isSubmitting}
+                  aria-invalid={submitState === 'error' && Boolean(errorMessage)}
+                  aria-describedby={
+                    submitState === 'error' && errorMessage
+                      ? 'manual-add-error'
+                      : undefined
+                  }
+                />
+              </label>
+
+              <div className="flex items-end">
+                <button
+                  type="submit"
+                  className="secondary-action w-full disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Saving...' : 'Add manually'}
+                </button>
+              </div>
+            </form>
+
+            {submitState === 'success' && createdBook && (
+              <StateMessage
+                className="mt-4"
+                tone="success"
+                title="Book added successfully"
+                action={
+                  <Link className="secondary-action" to="/app/my-books">
+                    View my books
+                  </Link>
+                }
+              >
                 {createdBook.title} by {createdBook.author} is now on your
                 owned shelf.
-              </p>
-              <Link
-                className="mt-2 inline-flex font-semibold text-emerald-100 hover:text-white"
-                to="/app/my-books"
-              >
-                View my books
-              </Link>
-            </div>
-          )}
+              </StateMessage>
+            )}
 
-          {submitState === 'error' && errorMessage && (
-            <div className="mt-4 rounded-xl border border-amber-300/20 bg-amber-300/8 px-4 py-3 text-sm leading-6 text-amber-50">
-              <p className="font-semibold">Could not add book</p>
-              <p className="mt-1 text-amber-100/80">{errorMessage}</p>
-            </div>
-          )}
+            {submitState === 'error' && errorMessage && (
+              <StateMessage
+                className="mt-4"
+                tone="error"
+                title="Could not add book"
+              >
+                <span id="manual-add-error">{errorMessage}</span>
+              </StateMessage>
+            )}
+          </div>
         </div>
       </section>
     </section>

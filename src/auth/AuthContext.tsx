@@ -22,7 +22,7 @@ const invalidCredentialsError: AuthError = {
 
 const backendUnavailableError: AuthError = {
   code: 'backend_unavailable',
-  message: 'Backend is unavailable. Check that the API is running and try again.',
+  message: 'The book service is unavailable right now. Please try again shortly.',
 }
 
 const unknownAuthError: AuthError = {
