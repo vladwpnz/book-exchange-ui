@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-16T21:16:00+03:00",
+  "title": "Design System: Book Exchange",
+  "extensions": {
+    "colorMeta": {
+      "page-dark": {
+        "role": "neutral",
+        "displayName": "Archive Black",
+        "canonical": "#1a1613",
+        "tonalRamp": ["#0f0c0a", "#1a1613", "#251f1a", "#302820", "#3a3027", "#57473a", "#7a6452", "#f4eadb"]
+      },
+      "paper-dark": {
+        "role": "neutral",
+        "displayName": "Dark Paper",
+        "canonical": "#2b231d",
+        "tonalRamp": ["#14100d", "#1d1713", "#2b231d", "#3a3027", "#57473a", "#7a6452", "#b8aa98", "#f4eadb"]
+      },
+      "copper": {
+        "role": "primary",
+        "displayName": "Copper Lamp",
+        "canonical": "#d7835c",
+        "tonalRamp": ["#211712", "#493226", "#6f2f22", "#96624c", "#d7835c", "#f0a172", "#ffd9c4", "#fff1ed"]
+      },
+      "forest": {
+        "role": "secondary",
+        "displayName": "Catalog Green",
+        "canonical": "#9fbea5",
+        "tonalRamp": ["#132018", "#26362b", "#415b49", "#5d765f", "#9fbea5", "#dbeddd", "#eef7ed", "#f7fbf6"]
+      },
+      "blue-muted": {
+        "role": "secondary",
+        "displayName": "Muted Ledger Blue",
+        "canonical": "#9db0a8",
+        "tonalRamp": ["#111b19", "#25322f", "#35433d", "#5c6f66", "#9db0a8", "#d3e1db", "#edf5f8", "#f8fbfc"]
+      },
+      "gold": {
+        "role": "tertiary",
+        "displayName": "Aged Gold",
+        "canonical": "#d6aa63",
+        "tonalRamp": ["#1f160b", "#49371f", "#6a542e", "#8d6e37", "#d6aa63", "#f0d09a", "#fff3cf", "#fff9e8"]
+      },
+      "danger": {
+        "role": "tertiary",
+        "displayName": "Return Red",
+        "canonical": "#e48c76",
+        "tonalRamp": ["#25110e", "#4c2b26", "#74271f", "#945c50", "#e48c76", "#f2b8aa", "#ffd5c8", "#fff1ed"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Archive Display",
+        "purpose": "Bookish hierarchy for Landing and major page headers."
+      },
+      "body": {
+        "displayName": "Workspace Body",
+        "purpose": "Readable task UI, forms, tables, and navigation."
+      },
+      "label": {
+        "displayName": "Shelf Label",
+        "purpose": "Short labels and state markers only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "resting-restraint",
+        "value": "0 1px 2px rgba(14, 10, 8, 0.35)",
+        "purpose": "Default dark-theme grounding for controls and panels."
+      },
+      {
+        "name": "hover-lift",
+        "value": "0 18px 36px rgba(12, 8, 6, 0.38)",
+        "purpose": "Interactive card, menu, and toast elevation."
+      },
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 3px rgba(215, 131, 92, 0.32)",
+        "purpose": "Visible keyboard and input focus treatment."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-ease",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Route, reveal, and theme transitions."
+      },
+      {
+        "name": "state-duration",
+        "value": "180ms",
+        "purpose": "Default hover and control-state transition speed."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main copper action for a page or form.",
+      "html": "<button class=\"ds-button-primary\">Create account</button>",
+      "css": ".ds-button-primary { display: inline-flex; min-height: 2.65rem; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid var(--color-accent); border-radius: var(--radius-md); background: var(--color-accent); color: var(--color-on-accent); padding: 0.72rem 1rem; font: inherit; font-weight: 750; line-height: 1.2; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; } .ds-button-primary:hover { border-color: var(--color-accent-strong); background: var(--color-accent-strong); transform: translateY(-1px); } .ds-button-primary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quiet bordered action for secondary navigation and product workflows.",
+      "html": "<button class=\"ds-button-secondary\">View my books</button>",
+      "css": ".ds-button-secondary { display: inline-flex; min-height: 2.65rem; align-items: center; justify-content: center; gap: 0.5rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface-strong); color: var(--color-ink); padding: 0.72rem 1rem; font: inherit; font-weight: 750; line-height: 1.2; box-shadow: var(--shadow-restraint); transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease; } .ds-button-secondary:hover { border-color: var(--color-border-strong); background: var(--color-surface-muted); transform: translateY(-1px); } .ds-button-secondary:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }"
+    },
+    {
+      "name": "Field Input",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Warm dark field for search, auth, profile, and exchange forms.",
+      "html": "<label class=\"ds-field-label\">Book title<input class=\"ds-field-input\" placeholder=\"Book title\" /></label>",
+      "css": ".ds-field-label { display: grid; gap: 0.5rem; color: var(--color-ink-soft); font: inherit; font-size: 0.875rem; font-weight: 750; } .ds-field-input { width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-input-bg); color: var(--color-ink); padding: 0.875rem 1rem; font: inherit; outline: none; box-shadow: inset 0 1px 0 rgba(var(--color-ink-rgb), 0.02); transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; } .ds-field-input::placeholder { color: var(--color-placeholder); } .ds-field-input:focus-visible { border-color: color-mix(in srgb, var(--color-accent) 70%, var(--color-surface-strong)); background: var(--color-input-focus-bg); box-shadow: var(--focus-ring); }"
+    },
+    {
+      "name": "Book Card",
+      "kind": "card",
+      "refersTo": "card-surface",
+      "description": "Book-first catalog item with a cover, title, author, owner details, status, and actions.",
+      "html": "<article class=\"ds-book-card\"><div class=\"ds-book-cover\">BE</div><div><p class=\"ds-card-label\">Catalog</p><h3>The Aurora Library</h3><p class=\"ds-card-author\">Mira Ellison</p><p class=\"ds-card-copy\">Ready to share this week.</p></div></article>",
+      "css": ".ds-book-card { display: grid; grid-template-columns: 5rem 1fr; gap: 1rem; border: 1px solid var(--color-border); border-radius: 0.7rem; background: var(--color-surface); color: var(--color-ink); padding: 1rem; box-shadow: var(--shadow-restraint); transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; } .ds-book-card:hover { transform: translateY(-2px); border-color: var(--color-border-strong); background: var(--color-card-hover); box-shadow: var(--shadow-lift); } .ds-book-card h3 { margin: 0; font-family: var(--font-display); font-size: 1.75rem; font-weight: 600; line-height: 1.1; } .ds-book-cover { display: grid; height: 7rem; place-items: center; border: 1px solid var(--cover-paper-border); border-radius: 0.7rem; background: linear-gradient(135deg, var(--cover-paper-from), var(--cover-paper-via), var(--cover-paper-to)); color: var(--cover-paper-text); font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; box-shadow: var(--cover-shadow); } .ds-card-label { margin: 0 0 0.35rem; color: var(--color-accent); font-size: 0.75rem; font-weight: 800; letter-spacing: 0.16em; } .ds-card-author { margin: 0.25rem 0 0; color: var(--color-blue); font-size: 0.875rem; font-weight: 650; } .ds-card-copy { margin: 0.75rem 0 0; color: var(--color-muted); font-size: 0.875rem; line-height: 1.6; }"
+    },
+    {
+      "name": "Top Navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Sticky translucent navigation shared by Landing and product surfaces.",
+      "html": "<nav class=\"ds-top-nav\"><span class=\"ds-brand-mark\"><span class=\"ds-mark-book\"></span><span>Book Exchange</span></span><button class=\"ds-button-secondary\">Login</button></nav>",
+      "css": ".ds-top-nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--color-border); background: var(--color-nav); padding: 0.75rem 1rem; color: var(--color-ink); backdrop-filter: blur(16px); } .ds-brand-mark { display: inline-flex; align-items: center; gap: 0.75rem; font-weight: 800; } .ds-mark-book { position: relative; display: inline-grid; width: 2.75rem; height: 2.75rem; place-items: center; overflow: hidden; border: 1px solid var(--color-border); border-radius: 0.7rem; background: var(--color-surface); box-shadow: var(--shadow-restraint); } .ds-mark-book::before { content: ''; position: absolute; inset: 0.6rem auto 0.6rem 0.75rem; width: 3px; border-radius: 999px; background: var(--color-accent); } .ds-mark-book::after { content: ''; position: absolute; left: 1.1rem; top: 0.75rem; width: 1.25rem; height: 1.7rem; border: 1px solid var(--brand-page-border); border-radius: 3px; background: var(--brand-page-bg); transform: rotate(-6deg); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Lamplit Archive",
+    "overview": "Book Exchange already has the bones of a warm, serious library interface: dark shelves, paper surfaces, copper actions, restrained borders, serif display type, and compact product panels. The Landing page is allowed to become cinematic, story-led, and materially rich. The authenticated app remains a calm workspace.",
+    "keyCharacteristics": [
+      "Dark editorial library atmosphere with warm paper and copper accents.",
+      "Book-first visual language through covers, shelves, catalog cards, and exchange states.",
+      "Serif display typography for editorial weight, system sans for task clarity.",
+      "Quiet product components with visible focus, semantic states, and reduced-motion support.",
+      "Landing ambition contained to the public brand surface, not leaked into routine workflows."
+    ],
+    "rules": [
+      {
+        "name": "The Copper Rarity Rule",
+        "body": "Copper is a signal, not a wash. If more than roughly 10 percent of a product screen is copper, the interface is shouting.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paper Material Rule",
+        "body": "Paper tones should feel like surfaces that hold content. Do not use warm neutrals as filler decoration around unrelated UI.",
+        "section": "colors"
+      },
+      {
+        "name": "The Library Voice Rule",
+        "body": "Serif type is for bookish hierarchy and atmosphere; sans type is for action and comprehension.",
+        "section": "typography"
+      },
+      {
+        "name": "The Lift Has a Job Rule",
+        "body": "Shadows appear because something is interactive, floating, selected, or urgent. Never add soft shadows just to make a section feel designed.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do treat the Landing page as the brand surface for cinematic book storytelling.",
+      "Do preserve the authenticated product interface as a calm, task-first workspace.",
+      "Do use warm paper, copper, serif display type, and physical book details when they clarify the Book Exchange identity.",
+      "Do keep reduced-motion behavior for route transitions, theme changes, and the future scroll story.",
+      "Do let the future 3D book feel materially connected to the existing BookCover language.",
+      "Do use full-bleed scenes, scroll pacing, and asymmetric editorial moments on Landing when they serve the story.",
+      "Do keep forms, tables, nav, errors, empty states, and toasts predictable and accessible."
+    ],
+    "donts": [
+      "Don't make the brand playful, cartoonish, neon, fantasy, or generic SaaS.",
+      "Don't add excessive cards, nested boxes, decorative clutter, loud gradients, mascot-like illustration, or stock startup dashboard visuals.",
+      "Don't turn every Landing section into a tiny uppercase eyebrow plus headline plus identical card grid.",
+      "Don't use template metric blocks as the proof of value; show books, exchange behavior, and atmosphere instead.",
+      "Don't spread cinematic motion into /app/*, auth forms, admin tools, or routine exchange workflows.",
+      "Don't use colored side-stripes or broad ghost-card shadows as new decorative scaffolding.",
+      "Don't let the 3D or scroll-driven experience hide content, trap keyboard users, or fail when reduced motion is enabled."
+    ]
+  }
+}
