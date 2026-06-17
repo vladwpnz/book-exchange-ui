@@ -222,6 +222,53 @@ const en = {
       requestDescription:
         'The book "Maps of Quiet Cities" is with another user until Sunday.',
     },
+    story: {
+      eyebrow: 'Exchange in motion',
+      title: 'A book moves with memory.',
+      description:
+        'Follow one physical copy from catalog entry to temporary share, permanent handoff, and return.',
+      visualLabel: 'Procedural book exchange visualization',
+      stagesLabel: 'Scroll story stages',
+      assistiveListLabel: 'Book Exchange story stages',
+      progressLabel: 'Current stage',
+      fallbackTitle: 'The exchange stays readable.',
+      fallbackDescription:
+        'This static version keeps the same four book movements when animation is unavailable.',
+      fallbackReasons: {
+        reducedMotion:
+          'Motion reduction is on, so the animated story is shown as static content.',
+        webgl:
+          'WebGL is unavailable in this browser, so a static book scene is shown.',
+        weakDevice:
+          'This device is using the lighter static story for stability.',
+        loading: 'Loading the procedural book scene.',
+        error:
+          'The animated scene could not load, so the static story is shown.',
+        notMounted: 'The animated scene will load as this section enters view.',
+      },
+      stages: {
+        add: {
+          title: 'Add',
+          description:
+            'The book rises from the catalog and opens as an owned copy enters the shelf.',
+        },
+        share: {
+          title: 'Share',
+          description:
+            'A temporary copy travels to another reader while the original record stays with its owner.',
+        },
+        give: {
+          title: 'Give',
+          description:
+            'The physical book moves to owner B when the exchange becomes permanent.',
+        },
+        return: {
+          title: 'Return',
+          description:
+            'The book comes back to owner A, closes, and the exchange is resolved.',
+        },
+      },
+    },
     workflow: {
       eyebrow: 'How it works',
       title: 'All book actions in one place.',

@@ -295,6 +295,53 @@ const localizedPl = {
       requestDescription:
         'Książka „Maps of Quiet Cities” jest u innego użytkownika do niedzieli.',
     },
+    story: {
+      eyebrow: 'Wymiana w ruchu',
+      title: 'Książka pamięta swoją drogę.',
+      description:
+        'Śledź jeden fizyczny egzemplarz: od katalogu przez tymczasowe udostępnienie, stałe przekazanie i zwrot.',
+      visualLabel: 'Wizualizacja wymiany proceduralnej książki',
+      stagesLabel: 'Etapy historii przewijania',
+      assistiveListLabel: 'Etapy historii Book Exchange',
+      progressLabel: 'Aktualny etap',
+      fallbackTitle: 'Historia wymiany pozostaje czytelna.',
+      fallbackDescription:
+        'Statyczna wersja zachowuje te same cztery ruchy książki, gdy animacja jest niedostępna.',
+      fallbackReasons: {
+        reducedMotion:
+          'Redukcja ruchu jest włączona, więc historia jest pokazana statycznie.',
+        webgl:
+          'WebGL jest niedostępny w tej przeglądarce, więc pokazano statyczną scenę książki.',
+        weakDevice:
+          'Dla stabilności to urządzenie używa lżejszej statycznej historii.',
+        loading: 'Ładowanie proceduralnej sceny książki.',
+        error:
+          'Nie udało się wczytać animowanej sceny, więc pokazano statyczną historię.',
+        notMounted: 'Animowana scena wczyta się, gdy sekcja wejdzie w obszar widoku.',
+      },
+      stages: {
+        add: {
+          title: 'Dodaj',
+          description:
+            'Książka podnosi się z katalogu i otwiera, gdy właściciel dodaje egzemplarz na półkę.',
+        },
+        share: {
+          title: 'Udostępnij',
+          description:
+            'Tymczasowa kopia przesuwa się do innego czytelnika, a oryginalny zapis zostaje u właściciela.',
+        },
+        give: {
+          title: 'Przekaż',
+          description:
+            'Fizyczna książka trafia do właściciela B, gdy wymiana staje się stała.',
+        },
+        return: {
+          title: 'Zwróć',
+          description:
+            'Książka wraca do właściciela A, zamyka się, a wymiana zostaje rozwiązana.',
+        },
+      },
+    },
     workflow: {
       eyebrow: 'Jak to działa',
       title: 'Wszystkie działania z książkami w jednym miejscu.',

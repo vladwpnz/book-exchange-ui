@@ -24,14 +24,7 @@ function getRouteChunk(normalizedId: string) {
   )?.[1]
 }
 
-function manualChunks(id: string) {
-  const normalizedId = id.replace(/\\/g, '/')
-  const routeChunk = getRouteChunk(normalizedId)
-
-  if (routeChunk) {
-    return routeChunk
-  }
-
+function getDependencyChunk(normalizedId: string) {
   if (!normalizedId.includes('/node_modules/')) {
     return undefined
   }
@@ -45,6 +38,55 @@ function manualChunks(id: string) {
 
   if (normalizedId.includes('/node_modules/react/')) {
     return 'react'
+  }
+
+  if (normalizedId.includes('/node_modules/three/')) {
+    return 'three-core'
+  }
+
+  if (normalizedId.includes('/node_modules/three-stdlib/')) {
+    return 'three-stdlib'
+  }
+
+  if (normalizedId.includes('/node_modules/@react-three/fiber/')) {
+    return 'react-three-fiber'
+  }
+
+  if (normalizedId.includes('/node_modules/@react-three/drei/')) {
+    return 'react-three-drei'
+  }
+
+  if (normalizedId.includes('/node_modules/gsap/')) {
+    return 'gsap'
+  }
+
+  if (normalizedId.includes('/node_modules/maath/')) {
+    return 'maath'
+  }
+
+  if (
+    normalizedId.includes('/node_modules/react-reconciler/') ||
+    normalizedId.includes('/node_modules/use-sync-external-store/')
+  ) {
+    return 'react-rendering-runtime'
+  }
+
+  if (
+    normalizedId.includes('/node_modules/suspend-react/') ||
+    normalizedId.includes('/node_modules/its-fine/') ||
+    normalizedId.includes('/node_modules/zustand/')
+  ) {
+    return 'react-three-runtime'
+  }
+
+  if (
+    normalizedId.includes('/node_modules/meshline/') ||
+    normalizedId.includes('/node_modules/troika-three-text/') ||
+    normalizedId.includes('/node_modules/tunnel-rat/') ||
+    normalizedId.includes('/node_modules/camera-controls/') ||
+    normalizedId.includes('/node_modules/detect-gpu/')
+  ) {
+    return 'react-three-extras'
   }
 
   if (
@@ -68,6 +110,12 @@ function manualChunks(id: string) {
   return undefined
 }
 
+function getChunkName(id: string) {
+  const normalizedId = id.replace(/\\/g, '/')
+
+  return getDependencyChunk(normalizedId) ?? getRouteChunk(normalizedId) ?? null
+}
+
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
@@ -83,9 +131,19 @@ export default defineConfig(({ mode }) => ({
       : undefined,
   ],
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks,
+        codeSplitting: {
+          includeDependenciesRecursively: false,
+          groups: [
+            {
+              name: getChunkName,
+              maxSize: 420_000,
+              priority: 10,
+            },
+          ],
+        },
+        strictExecutionOrder: true,
       },
     },
   },

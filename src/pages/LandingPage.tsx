@@ -7,6 +7,7 @@ import { useAuth } from '../auth/useAuth'
 import { BookCard } from '../components/BookCard'
 import { BookCover } from '../components/BookCover'
 import { Navbar } from '../components/Navbar'
+import { LandingStorySection } from '../features/landing3d/LandingStorySection'
 
 const workflow = [
   {
@@ -34,6 +35,10 @@ export function LandingPage() {
   const primaryLabel = isAuthenticated
     ? t('landing.hero.openShelf')
     : t('common.actions.createAccount')
+  const secondaryHref = isAuthenticated ? '/app/add-book' : '/login'
+  const secondaryLabel = isAuthenticated
+    ? t('landing.hero.addBook')
+    : t('common.actions.login')
   const localizedFeaturedBooks = featuredBooks.map((book) => ({
     ...book,
     genre: t(`landing.featuredBooks.${book.id}.genre`),
@@ -65,15 +70,9 @@ export function LandingPage() {
                   {primaryLabel}
                 </Link>
 
-                {!isAuthenticated ? (
-                  <Link to="/login" className="secondary-action">
-                    {t('common.actions.login')}
-                  </Link>
-                ) : (
-                  <Link to="/app/add-book" className="secondary-action">
-                    {t('landing.hero.addBook')}
-                  </Link>
-                )}
+                <Link to={secondaryHref} className="secondary-action">
+                  {secondaryLabel}
+                </Link>
               </div>
 
               <dl className="mt-8 grid max-w-2xl gap-3 sm:grid-cols-3">
@@ -157,6 +156,17 @@ export function LandingPage() {
             </aside>
           </div>
         </section>
+
+        <LandingStorySection
+          primaryAction={{
+            href: primaryHref,
+            label: primaryLabel,
+          }}
+          secondaryAction={{
+            href: secondaryHref,
+            label: secondaryLabel,
+          }}
+        />
 
         <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
