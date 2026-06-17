@@ -5,7 +5,8 @@ import { repositoryLinks } from '../api/links'
 import { featuredBooks } from '../api/mockLibrary'
 import { useAuth } from '../auth/useAuth'
 import { BookCard } from '../components/BookCard'
-import { BookCover } from '../components/BookCover'
+import { HeroLibraryPreview } from '../components/HeroLibraryPreview'
+import { HeroStoryBridge } from '../components/HeroStoryBridge'
 import { Navbar } from '../components/Navbar'
 import { LandingStorySection } from '../features/landing3d/LandingStorySection'
 
@@ -50,7 +51,7 @@ export function LandingPage() {
       <Navbar />
 
       <main>
-        <section className="relative overflow-hidden border-b border-[var(--color-border)]">
+        <section className="relative overflow-hidden">
           <div className="mx-auto grid max-w-7xl gap-8 px-4 py-8 sm:px-6 md:py-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.75fr)] lg:items-center lg:px-8">
             <div className="max-w-3xl">
               <p className="text-sm font-bold tracking-[0.16em] text-[var(--color-accent)]">
@@ -105,57 +106,11 @@ export function LandingPage() {
               </dl>
             </div>
 
-            <aside
-              className="relative min-h-[25rem] overflow-hidden rounded-[0.75rem] border border-[var(--color-border)] bg-[var(--color-paper)] p-4 shadow-[var(--shadow-restraint)] sm:p-5"
-              aria-label={t('landing.preview.ariaLabel')}
-            >
-              <div className="brand-ribbon absolute inset-x-0 top-0 h-1" />
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-bold tracking-[0.16em] text-[var(--color-accent)]">
-                    {t('landing.preview.eyebrow')}
-                  </p>
-                  <h2 className="mt-2 font-[var(--font-display)] text-3xl font-semibold text-[var(--color-ink)]">
-                    {t('landing.preview.title')}
-                  </h2>
-                </div>
-                <span className="rounded-full border border-[var(--color-status-success-border)] bg-[var(--color-status-success-bg)] px-3 py-1 text-xs font-bold text-[var(--color-status-success-text)]">
-                  {t('landing.preview.badge')}
-                </span>
-              </div>
-
-              <div className="mt-8 flex items-end justify-center gap-3 sm:gap-4">
-                {localizedFeaturedBooks.map((book, index) => (
-                  <BookCover
-                    key={book.id}
-                    title={book.title}
-                    author={book.author}
-                    genre={book.genre}
-                    tone={book.tone}
-                    size={index === 1 ? 'hero' : 'lg'}
-                    className={index === 0 ? 'rotate-[-5deg]' : index === 2 ? 'rotate-[5deg]' : ''}
-                  />
-                ))}
-              </div>
-
-              <div className="mt-8 rounded-[0.7rem] border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-bold text-[var(--color-ink)]">
-                      {t('landing.preview.requestTitle')}
-                    </p>
-                    <p className="mt-1 text-sm text-[var(--color-muted)]">
-                      {t('landing.preview.requestDescription')}
-                    </p>
-                  </div>
-                  <Link to="/app/share-book" className="secondary-action min-h-0 px-3 py-2 text-sm">
-                    {t('common.actions.openShare')}
-                  </Link>
-                </div>
-              </div>
-            </aside>
+            <HeroLibraryPreview />
           </div>
         </section>
+
+        <HeroStoryBridge />
 
         <LandingStorySection
           primaryAction={{

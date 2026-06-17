@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useRef } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -27,6 +27,10 @@ type LandingStorySectionProps = {
   secondaryAction: LandingStoryAction
 }
 
+type LandingStoryActionsProps = LandingStorySectionProps & {
+  className?: string
+}
+
 const fallbackReasonKeys = {
   'reduced-motion': 'landing.story.fallbackReasons.reducedMotion',
   webgl: 'landing.story.fallbackReasons.webgl',
@@ -39,6 +43,10 @@ export function LandingStorySection({
 }: LandingStorySectionProps) {
   const { t } = useTranslation()
   const storyRef = useRef<HTMLElement | null>(null)
+  const copyRef = useRef<HTMLDivElement | null>(null)
+  const [introVisible, setIntroVisible] = useState(
+    () => typeof IntersectionObserver === 'undefined',
+  )
   const prefersReducedMotion = useReducedMotion()
   const quality = useAdaptiveQuality(prefersReducedMotion)
   const scrollState = useScrollProgress(storyRef, !prefersReducedMotion)
@@ -46,6 +54,36 @@ export function LandingStorySection({
     storyRef,
     quality.shouldUseCanvas && !prefersReducedMotion,
   )
+  useEffect(() => {
+    const copy = copyRef.current
+
+    if (
+      prefersReducedMotion ||
+      !copy ||
+      typeof IntersectionObserver !== 'function'
+    ) {
+      return undefined
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) {
+          return
+        }
+
+        setIntroVisible(true)
+        observer.disconnect()
+      },
+      {
+        rootMargin: '0px 0px -18%',
+        threshold: 0.24,
+      },
+    )
+
+    observer.observe(copy)
+
+    return () => observer.disconnect()
+  }, [prefersReducedMotion])
   const activeStage = getActiveLandingStoryStage(scrollState.progress)
   const fallbackReason = quality.fallbackReason
     ? t(fallbackReasonKeys[quality.fallbackReason])
@@ -113,17 +151,28 @@ export function LandingStorySection({
     >
       <div className="landing-story__scroll-track">
         <div className="landing-story__sticky">
-          <div className="landing-story__copy">
-            <p className="landing-story__eyebrow">{t('landing.story.eyebrow')}</p>
-            <h2 id="landing-story-heading" className="landing-story__title">
+          <div
+            ref={copyRef}
+            className="landing-story__copy"
+            data-intro-visible={
+              prefersReducedMotion || introVisible ? 'true' : 'false'
+            }
+          >
+            <p className="landing-story__eyebrow landing-story__reveal landing-story__reveal--eyebrow">
+              {t('landing.story.eyebrow')}
+            </p>
+            <h2
+              id="landing-story-heading"
+              className="landing-story__title landing-story__reveal landing-story__reveal--title"
+            >
               {t('landing.story.title')}
             </h2>
-            <p className="landing-story__description">
+            <p className="landing-story__description landing-story__reveal landing-story__reveal--description">
               {t('landing.story.description')}
             </p>
 
             <ol
-              className="landing-story__stage-list"
+              className="landing-story__stage-list landing-story__reveal landing-story__reveal--stages"
               aria-label={t('landing.story.stagesLabel')}
             >
               {stageCopy.map((stage) => (
@@ -144,6 +193,7 @@ export function LandingStorySection({
             <LandingStoryActions
               primaryAction={primaryAction}
               secondaryAction={secondaryAction}
+              className="landing-story__reveal landing-story__reveal--actions"
             />
           </div>
 
@@ -227,9 +277,10 @@ export function LandingStorySection({
 function LandingStoryActions({
   primaryAction,
   secondaryAction,
-}: LandingStorySectionProps) {
+  className,
+}: LandingStoryActionsProps) {
   return (
-    <div className="landing-story__actions">
+    <div className={['landing-story__actions', className].filter(Boolean).join(' ')}>
       <Link to={primaryAction.href} className="primary-action">
         {primaryAction.label}
       </Link>
