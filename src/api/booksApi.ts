@@ -228,16 +228,6 @@ type BookMappingOptions = {
   fallbackStatus: BookStatus
 }
 
-export function isOwnedBooksPayload(data: unknown) {
-  try {
-    getBooksData(data, i18n.t('myBooks.header.title'))
-
-    return true
-  } catch {
-    return false
-  }
-}
-
 function toCreatedBook(data: unknown): CreatedBook {
   if (!isRecord(data)) {
     throw new Error(i18n.t('api.books.addedBookUnread'))

@@ -7,6 +7,7 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { changeAppLanguage } from '../i18n/i18n'
 import {
   defaultLanguage,
   getLanguageMetadata,
@@ -181,7 +182,7 @@ export function LanguageSelector({
 
   const handleLanguageChange = (language: SupportedLanguage) => {
     if (language !== currentLanguage) {
-      void i18n.changeLanguage(language)
+      void changeAppLanguage(language)
     }
 
     setIsOpen(false)

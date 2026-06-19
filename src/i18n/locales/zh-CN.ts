@@ -294,6 +294,53 @@ const localizedZhCN = {
       requestDescription:
         '《Maps of Quiet Cities》这本书在另一位用户那里，直到周日。',
     },
+    story: {
+      eyebrow: '流转中的交换',
+      title: '一本书带着路径移动。',
+      description:
+        '跟随一个实体副本，从加入目录到临时共享、永久转赠，再到归还。',
+      visualLabel: '程序化图书交换可视化',
+      stagesLabel: '滚动故事阶段',
+      assistiveListLabel: 'Book Exchange 故事阶段',
+      progressLabel: '当前阶段',
+      fallbackTitle: '交换故事仍然可读。',
+      fallbackDescription:
+        '当动画不可用时，静态版本会保留同样的四个图书动作。',
+      fallbackReasons: {
+        reducedMotion:
+          '已开启减少动态效果，因此故事以静态内容显示。',
+        webgl:
+          '此浏览器无法使用 WebGL，因此显示静态图书场景。',
+        weakDevice:
+          '为了保持稳定，此设备使用更轻量的静态故事。',
+        loading: '正在加载程序化图书场景。',
+        error:
+          '动画场景无法加载，因此显示静态故事。',
+        notMounted: '当此区域进入视口时，动画场景会开始加载。',
+      },
+      stages: {
+        add: {
+          title: '添加',
+          description:
+            '书从目录中升起并打开，表示所有者将副本加入书架。',
+        },
+        share: {
+          title: '共享',
+          description:
+            '临时副本移动到另一位读者那里，而原始记录仍留在所有者名下。',
+        },
+        give: {
+          title: '转赠',
+          description:
+            '当交换变为永久时，实体书移动到所有者 B。',
+        },
+        return: {
+          title: '归还',
+          description:
+            '书回到所有者 A，合上，交换也随之完成。',
+        },
+      },
+    },
     workflow: {
       eyebrow: '如何使用',
       title: '所有图书操作都在一个地方。',
