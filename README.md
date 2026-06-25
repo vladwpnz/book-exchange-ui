@@ -655,7 +655,7 @@ The main content remains available when WebGL is unavailable or reduced motion i
 
 ## Author
 
-### Vlad Spiridonov
+### Vladyslav Spyrydonov
 
 Junior Software Developer focused on full-stack development, backend APIs, frontend applications and automated testing.
 
